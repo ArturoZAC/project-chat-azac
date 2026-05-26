@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  // provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN 
+}
+
+model EmailVerification {
+  id        String   @id @default(uuid())
+  token     String   @unique @db.Text
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("email_verifications")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  token     String   @unique @db.Text
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("password_resets")
+}
+
+model User {
+  id                  String    @id             @default(uuid())
+  username            String    @unique
+  email               String    @unique
+  passwordHash        String    @db.Text        @map("password_hash")
+  avatarUrl           String?   @db.Text        @map("avatar_url")
+  role                Role      @default(USER)
+  isOnline            Boolean   @default(false) @map("is_online")
+  isEmailVerified     Boolean   @default(false) @map("is_email_verified")
+  lastSentAt          DateTime?                 @map("last_sent_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt      @map("updated_at")
+
+  channelsCreated     Channel[]           @relation("ChannelCreator")
+  memberships         ChannelMember[]
+  messages            Message[]
+  messageReads        MessageRead[]
+  emailVerifications  EmailVerification[]
+  passwordResets      PasswordReset[]
+
+  @@map("users")
+}
+
+model Channel {
+  id              String    @id                         @default(uuid())
+  name            String    @unique
+  description     String?   @db.Text
+  isPrivate       Boolean   @default(false)             @map("is_private")
+  createdAt       DateTime  @default(now())             @map("created_at")
+  updatedAt       DateTime  @updatedAt                  @map("updated_at")
+
+  createdById     String    @map("created_by_id")
+  createdBy       User      @relation("ChannelCreator", fields: [createdById], references: [id])
+
+  members         ChannelMember[]
+  messages        Message[]
+
+  @@index([createdById])
+  @@map("channels")
+}
+
+model ChannelMember {
+  id                   String    @id               @default(uuid())
+  role                 Role      @default(USER)
+  joinedAt             DateTime  @default(now())   @map("joined_at")
+  lastReadAt           DateTime? @map("last_read_at")
+
+  channelId            String    @map("channel_id")
+  channel              Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  userId               String    @map("user_id")
+  user                 User      @relation(fields: [userId],    references: [id], onDelete: Cascade)
+
+  @@unique([channelId, userId])
+  @@index([channelId])
+  @@index([userId])
+
+  @@map("channel_members")
+}
+
+model Message {
+  id              String      @id                        @default(uuid())
+  content         String      @db.Text
+  isEdited        Boolean     @default(false)            @map("is_edited")
+  editedAt        DateTime?   @map("edited_at")
+  createdAt       DateTime    @default(now())            @map("created_at")
+
+  channelId       String      @map("channel_id")
+  channel         Channel     @relation(fields:          [channelId], references: [id],       onDelete: Cascade)
+
+  senderId        String      @map("sender_id")
+  sender          User        @relation(fields:          [senderId],  references: [id])
+
+  parentId        String?     @map("parent_id")
+  parent          Message?    @relation("MessageThread", fields:      [parentId], references: [id],     onDelete: SetNull)
+  replies         Message[]   @relation("MessageThread")
+
+  reads           MessageRead[]
+
+  @@index([channelId])
+  @@index([senderId])
+  @@index([parentId])
+  @@map("messages")
+}
+
+
+model MessageRead {
+  id                   String   @id               @default(uuid())
+  readAt               DateTime @default(now())   @map("read_at")
+  messageId            String   @map("message_id")
+  message              Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId               String   @map("user_id")
+  user                 User     @relation(fields: [userId],    references: [id])
+
+  @@unique([messageId, userId])
+  @@index([userId])
+  @@map("message_reads")
+}
+
+

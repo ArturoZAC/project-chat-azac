@@ -1,0 +1,68 @@
+# ─── Dependencies ───────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build outputs ──────────────────────────────────────────
+dist/
+build/
+out/
+
+# ─── NestJS ─────────────────────────────────────────────────
+backend/dist/
+backend/node_modules/
+
+# ─── React / Vite ───────────────────────────────────────────
+frontend/dist/
+frontend/node_modules/
+frontend/.vite/
+
+# ─── Environment variables ──────────────────────────────────
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+# Dejar el template como referencia
+!.env.template
+
+# ─── Logs ───────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Prisma ─────────────────────────────────────────────────
+backend/prisma/migrations/dev.db
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# ─── OS ─────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ─── IDE / Editors ──────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─── Testing ────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Misc ───────────────────────────────────────────────────
+.cache/
+.turbo/
+.eslintcache
+*.tsbuildinfo
