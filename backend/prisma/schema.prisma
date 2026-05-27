@@ -56,7 +56,7 @@ model User {
   role                Role      @default(USER)
   isOnline            Boolean   @default(false) @map("is_online")
   isEmailVerified     Boolean   @default(false) @map("is_email_verified")
-  lastSentAt          DateTime?                 @map("last_sent_at")
+  lastSeenAt          DateTime?                 @map("last_seen_at")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt      @map("updated_at")
 
