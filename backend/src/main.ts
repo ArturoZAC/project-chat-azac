@@ -36,10 +36,9 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // app.useGlobalInterceptors(new ResponseInterceptor());
-  const logger = app.get(WINSTON_MODULE_PROVIDER);
+  // const logger = app.get(WINSTON_MODULE_PROVIDER);
   app.useGlobalInterceptors(
-    new LoggingInterceptor(logger),
+    new LoggingInterceptor(winstonLogger),
     new ResponseInterceptor(),
   );
 

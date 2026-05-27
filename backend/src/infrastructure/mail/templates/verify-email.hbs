@@ -1,0 +1,30 @@
+{{! src/infrastructure/mail/templates/verify-email.hbs }}
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /></head>
+  <body style="font-family: sans-serif; padding: 20px;">
+    <h2>Hola, {{username}} 👋</h2>
+    <p>Gracias por registrarte en <strong>Chat AZAC</strong>.</p>
+    <p>Haz clic en el botón para verificar tu cuenta:</p>
+    
+      href="{{url}}"
+      style="
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #4f46e5;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        margin-top: 8px;
+      "
+    >
+      Verificar cuenta
+    </a>
+    <p style="margin-top: 16px; color: #6b7280; font-size: 14px;">
+      Este enlace expira en <strong>24 horas</strong>.
+    </p>
+    <p style="color: #6b7280; font-size: 14px;">
+      Si no creaste esta cuenta, ignora este correo.
+    </p>
+  </body>
+</html>

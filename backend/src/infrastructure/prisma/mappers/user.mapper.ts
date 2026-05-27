@@ -33,4 +33,20 @@ export class UserMapper {
       updatedAt: user.updatedAt,
     };
   }
+
+  static toResponse(user: UserEntity) {
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      avatarUrl: user.avatarUrl,
+      role: user.role,
+      isOnline: user.isOnline,
+      isEmailVerified: user.isEmailVerified,
+      lastSeenAt: user.lastSeenAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
 }

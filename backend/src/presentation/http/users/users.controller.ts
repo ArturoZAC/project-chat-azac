@@ -15,6 +15,7 @@ import { DeleteUserUseCase } from '../../../application/use-cases/users/delete-u
 import { GetUsersDto } from './dtos/get-users.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
+import { UserMapper } from '../../../infrastructure/prisma/mappers/user.mapper';
 
 @Controller('users')
 export class UsersController {
@@ -27,14 +28,20 @@ export class UsersController {
 
   @Get()
   async getUsers(@Query() query: GetUsersDto) {
-    const data = await this.getUsersUseCase.execute(query);
-    return ResponseInterceptor.success(data, 'Usuarios obtenidos exitosamente');
+    const result = await this.getUsersUseCase.execute(query);
+    return ResponseInterceptor.success(
+      { ...result, data: result.data.map(UserMapper.toResponse) },
+      'Usuarios obtenidos exitosamente',
+    );
   }
 
   @Get(':id')
   async getUser(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.getUserUseCase.execute(id);
-    return ResponseInterceptor.success(data, 'Usuario obtenido exitosamente');
+    return ResponseInterceptor.success(
+      UserMapper.toResponse(data),
+      'Usuario obtenido exitosamente',
+    );
   }
 
   @Patch(':id')
@@ -44,7 +51,7 @@ export class UsersController {
   ) {
     const data = await this.updateUserUseCase.execute({ id, ...dto });
     return ResponseInterceptor.success(
-      data,
+      UserMapper.toResponse(data),
       'Usuario actualizado exitosamente',
     );
   }
