@@ -1,5 +1,6 @@
 import { PasswordReset as PrismaPasswordReset } from '../../../../generated/prisma';
 import { PasswordResetEntity } from '../../../domain/entities/password-reset.entity';
+import { CreatePasswordResetData } from '../../../domain/repositories/password-reset.repository';
 
 export class PasswordResetMapper {
   static toDomain(prisma: PrismaPasswordReset): PasswordResetEntity {
@@ -21,6 +22,14 @@ export class PasswordResetMapper {
       usedAt: entity.usedAt,
       createdAt: entity.createdAt,
       userId: entity.userId,
+    };
+  }
+
+  static toCreatePrisma(data: CreatePasswordResetData) {
+    return {
+      token: data.token,
+      expiresAt: data.expiresAt,
+      userId: data.userId,
     };
   }
 }

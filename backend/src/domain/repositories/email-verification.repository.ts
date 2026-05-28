@@ -1,8 +1,14 @@
 import { EmailVerificationEntity } from '../entities/email-verification.entity';
 
+export interface CreateEmailVerificationData {
+  token: string;
+  expiresAt: Date;
+  userId: string;
+}
+
 export abstract class EmailVerificationRepository {
   abstract create(
-    emailVerification: EmailVerificationEntity,
+    data: CreateEmailVerificationData,
   ): Promise<EmailVerificationEntity>;
   abstract findByToken(token: string): Promise<EmailVerificationEntity | null>;
   abstract findByUserId(

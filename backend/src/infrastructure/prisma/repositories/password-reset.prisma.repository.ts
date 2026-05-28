@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { PasswordResetRepository } from '../../../domain/repositories/password-reset.repository';
+import {
+  CreatePasswordResetData,
+  PasswordResetRepository,
+} from '../../../domain/repositories/password-reset.repository';
 import { PasswordResetEntity } from '../../../domain/entities/password-reset.entity';
 import { PasswordResetMapper } from '../mappers/password-reset.mapper';
 
@@ -8,9 +11,16 @@ import { PasswordResetMapper } from '../mappers/password-reset.mapper';
 export class PasswordResetPrismaRepository implements PasswordResetRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(entity: PasswordResetEntity): Promise<PasswordResetEntity> {
+  // async create(entity: PasswordResetEntity): Promise<PasswordResetEntity> {
+  //   const created = await this.prisma.passwordReset.create({
+  //     data: PasswordResetMapper.toPrisma(entity),
+  //   });
+  //   return PasswordResetMapper.toDomain(created);
+  // }
+
+  async create(data: CreatePasswordResetData): Promise<PasswordResetEntity> {
     const created = await this.prisma.passwordReset.create({
-      data: PasswordResetMapper.toPrisma(entity),
+      data: PasswordResetMapper.toCreatePrisma(data),
     });
     return PasswordResetMapper.toDomain(created);
   }

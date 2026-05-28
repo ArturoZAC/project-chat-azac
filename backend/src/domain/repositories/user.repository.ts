@@ -1,3 +1,4 @@
+import { RegisterDto } from '../../presentation/http/auth/dtos/register.dto';
 import { UserEntity } from '../entities/user.entity';
 
 export interface PaginationParams {
@@ -20,7 +21,10 @@ export abstract class UserRepository {
   abstract findAll(
     params: PaginationParams,
   ): Promise<PaginatedResult<UserEntity>>;
-  abstract create(user: UserEntity): Promise<UserEntity>;
+  // abstract create(user: UserEntity): Promise<UserEntity>;
+  abstract create(
+    dto: RegisterDto & { passwordHash: string },
+  ): Promise<UserEntity>;
   abstract update(user: UserEntity): Promise<UserEntity>;
   abstract delete(id: string): Promise<void>;
 }

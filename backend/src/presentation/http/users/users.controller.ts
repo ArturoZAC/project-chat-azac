@@ -7,6 +7,7 @@ import {
   Body,
   Query,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { GetUsersUseCase } from '../../../application/use-cases/users/get-users.usecase';
 import { GetUserUseCase } from '../../../application/use-cases/users/get-user.usecase';
@@ -16,6 +17,11 @@ import { GetUsersDto } from './dtos/get-users.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
 import { UserMapper } from '../../../infrastructure/prisma/mappers/user.mapper';
+// import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+// import { RolesGuard } from '../guards/roles.guard';
+import { Role } from '../../../domain/entities/user.entity';
+// import { Roles } from '../decorators/roles.decorator';
+import { Auth } from '../decorators/auth.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -27,6 +33,9 @@ export class UsersController {
   ) {}
 
   @Get()
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.ADMIN)
+  @Auth(Role.ADMIN)
   async getUsers(@Query() query: GetUsersDto) {
     const result = await this.getUsersUseCase.execute(query);
     return ResponseInterceptor.success(

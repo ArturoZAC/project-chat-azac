@@ -7,6 +7,7 @@ import {
 } from '../../../domain/repositories/user.repository';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import { UserMapper } from '../mappers/user.mapper';
+import { RegisterDto } from '../../../presentation/http/auth/dtos/register.dto';
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
@@ -50,9 +51,18 @@ export class UserPrismaRepository implements UserRepository {
     };
   }
 
-  async create(user: UserEntity): Promise<UserEntity> {
+  // async create(user: UserEntity): Promise<UserEntity> {
+  //   const created = await this.prisma.user.create({
+  //     data: UserMapper.toPrisma(user),
+  //   });
+  //   return UserMapper.toDomain(created);
+  // }
+
+  async create(
+    dto: RegisterDto & { passwordHash: string },
+  ): Promise<UserEntity> {
     const created = await this.prisma.user.create({
-      data: UserMapper.toPrisma(user),
+      data: UserMapper.toCreatePrisma(dto),
     });
     return UserMapper.toDomain(created);
   }

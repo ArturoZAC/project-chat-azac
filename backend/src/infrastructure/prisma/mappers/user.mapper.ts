@@ -1,3 +1,4 @@
+import { RegisterDto } from '../../../presentation/http/auth/dtos/register.dto';
 import { User as PrismaUser } from '../../../../generated/prisma/client.js';
 import { UserEntity, Role } from '../../../domain/entities/user.entity';
 
@@ -31,6 +32,14 @@ export class UserMapper {
       lastSeenAt: user.lastSeenAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  static toCreatePrisma(dto: RegisterDto & { passwordHash: string }) {
+    return {
+      username: dto.username,
+      email: dto.email,
+      passwordHash: dto.passwordHash,
     };
   }
 

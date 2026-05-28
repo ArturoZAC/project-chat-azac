@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { EmailVerificationRepository } from '../../../domain/repositories/email-verification.repository';
+import {
+  CreateEmailVerificationData,
+  EmailVerificationRepository,
+} from '../../../domain/repositories/email-verification.repository';
+// import { CreateEmailVerificationData } from '../../../domain/repositories/email-verification.repository';
+
 import { EmailVerificationEntity } from '../../../domain/entities/email-verification.entity';
 import { EmailVerificationMapper } from '../mappers/email-verification.mapper';
 
@@ -8,11 +13,20 @@ import { EmailVerificationMapper } from '../mappers/email-verification.mapper';
 export class EmailVerificationPrismaRepository implements EmailVerificationRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  // async create(
+  //   entity: EmailVerificationEntity,
+  // ): Promise<EmailVerificationEntity> {
+  //   const created = await this.prisma.emailVerification.create({
+  //     data: EmailVerificationMapper.toPrisma(entity),
+  //   });
+  //   return EmailVerificationMapper.toDomain(created);
+  // }
+
   async create(
-    entity: EmailVerificationEntity,
+    data: CreateEmailVerificationData,
   ): Promise<EmailVerificationEntity> {
     const created = await this.prisma.emailVerification.create({
-      data: EmailVerificationMapper.toPrisma(entity),
+      data: EmailVerificationMapper.toCreatePrisma(data),
     });
     return EmailVerificationMapper.toDomain(created);
   }
