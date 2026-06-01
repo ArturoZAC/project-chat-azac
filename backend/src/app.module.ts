@@ -4,12 +4,22 @@ import { LoggerModule } from './infrastructure/logger/logger.module';
 import { UsersModule } from './presentation/http/users/users.module';
 import { MailModule } from './infrastructure/mail/mail.module';
 import { AuthModule } from './presentation/http/auth/auth.module';
+import { ChannelsModule } from './presentation/http/channels/channels.module';
+import { MessagesModule } from './presentation/http/messages/messages.module';
 // import { APP_INTERCEPTOR } from '@nestjs/core/constants';
 // import { LoggingInterceptor } from './presentation/interceptors/logging.interceptor';
 // import { ResponseInterceptor } from './presentation/interceptors/response.interceptor';
 
 @Module({
   // imports: [PrismaModule, UsersModule, LoggerModule],
-  imports: [PrismaModule, LoggerModule, MailModule, UsersModule, AuthModule],
+  imports: [
+    PrismaModule,
+    LoggerModule,
+    MailModule,
+    UsersModule,
+    AuthModule,
+    ChannelsModule,
+    MessagesModule,
+  ],
 })
 export class AppModule {}

@@ -47,6 +47,24 @@ export class ResponseInterceptor<T> implements NestInterceptor<
           message: 'OK',
         };
       }),
+
+      // map((response) => {
+      //   console.log('INTERCEPTOR RESPONSE:', JSON.stringify(response));
+
+      //   if (response && 'data' in response && 'message' in response) {
+      //     const { message, ...rest } = response;
+      //     return {
+      //       success: true,
+      //       data: Object.keys(rest).length === 1 ? rest.data : rest,
+      //       message,
+      //     };
+      //   }
+      //   return {
+      //     success: true,
+      //     data: response,
+      //     message: 'OK',
+      //   };
+      // }),
     );
   }
 }

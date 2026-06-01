@@ -33,8 +33,6 @@ export class UsersController {
   ) {}
 
   @Get()
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
   @Auth(Role.ADMIN)
   async getUsers(@Query() query: GetUsersDto) {
     const result = await this.getUsersUseCase.execute(query);
@@ -44,6 +42,7 @@ export class UsersController {
     );
   }
 
+  @Auth()
   @Get(':id')
   async getUser(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.getUserUseCase.execute(id);
@@ -53,6 +52,7 @@ export class UsersController {
     );
   }
 
+  @Auth()
   @Patch(':id')
   async updateUser(
     @Param('id', ParseUUIDPipe) id: string,
@@ -65,6 +65,7 @@ export class UsersController {
     );
   }
 
+  @Auth(Role.ADMIN)
   @Delete(':id')
   async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     await this.deleteUserUseCase.execute(id);

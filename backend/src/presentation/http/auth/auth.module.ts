@@ -16,12 +16,14 @@ import { PasswordResetRepository } from '../../../domain/repositories/password-r
 import { PasswordResetPrismaRepository } from '../../../infrastructure/prisma/repositories/password-reset.prisma.repository';
 import { JwtStrategy } from '../../../infrastructure/auth/jwt.strategy';
 import { envs } from '../../../config/envs';
+import { PassportModule } from '@nestjs/passport';
 
 @Global()
 @Module({
   imports: [
     PrismaModule,
     MailModule,
+    PassportModule,
     JwtModule.register({
       secret: envs.JWT_SECRET,
       signOptions: { expiresIn: envs.JWT_EXPIRES_IN as any },
@@ -45,6 +47,6 @@ import { envs } from '../../../config/envs';
       useClass: PasswordResetPrismaRepository,
     },
   ],
-  exports: [JwtModule],
+  exports: [JwtModule, PassportModule],
 })
 export class AuthModule {}
