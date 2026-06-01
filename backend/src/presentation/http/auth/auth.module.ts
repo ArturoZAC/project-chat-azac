@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { RegisterUseCase } from '../../../application/use-cases/auth/register.usecase';
@@ -17,6 +17,7 @@ import { PasswordResetPrismaRepository } from '../../../infrastructure/prisma/re
 import { JwtStrategy } from '../../../infrastructure/auth/jwt.strategy';
 import { envs } from '../../../config/envs';
 
+@Global()
 @Module({
   imports: [
     PrismaModule,

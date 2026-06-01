@@ -18,16 +18,16 @@ export class LoginUseCase {
 
   async execute(dto: LoginDto): Promise<LoginResult> {
     const user = await this.userRepo.findByEmail(dto.email);
-    if (!user) throw new UnauthorizedException('Credenciales inválidas');
+    if (!user) throw new UnauthorizedException('Invalid Email');
 
     const isValid = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!isValid) throw new UnauthorizedException('Credenciales inválidas');
+    if (!isValid) throw new UnauthorizedException('Invalid Password');
 
     if (!user.isEmailVerified)
-      throw new UnauthorizedException('Debes verificar tu email primero');
+      throw new UnauthorizedException('You must verify your email first');
 
     const token = this.jwtService.sign({
-      sub: user.id,
+      id: user.id,
       email: user.email,
     });
 

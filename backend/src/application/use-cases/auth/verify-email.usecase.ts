@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { EmailVerificationRepository } from '../../../domain/repositories/email-verification.repository';
-import { VerifyEmailDto } from '../../../presentation/http/auth/dtos/verify-email.dto';
+import { VerifyEmailDto } from './verify-email.dto';
 
 @Injectable()
 export class VerifyEmailUseCase {

@@ -6,7 +6,7 @@ import { envs } from '../../config/envs';
 import { Request } from 'express';
 
 export interface JwtPayload {
-  sub: string;
+  id: string;
   email: string;
 }
 
@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.userRepo.findById(payload.sub);
+    const user = await this.userRepo.findById(payload.id);
     if (!user) throw new UnauthorizedException('Usuario no encontrado');
     return user;
   }
