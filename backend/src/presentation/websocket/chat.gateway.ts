@@ -1,0 +1,255 @@
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
+import { UserRepository } from '../../domain/repositories/user.repository';
+import { MessageRepository } from '../../domain/repositories/message.repository';
+import { ChannelMemberRepository } from '../../domain/repositories/channel-member.repository';
+import { MessageMapper } from '../../infrastructure/prisma/mappers/message.mapper';
+import { UserMapper } from '../../infrastructure/prisma/mappers/user.mapper';
+import { envs } from 'src/config/envs';
+
+@WebSocketGateway({
+  cors: {
+    origin: envs.CLIENT_URL,
+    credentials: true,
+  },
+})
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  @WebSocketServer()
+  server: Server;
+
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userRepo: UserRepository,
+    private readonly messageRepo: MessageRepository,
+    private readonly channelMemberRepo: ChannelMemberRepository,
+  ) {}
+
+  // private async getUserFromSocket(client: Socket) {
+  //   try {
+  //     const token =
+  //       client.handshake.auth?.token ||
+  //       client.handshake.headers?.authorization?.split(' ')[1];
+  //     if (!token) return null;
+  //     const payload = this.jwtService.verify(token);
+  //     return await this.userRepo.findById(payload.id);
+  //   } catch {
+  //     return null;
+  //   }
+  // }
+
+  private async getUserFromSocket(client: Socket) {
+    try {
+      const cookieHeader = client.handshake.headers?.cookie;
+      // console.log('COOKIE HEADER:', cookieHeader);
+
+      if (!cookieHeader) return null;
+
+      const cookies = Object.fromEntries(
+        cookieHeader.split(';').map((c) => {
+          const [key, ...val] = c.trim().split('=');
+          return [key, val.join('=')];
+        }),
+      );
+
+      // console.log('PARSED COOKIES:', cookies);
+
+      const token = cookies['token'];
+      // console.log('TOKEN:', token);
+
+      if (!token) return null;
+
+      const payload = this.jwtService.verify(token);
+      // console.log('PAYLOAD:', payload);
+
+      return await this.userRepo.findById(payload.id);
+    } catch (e) {
+      // console.log('ERROR:', e);
+      return null;
+    }
+  }
+
+  async handleConnection(client: Socket) {
+    // console.log('CLIENT CONNECTED:', client.id);
+    // console.log('HANDSHAKE HEADERS:', client.handshake.headers);
+    // console.log('HANDSHAKE AUTH:', client.handshake.auth);
+    const user = await this.getUserFromSocket(client);
+    // console.log('USER FROM SOCKET:', user);
+    if (!user) {
+      // console.log('NO USER FOUND - DISCONNECTING');
+      client.disconnect();
+      return;
+    }
+
+    client.data.user = user;
+    client.join(`user:${user.id}`);
+
+    await this.userRepo.update({
+      ...user,
+      isOnline: true,
+      lastSeenAt: new Date(),
+    });
+
+    this.server.emit('user.online', {
+      userId: user.id,
+      username: user.username,
+    });
+  }
+
+  async handleDisconnect(client: Socket) {
+    const user = client.data.user;
+    if (!user) return;
+
+    await this.userRepo.update({
+      ...user,
+      isOnline: false,
+      lastSeenAt: new Date(),
+    });
+
+    this.server.emit('user.offline', {
+      userId: user.id,
+      username: user.username,
+      lastSeenAt: new Date(),
+    });
+  }
+
+  // @SubscribeMessage('channel.join')
+  // async handleJoinChannel(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() data: { channelId: string },
+  // ) {
+  //   const user = client.data.user;
+  //   if (!user) return;
+
+  //   const member = await this.channelMemberRepo.findByChannelAndUser(
+  //     data.channelId,
+  //     user.id,
+  //   );
+  //   if (!member) return;
+
+  //   client.join(`channel:${data.channelId}`);
+
+  //   this.server.to(`channel:${data.channelId}`).emit('channel.joined', {
+  //     channelId: data.channelId,
+  //     userId: user.id,
+  //     username: user.username,
+  //   });
+  // }
+
+  @SubscribeMessage('channel.join')
+  async handleJoinChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { channelId: string },
+  ) {
+    const user = client.data.user;
+    // console.log(
+    //   'CHANNEL JOIN - user:',
+    //   user?.username,
+    //   'channelId:',
+    //   data.channelId,
+    // );
+
+    if (!user) {
+      // console.log('NO USER');
+      return;
+    }
+
+    const member = await this.channelMemberRepo.findByChannelAndUser(
+      data.channelId,
+      user.id,
+    );
+    // console.log('MEMBER:', member);
+
+    if (!member) {
+      // console.log('NOT A MEMBER');
+      return;
+    }
+
+    client.join(`channel:${data.channelId}`);
+    // console.log('JOINED ROOM:', `channel:${data.channelId}`);
+    // console.log('ROOMS:', client.rooms);
+
+    this.server.to(`channel:${data.channelId}`).emit('channel.joined', {
+      channelId: data.channelId,
+      userId: user.id,
+      username: user.username,
+    });
+    // console.log('EMITTED channel.joined');
+  }
+
+  @SubscribeMessage('message.send')
+  async handleSendMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: { channelId: string; content: string; parentId?: string },
+  ) {
+    const user = client.data.user;
+    if (!user) return;
+
+    const member = await this.channelMemberRepo.findByChannelAndUser(
+      data.channelId,
+      user.id,
+    );
+    if (!member) return;
+
+    const message = await this.messageRepo.create({
+      content: data.content,
+      channelId: data.channelId,
+      senderId: user.id,
+      parentId: data.parentId ?? null,
+    });
+
+    this.server.to(`channel:${data.channelId}`).emit('message.sent', {
+      ...MessageMapper.toResponse(message),
+      sender: UserMapper.toResponse(user),
+    });
+  }
+
+  @SubscribeMessage('message.edit')
+  async handleEditMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { messageId: string; content: string },
+  ) {
+    const user = client.data.user;
+    if (!user) return;
+
+    const message = await this.messageRepo.findById(data.messageId);
+    if (!message || message.senderId !== user.id) return;
+
+    const updated = await this.messageRepo.update(data.messageId, {
+      content: data.content,
+    });
+
+    this.server.to(`channel:${updated.channelId}`).emit('message.edited', {
+      ...MessageMapper.toResponse(updated),
+      sender: UserMapper.toResponse(user),
+    });
+  }
+
+  @SubscribeMessage('message.delete')
+  async handleDeleteMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { messageId: string },
+  ) {
+    const user = client.data.user;
+    if (!user) return;
+
+    const message = await this.messageRepo.findById(data.messageId);
+    if (!message || message.senderId !== user.id) return;
+
+    await this.messageRepo.delete(data.messageId);
+
+    this.server.to(`channel:${message.channelId}`).emit('message.deleted', {
+      messageId: data.messageId,
+      channelId: message.channelId,
+    });
+  }
+}

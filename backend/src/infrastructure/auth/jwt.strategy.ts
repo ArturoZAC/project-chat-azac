@@ -23,7 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    console.log('JWT VALIDATE CALLED:', payload);
     const user = await this.userRepo.findById(payload.id);
     if (!user) throw new UnauthorizedException('Usuario no encontrado');
     return user;
