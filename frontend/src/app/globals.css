@@ -1,0 +1,306 @@
+@import "tailwindcss";
+
+/* =====================================
+   THEME
+===================================== */
+@theme inline {
+  --font-sans: var(--font-montserrat);
+  --font-heading: var(--font-sora);
+
+  --color-primary: #000000;
+  --color-secondary: #ffffff;
+}
+
+/* =====================================
+   BASE
+===================================== */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-montserrat), sans-serif;
+    background: transparent;
+    color: #000000;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-sora), sans-serif;
+    color: #000000;
+  }
+
+  button {
+    font-family: var(--font-sora), sans-serif;
+    cursor: pointer;
+  }
+
+  p,
+  label,
+  li,
+  span {
+    font-family: var(--font-montserrat), sans-serif;
+    color: #000000;
+  }
+
+  /* ---- MOBILE ---- */
+  h1 {
+    font-size: 30px;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 26px;
+    line-height: 1.3;
+  }
+  h4 {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+  h5 {
+    font-size: 22px;
+    line-height: 1.3;
+  }
+  h6 {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+
+  p,
+  label {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  small {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  /* ---- DESKTOP ≥768px ---- */
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 56px;
+    }
+    h2 {
+      font-size: 48px;
+    }
+    h3 {
+      font-size: 40px;
+    }
+    h4 {
+      font-size: 32px;
+    }
+    h5 {
+      font-size: 28px;
+    }
+    h6 {
+      font-size: 24px;
+    }
+    p,
+    label {
+      font-size: 16px;
+    }
+    small {
+      font-size: 14px;
+    }
+  }
+}
+
+/* =====================================
+   COMPONENTS
+===================================== */
+@layer components {
+  /* ---- INVERSIÓN DE COLOR — HEADINGS ---- */
+  .h1-white {
+    color: #ffffff;
+  }
+  .h2-white {
+    color: #ffffff;
+  }
+  .h3-white {
+    color: #ffffff;
+  }
+  .h4-white {
+    color: #ffffff;
+  }
+  .h5-white {
+    color: #ffffff;
+  }
+  .h6-white {
+    color: #ffffff;
+  }
+
+  /* ---- INVERSIÓN DE COLOR — BODY ---- */
+  .p-white {
+    color: #ffffff;
+  }
+  .label-white {
+    color: #ffffff;
+  }
+  .span-white {
+    color: #ffffff;
+  }
+  .small-white {
+    color: #ffffff;
+  }
+  .li-white {
+    color: #ffffff;
+  }
+
+  /* ---- DISPLAY ---- */
+  .display {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 36px;
+    line-height: 1.1;
+    color: #000000;
+  }
+  .display-white {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 36px;
+    line-height: 1.1;
+    color: #ffffff;
+  }
+
+  /* ---- LEAD ---- */
+  .lead {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #000000;
+  }
+  .lead-white {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #ffffff;
+  }
+
+  /* ---- LEAD2 ---- */
+  .lead2 {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #000000;
+  }
+  .lead2-white {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #ffffff;
+  }
+
+  /* ---- SUBTITLE ---- */
+  .subtitle1 {
+    font-size: 22px;
+    line-height: 1.3;
+    color: #000000;
+  }
+  .subtitle1-white {
+    font-size: 22px;
+    line-height: 1.3;
+    color: #ffffff;
+  }
+  .subtitle2 {
+    font-size: 20px;
+    line-height: 1.25;
+    color: #000000;
+  }
+  .subtitle2-white {
+    font-size: 20px;
+    line-height: 1.25;
+    color: #ffffff;
+  }
+
+  /* ---- H2 HERO ---- */
+  .h2-hero {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 30px;
+    line-height: 1.1;
+    color: #000000;
+  }
+  .h2-hero-white {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 30px;
+    line-height: 1.1;
+    color: #ffffff;
+  }
+
+  /* ---- H3 CARD ---- */
+  .h3-card {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 26px;
+    line-height: 1.2;
+    color: #000000;
+  }
+  .h3-card-white {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 26px;
+    line-height: 1.2;
+    color: #ffffff;
+  }
+
+  /* ---- H1 BADGE ---- */
+  .h1-badge {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: #000000;
+  }
+  .h1-badge-white {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+  }
+
+  /* ---- BTN SANS ---- */
+  .btn-sans {
+    font-family: var(--font-montserrat), sans-serif;
+  }
+
+  /* ---- DESKTOP ≥768px ---- */
+  @media (min-width: 768px) {
+    .display,
+    .display-white {
+      font-size: 64px;
+    }
+    .lead,
+    .lead-white {
+      font-size: 20px;
+    }
+    .lead2,
+    .lead2-white {
+      font-size: 18px;
+    }
+    .subtitle1,
+    .subtitle1-white {
+      font-size: 28px;
+    }
+    .subtitle2,
+    .subtitle2-white {
+      font-size: 24px;
+    }
+    .h2-hero,
+    .h2-hero-white {
+      font-size: 56px;
+    }
+    .h3-card,
+    .h3-card-white {
+      font-size: 30px;
+    }
+  }
+}
