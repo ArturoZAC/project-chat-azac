@@ -17,6 +17,7 @@ import { PasswordResetPrismaRepository } from '../../../infrastructure/prisma/re
 import { JwtStrategy } from '../../../infrastructure/auth/jwt.strategy';
 import { envs } from '../../../config/envs';
 import { PassportModule } from '@nestjs/passport';
+import { ResendVerificationUseCase } from '../../../application/use-cases/auth/resend-verification.usecase';
 
 @Global()
 @Module({
@@ -36,6 +37,7 @@ import { PassportModule } from '@nestjs/passport';
     VerifyEmailUseCase,
     ForgotPasswordUseCase,
     ResetPasswordUseCase,
+    ResendVerificationUseCase,
     JwtStrategy,
     { provide: UserRepository, useClass: UserPrismaRepository },
     {

@@ -12,6 +12,7 @@ import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
 import { UserMapper } from '../../../infrastructure/prisma/mappers/user.mapper';
+import { ResendVerificationUseCase } from '../../../application/use-cases/auth/resend-verification.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,7 @@ export class AuthController {
     private readonly verifyEmailUseCase: VerifyEmailUseCase,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
+    private readonly resendVerificationUseCase: ResendVerificationUseCase,
   ) {}
 
   @Post('register')
@@ -82,6 +84,15 @@ export class AuthController {
   //     'Contraseña actualizada exitosamente',
   //   );
   // }
+
+  @Post('resend-verification')
+  async resendVerification(@Body() dto: { email: string }) {
+    await this.resendVerificationUseCase.execute(dto);
+    return ResponseInterceptor.success(
+      null,
+      'Correo de verificación reenviado',
+    );
+  }
 
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {

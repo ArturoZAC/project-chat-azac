@@ -7,8 +7,28 @@
   --font-sans: var(--font-montserrat);
   --font-heading: var(--font-sora);
 
-  --color-primary: #000000;
-  --color-secondary: #ffffff;
+  /* ——— PRIMARIOS ——— */
+  --color-primary: #7c3aed; /* morado principal — botones, activo, CTAs */
+  --color-primary-hover: #6d28d9; /* morado oscuro hover */
+  --color-primary-light: #ede9fe; /* morado muy suave — backgrounds activos */
+  --color-secondary: #a78bfa; /* morado medio — badges, acentos */
+  --color-accent: #c4b5fd; /* lavanda — focus rings, bordes activos */
+
+  /* ——— NEUTROS ——— */
+  --color-black: #111111; /* texto principal */
+  --color-gray-dark: #6b7280; /* texto secundario */
+  --color-gray-mid: #9ca3af; /* texto muted, placeholders */
+  --color-gray-light: #e5e7eb; /* bordes */
+  --color-gray-ultra: #f9f9f9; /* backgrounds cards, sidebar */
+  --color-white: #ffffff; /* fondo principal */
+
+  /* ——— PLATEADOS ——— */
+  --color-silver-dark: #71717a; /* iconos inactivos */
+  --color-silver-mid: #d1d5db; /* divisores, bordes suaves */
+  --color-silver-light: #f3f4f6; /* hover backgrounds */
+
+  /* ——— ESTADOS ——— */
+  --color-error: #ef4444; /* errores, eliminar */
 }
 
 /* =====================================
@@ -27,8 +47,8 @@
 
   body {
     font-family: var(--font-montserrat), sans-serif;
-    background: transparent;
-    color: #000000;
+    background: var(--color-white);
+    color: var(--color-black);
   }
 
   h1,
@@ -38,7 +58,7 @@
   h5,
   h6 {
     font-family: var(--font-sora), sans-serif;
-    color: #000000;
+    color: var(--color-black);
   }
 
   button {
@@ -49,9 +69,10 @@
   p,
   label,
   li,
-  span {
+  span,
+  small {
     font-family: var(--font-montserrat), sans-serif;
-    color: #000000;
+    color: var(--color-black);
   }
 
   /* ---- MOBILE ---- */
@@ -81,11 +102,13 @@
   }
 
   p,
-  label {
+  a,
+  span {
     font-size: 14px;
     line-height: 1.6;
   }
-  small {
+  small,
+  label {
     font-size: 12px;
     line-height: 1.3;
   }
@@ -111,10 +134,12 @@
       font-size: 24px;
     }
     p,
-    label {
+    /* label, */
+    a, span {
       font-size: 16px;
     }
-    small {
+    small,
+    label {
       font-size: 14px;
     }
   }
@@ -124,7 +149,9 @@
    COMPONENTS
 ===================================== */
 @layer components {
-  /* ---- INVERSIÓN DE COLOR — HEADINGS ---- */
+  /* ===================================
+     INVERSIÓN DE COLOR — HEADINGS
+  =================================== */
   .h1-white {
     color: #ffffff;
   }
@@ -144,7 +171,9 @@
     color: #ffffff;
   }
 
-  /* ---- INVERSIÓN DE COLOR — BODY ---- */
+  /* ===================================
+     INVERSIÓN DE COLOR — BODY
+  =================================== */
   .p-white {
     color: #ffffff;
   }
@@ -161,12 +190,65 @@
     color: #ffffff;
   }
 
-  /* ---- DISPLAY ---- */
+  /* ===================================
+     VARIANTES DE COLOR — PRIMARIOS
+  =================================== */
+  .h1-primary {
+    color: var(--color-primary);
+  }
+  .h2-primary {
+    color: var(--color-primary);
+  }
+  .h3-primary {
+    color: var(--color-primary);
+  }
+  .h4-primary {
+    color: var(--color-primary);
+  }
+  .h5-primary {
+    color: var(--color-primary);
+  }
+  .h6-primary {
+    color: var(--color-primary);
+  }
+
+  .p-primary {
+    color: var(--color-primary);
+  }
+  .span-primary {
+    color: var(--color-primary);
+  }
+  .label-primary {
+    color: var(--color-primary);
+  }
+  .small-primary {
+    color: var(--color-primary);
+  }
+
+  /* ===================================
+     VARIANTES DE COLOR — GRISES
+  =================================== */
+  .p-muted {
+    color: var(--color-gray-dark);
+  }
+  .span-muted {
+    color: var(--color-gray-dark);
+  }
+  .small-muted {
+    color: var(--color-gray-mid);
+  }
+  .p-secondary {
+    color: var(--color-gray-dark);
+  }
+
+  /* ===================================
+     DISPLAY
+  =================================== */
   .display {
     font-family: var(--font-sora), sans-serif;
     font-size: 36px;
     line-height: 1.1;
-    color: #000000;
+    color: var(--color-black);
   }
   .display-white {
     font-family: var(--font-sora), sans-serif;
@@ -174,13 +256,21 @@
     line-height: 1.1;
     color: #ffffff;
   }
+  .display-primary {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 36px;
+    line-height: 1.1;
+    color: var(--color-primary);
+  }
 
-  /* ---- LEAD ---- */
+  /* ===================================
+     LEAD
+  =================================== */
   .lead {
     font-family: var(--font-montserrat), sans-serif;
     font-size: 18px;
     line-height: 1.5;
-    color: #000000;
+    color: var(--color-black);
   }
   .lead-white {
     font-family: var(--font-montserrat), sans-serif;
@@ -188,13 +278,21 @@
     line-height: 1.5;
     color: #ffffff;
   }
+  .lead-muted {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--color-gray-dark);
+  }
 
-  /* ---- LEAD2 ---- */
+  /* ===================================
+     LEAD2
+  =================================== */
   .lead2 {
     font-family: var(--font-montserrat), sans-serif;
     font-size: 16px;
     line-height: 1.4;
-    color: #000000;
+    color: var(--color-black);
   }
   .lead2-white {
     font-family: var(--font-montserrat), sans-serif;
@@ -202,35 +300,56 @@
     line-height: 1.4;
     color: #ffffff;
   }
+  .lead2-muted {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--color-gray-dark);
+  }
 
-  /* ---- SUBTITLE ---- */
+  /* ===================================
+     SUBTITLE
+  =================================== */
   .subtitle1 {
     font-size: 22px;
     line-height: 1.3;
-    color: #000000;
+    color: var(--color-black);
   }
   .subtitle1-white {
     font-size: 22px;
     line-height: 1.3;
     color: #ffffff;
   }
+  .subtitle1-primary {
+    font-size: 22px;
+    line-height: 1.3;
+    color: var(--color-primary);
+  }
+
   .subtitle2 {
     font-size: 20px;
     line-height: 1.25;
-    color: #000000;
+    color: var(--color-black);
   }
   .subtitle2-white {
     font-size: 20px;
     line-height: 1.25;
     color: #ffffff;
   }
+  .subtitle2-primary {
+    font-size: 20px;
+    line-height: 1.25;
+    color: var(--color-primary);
+  }
 
-  /* ---- H2 HERO ---- */
+  /* ===================================
+     H2 HERO
+  =================================== */
   .h2-hero {
     font-family: var(--font-sora), sans-serif;
     font-size: 30px;
     line-height: 1.1;
-    color: #000000;
+    color: var(--color-black);
   }
   .h2-hero-white {
     font-family: var(--font-sora), sans-serif;
@@ -238,13 +357,21 @@
     line-height: 1.1;
     color: #ffffff;
   }
+  .h2-hero-primary {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 30px;
+    line-height: 1.1;
+    color: var(--color-primary);
+  }
 
-  /* ---- H3 CARD ---- */
+  /* ===================================
+     H3 CARD
+  =================================== */
   .h3-card {
     font-family: var(--font-sora), sans-serif;
     font-size: 26px;
     line-height: 1.2;
-    color: #000000;
+    color: var(--color-black);
   }
   .h3-card-white {
     font-family: var(--font-sora), sans-serif;
@@ -252,13 +379,21 @@
     line-height: 1.2;
     color: #ffffff;
   }
+  .h3-card-primary {
+    font-family: var(--font-sora), sans-serif;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--color-primary);
+  }
 
-  /* ---- H1 BADGE ---- */
+  /* ===================================
+     H1 BADGE
+  =================================== */
   .h1-badge {
     font-family: var(--font-montserrat), sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
-    color: #000000;
+    color: var(--color-black);
   }
   .h1-badge-white {
     font-family: var(--font-montserrat), sans-serif;
@@ -266,41 +401,74 @@
     letter-spacing: 0.12em;
     color: #ffffff;
   }
+  .h1-badge-primary {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--color-primary);
+  }
 
-  /* ---- BTN SANS ---- */
+  /* ===================================
+     BTN SANS
+  =================================== */
   .btn-sans {
     font-family: var(--font-montserrat), sans-serif;
   }
 
-  /* ---- DESKTOP ≥768px ---- */
+  .link-footer {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--color-gray-mid);
+    transition: color 0.15s ease;
+  }
+
+  .link-footer:hover {
+    color: var(--color-gray-dark);
+  }
+
+  /* ===================================
+     DESKTOP ≥768px
+  =================================== */
   @media (min-width: 768px) {
     .display,
-    .display-white {
+    .display-white,
+    .display-primary {
       font-size: 64px;
     }
     .lead,
-    .lead-white {
+    .lead-white,
+    .lead-muted {
       font-size: 20px;
     }
     .lead2,
-    .lead2-white {
+    .lead2-white,
+    .lead2-muted {
       font-size: 18px;
     }
     .subtitle1,
-    .subtitle1-white {
+    .subtitle1-white,
+    .subtitle1-primary {
       font-size: 28px;
     }
     .subtitle2,
-    .subtitle2-white {
+    .subtitle2-white,
+    .subtitle2-primary {
       font-size: 24px;
     }
     .h2-hero,
-    .h2-hero-white {
+    .h2-hero-white,
+    .h2-hero-primary {
       font-size: 56px;
     }
     .h3-card,
-    .h3-card-white {
+    .h3-card-white,
+    .h3-card-primary {
       font-size: 30px;
+    }
+
+    .link-footer {
+      font-size: 14px;
     }
   }
 }

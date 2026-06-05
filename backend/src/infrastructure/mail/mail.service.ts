@@ -11,7 +11,8 @@ export class MailService {
     username: string,
     token: string,
   ): Promise<void> {
-    const url = `${envs.APP_URL}/api/auth/verify-email?token=${token}`;
+    const url = `${envs.CLIENT_URL}/verify-email?token=${token}`;
+    // const url = `${envs.APP_URL}/api/auth/verify-email?token=${token}`;
     await this.mailer.sendMail({
       to,
       subject: 'Verifica tu cuenta — Chat AZAC',
