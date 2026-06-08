@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { /* useEffect, */ useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -11,12 +11,24 @@ import {
   IconCircle,
 } from "@tabler/icons-react";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/modules/auth/schemas/auth.schema";
+import { resetPasswordAction } from "../../actions/reset-password.action";
+import { useToastStore } from "@/store/toast.store";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export const ResetPasswordFormFields = () => {
+  const { success, error } = useToastStore();
+  const params = useSearchParams();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  let newPassword = "";
+
+  // useEffect(() => {
+  //   console.log(`Token: ${params.get("token")}`);
+  // }, []);
 
   const {
+    reset,
     register,
     handleSubmit,
     watch,
@@ -35,8 +47,24 @@ export const ResetPasswordFormFields = () => {
   const strengthColor = strengthColors[strength];
 
   const onSubmit = async (data: ResetPasswordInput) => {
-    // TODO: conectar con backend
-    console.log(data);
+    // console.log(data);
+
+    if (data.password !== data.confirmPassword) {
+      error("Las contraseñas no coinciden");
+      return;
+    }
+
+    newPassword = data.password;
+    const result = await resetPasswordAction({ token: params.get("token") || "", newPassword });
+
+    if (result.success) {
+      success("Contraseña restablecida con éxito");
+      reset();
+      router.push("/login");
+      return;
+    }
+
+    return error(result.message || "Error al restablecer la contraseña");
   };
 
   return (

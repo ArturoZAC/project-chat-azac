@@ -4,9 +4,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconMail, IconArrowRight } from "@tabler/icons-react";
 import { forgotPasswordSchema, type ForgotPasswordInput } from "@/modules/auth/schemas/auth.schema";
+import { forgotPasswordAction } from "../../actions/forgot-password.action";
+import { useToastStore } from "@/store/toast.store";
 
 export const ForgotPasswordFormFields = () => {
   const {
+    reset,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -14,9 +17,19 @@ export const ForgotPasswordFormFields = () => {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
+  const { success, error } = useToastStore();
+
   const onSubmit = async (data: ForgotPasswordInput) => {
-    // TODO: conectar con backend
     console.log(data);
+    const result = await forgotPasswordAction(data);
+
+    if (result.success) {
+      success("Correo enviado", "Revisa tu bandeja de entrada para restablecer tu contraseña");
+      reset();
+      return;
+    }
+
+    return error("Error", result.message);
   };
 
   return (

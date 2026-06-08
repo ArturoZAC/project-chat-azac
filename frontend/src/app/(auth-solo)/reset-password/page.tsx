@@ -1,5 +1,9 @@
 import { ResetPasswordForm } from "@/modules/auth/components/reset-password/ResetPasswordForm";
 
-export default function ResetPasswordPage() {
+// interface Props {
+//   searchParams: Promise<{ token: string }>;
+// }
+
+export default function ResetPasswordPage(/* { searchParams }: Props */) {
   return <ResetPasswordForm />;
 }
