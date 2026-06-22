@@ -3,13 +3,17 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { IconMail, IconLock, IconEye, IconEyeOff, IconArrowRight } from "@tabler/icons-react";
 import { loginSchema, type LoginInput } from "@/modules/auth/schemas/auth.schema";
 import { useToastStore } from "@/store/toast.store";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { loginAction } from "../../actions/login.action";
 
 export const LoginFormFields = () => {
   const { success, error } = useToastStore();
+  const { setSession } = useAuthStore();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -26,7 +30,10 @@ export const LoginFormFields = () => {
     // console.log({ result });
 
     if (result.success) {
-      return success("Bienvenido", result.message);
+      setSession(result.data?.userId);
+      success("Bienvenido", result.message);
+      router.push("/channels");
+      return;
     }
 
     return error("Error al iniciar sesión", result.message);
