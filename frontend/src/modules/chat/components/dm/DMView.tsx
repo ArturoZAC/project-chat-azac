@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { IconMessageOff, IconUserOff } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { IconArrowLeft, IconMessageOff, IconUserOff } from "@tabler/icons-react";
 import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
 import {
   mockDMConversations,
@@ -15,6 +16,7 @@ interface DMViewProps {
 }
 
 export function DMView({ userId }: DMViewProps) {
+  const router = useRouter();
   const otherUser = mockUsers.find((u) => u.id === userId);
 
   const dmConversation = useMemo(() => {
@@ -54,6 +56,13 @@ export function DMView({ userId }: DMViewProps) {
     <div className="flex-1 flex flex-col h-full">
       {/* DM Header */}
       <div className="flex items-center gap-3 px-6 py-3 border-b border-gray-light shrink-0">
+        <button
+          onClick={() => router.push("/messages")}
+          className="p-1.5 rounded-lg hover:bg-silver-light text-silver-dark transition-colors shrink-0"
+          title="Volver a mensajes"
+        >
+          <IconArrowLeft size={18} />
+        </button>
         <div className="relative shrink-0">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
             <span className="p-white text-xs font-semibold">{otherInitials}</span>
@@ -70,7 +79,11 @@ export function DMView({ userId }: DMViewProps) {
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Messages — cuando conectes API real, envolver en Suspense:
+          <Suspense fallback={<MessagesSpinner />}>
+            <MessageListFetcher userId={userId} />
+          </Suspense>
+      */}
       <MessageList messages={messages} isLoading={false} />
 
       {/* DM Input */}

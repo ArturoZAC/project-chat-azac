@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { IconMail, IconCalendar, IconClock, IconCircleCheck, IconEdit } from "@tabler/icons-react";
+import { IconArrowLeft, IconMail, IconCalendar, IconClock, IconCircleCheck, IconEdit } from "@tabler/icons-react";
 import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
 
 export function ProfilePageClient() {
@@ -25,8 +25,17 @@ export function ProfilePageClient() {
     : "Ahora";
 
   return (
-    <div className="flex-1 flex items-start justify-center overflow-y-auto bg-gray-ultra">
-      <div className="max-w-lg w-full px-6 py-10">
+    <div className="flex-1 flex flex-col items-center overflow-y-auto bg-gray-ultra">
+      <div className="max-w-2xl w-full px-6 py-10 my-auto">
+        {/* Back */}
+        <button
+          onClick={() => router.push("/messages")}
+          className="flex items-center gap-1.5 text-sm text-gray-dark hover:text-black transition-colors mb-6"
+        >
+          <IconArrowLeft size={16} />
+          <span>Volver a mensajes</span>
+        </button>
+
         {/* Profile Card */}
         <div className="bg-white rounded-2xl border border-gray-light shadow-sm p-8">
           {/* Avatar */}
@@ -42,10 +51,10 @@ export function ProfilePageClient() {
           </div>
 
           {/* Info Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-ultra">
-              <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
-                <IconCalendar size={16} className="text-primary" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-ultra">
+              <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
+                <IconCalendar size={18} className="text-primary" />
               </div>
               <div className="min-w-0">
                 <p className="small-muted">Fecha de ingreso</p>
@@ -53,9 +62,9 @@ export function ProfilePageClient() {
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-ultra">
-              <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
-                <IconClock size={16} className="text-primary" />
+            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-ultra">
+              <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
+                <IconClock size={18} className="text-primary" />
               </div>
               <div className="min-w-0">
                 <p className="small-muted">Último acceso</p>
@@ -63,9 +72,9 @@ export function ProfilePageClient() {
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-ultra sm:col-span-2">
-              <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
-                <IconCircleCheck size={16} className="text-primary" />
+            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-ultra sm:col-span-2">
+              <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
+                <IconCircleCheck size={18} className="text-primary" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="small-muted">Verificación de cuenta</p>

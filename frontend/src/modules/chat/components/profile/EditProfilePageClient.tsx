@@ -19,21 +19,21 @@ export function EditProfilePageClient() {
   };
 
   const handleCancel = () => {
-    router.push("/profile");
+    router.push("/messages");
   };
 
   const initials = getInitials(currentUser.username);
 
   return (
-    <div className="flex-1 flex items-start justify-center overflow-y-auto bg-gray-ultra">
-      <div className="max-w-lg w-full px-6 py-10">
+    <div className="flex-1 flex flex-col items-center overflow-y-auto bg-gray-ultra">
+      <div className="max-w-2xl w-full px-6 py-10 my-auto">
         {/* Header */}
         <button
           onClick={handleCancel}
           className="flex items-center gap-1.5 text-sm text-gray-dark hover:text-black transition-colors mb-6"
         >
           <IconArrowLeft size={16} />
-          <span>Volver al perfil</span>
+          <span>Volver a mensajes</span>
         </button>
 
         {/* Edit Card */}

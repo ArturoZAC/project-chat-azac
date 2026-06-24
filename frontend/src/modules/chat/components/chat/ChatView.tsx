@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { IconMessageOff } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
 import { useChatStore } from "@/modules/chat/store/chat.store";
@@ -14,6 +15,7 @@ interface ChatViewProps {
 }
 
 export function ChatView({ channelId }: ChatViewProps) {
+  const router = useRouter();
   const { getChannel, getMessages, getMembers } = useChannelQueries(channelId);
   const { isMembersPanelOpen, toggleMembersPanel, setMembersPanelOpen } = useChatStore();
 
@@ -60,7 +62,13 @@ export function ChatView({ channelId }: ChatViewProps) {
           channel={channel}
           membersCount={members.length}
           onToggleMembers={toggleMembersPanel}
+          onBack={() => router.push("/messages")}
         />
+        {/* Messages — cuando conectes API real, envolver en Suspense:
+            <Suspense fallback={<MessagesSpinner />}>
+              <MessageListFetcher channelId={channelId} />
+            </Suspense>
+        */}
         <MessageList messages={messages} isLoading={isMessagesLoading} />
         <ChatInput onSend={handleSend} />
       </div>

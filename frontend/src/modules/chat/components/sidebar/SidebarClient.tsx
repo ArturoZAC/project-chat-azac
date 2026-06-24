@@ -35,7 +35,7 @@ export function SidebarClient() {
   const currentUser = mockUsers.find((user) => user.id === currentUserId)!;
 
   // Sync activeTab with current path
-  const activeTabId = pathname === "/messages" ? "messages"
+  const activeTabId = pathname === "/messages" || pathname.startsWith("/dm/") ? "messages"
     : pathname === "/channels" ? "channels"
     : pathname === "/profile" ? "profile"
     : pathname === "/settings" ? "settings"
