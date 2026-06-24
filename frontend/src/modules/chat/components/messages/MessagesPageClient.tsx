@@ -1,20 +1,24 @@
 "use client";
 
 import { IconMessage } from "@tabler/icons-react";
-import { UnreadList } from "./UnreadList";
+import { ConversationList } from "./ConversationList";
 
 export function MessagesPageClient() {
   return (
-    <div className="flex flex-col h-full p-6">
-      <div className="mb-6">
+    <div className="flex flex-col h-full bg-gray-ultra">
+      <div className="p-6 pb-0">
         <div className="flex items-center gap-2.5 mb-1">
-          <IconMessage size={22} className="text-primary" />
-          <h4 className="font-semibold">Mensajes</h4>
+          <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+            <IconMessage size={20} className="text-primary" />
+          </div>
+          <div>
+            <h4 className="font-semibold">Mensajes</h4>
+            <p className="p-muted">Todas tus conversaciones en un solo lugar</p>
+          </div>
         </div>
-        <p className="p-muted">Mensajes no leídos de tus canales</p>
       </div>
 
-      <UnreadList />
+      <ConversationList />
     </div>
   );
 }

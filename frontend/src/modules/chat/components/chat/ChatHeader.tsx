@@ -1,8 +1,7 @@
 "use client";
 
 import { IconHash, IconLock, IconUsers } from "@tabler/icons-react";
-import type { Channel } from "@/shared/interfaces/channel.interface";
-import { motion } from "framer-motion";
+import type { Channel } from "@/modules/chat/interfaces/channel.interface";
 
 interface ChatHeaderProps {
   channel: Channel;
@@ -12,11 +11,7 @@ interface ChatHeaderProps {
 
 export function ChatHeader({ channel, membersCount, onToggleMembers }: ChatHeaderProps) {
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-center justify-between px-6 py-3 border-b border-gray-light shrink-0"
-    >
+    <header className="flex items-center justify-between px-6 py-3 border-b border-gray-light shrink-0">
       <div className="flex items-center gap-2.5 min-w-0">
         <span className="text-silver-dark shrink-0">
           {channel.type === "PRIVATE" ? (
@@ -40,6 +35,6 @@ export function ChatHeader({ channel, membersCount, onToggleMembers }: ChatHeade
         <IconUsers size={18} className="text-silver-dark" />
         <span className="text-sm text-gray-dark font-medium">{membersCount}</span>
       </button>
-    </motion.header>
+    </header>
   );
 }

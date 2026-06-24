@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Channel, ChannelMember } from "@/shared/interfaces/channel.interface";
-import type { Message } from "@/shared/interfaces/message.interface";
+import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channel.interface";
+import type { Message } from "@/modules/chat/interfaces/message.interface";
 import {
   mockChannels,
   mockMessages,

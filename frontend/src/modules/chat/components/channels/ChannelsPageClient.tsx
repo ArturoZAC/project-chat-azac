@@ -42,10 +42,10 @@ export function ChannelsPageClient() {
         </div>
         <button
           onClick={() => setCreateModalOpen(true)}
-          className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white font-medium px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-primary hover:bg-primary-hover px-4 py-2.5 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.97]"
         >
-          <IconPlus size={18} />
-          <span className="text-sm">Crear canal</span>
+          <IconPlus size={18} className="text-white" />
+          <span className="btn-sans text-sm font-medium span-white">Crear canal</span>
         </button>
       </div>
 
@@ -53,20 +53,20 @@ export function ChannelsPageClient() {
       <div className="relative mb-6 max-w-md">
         <IconSearch
           size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-silver-dark"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-silver-dark pointer-events-none"
         />
         <input
           type="text"
           placeholder="Buscar canales..."
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-light rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-light rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 bg-white hover:border-gray-mid placeholder:text-gray-mid"
         />
       </div>
 
       {/* Content */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {skeletonCards.map((_placeholder, index) => (
             <motion.div
               key={index}

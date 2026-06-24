@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authApi } from "@/modules/auth/api/auth.api";
 import { ApiResponse } from "@/shared/interfaces/api.interface";
-import { RegisterResponse } from "@/shared/interfaces/auth.interface";
+import { RegisterResponse } from "@/modules/auth/interfaces/auth.interface";
 
 interface RegisterPayload {
   email: string;

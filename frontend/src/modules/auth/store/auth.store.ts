@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { User } from "@/shared/interfaces/user.interface";
+import type { User } from "@/modules/auth/interfaces/user.interface";
 
 interface AuthStore {
   user: User | null;

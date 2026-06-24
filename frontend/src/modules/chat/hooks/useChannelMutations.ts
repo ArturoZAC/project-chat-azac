@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import type { CreateChannelInput } from "@/modules/chat/schemas/chat.schema";
 import { mockChannels, mockMemberships, mockMembers } from "@/modules/chat/lib/mock-data";
-import type { Channel } from "@/shared/interfaces/channel.interface";
+import type { Channel } from "@/modules/chat/interfaces/channel.interface";
 
 const CHANNELS_KEY = ["channels"];
 const MEMBERSHIPS_KEY = ["memberships"];

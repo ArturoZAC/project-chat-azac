@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Channel } from "@/shared/interfaces/channel.interface";
+import type { Channel } from "@/modules/chat/interfaces/channel.interface";
 
 type ChatTab = "messages" | "channels";
 

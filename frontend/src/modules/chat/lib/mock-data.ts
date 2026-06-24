@@ -1,6 +1,6 @@
-import type { Channel, ChannelMember } from "@/shared/interfaces/channel.interface";
-import type { Message } from "@/shared/interfaces/message.interface";
-import type { User } from "@/shared/interfaces/user.interface";
+import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channel.interface";
+import type { Message } from "@/modules/chat/interfaces/message.interface";
+import type { User } from "@/modules/auth/interfaces/user.interface";
 
 // ─── Mock Users ──────────────────────────────────────────────
 export const mockUsers: User[] = [

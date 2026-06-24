@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { IconMessage } from "@tabler/icons-react";
-import type { Message } from "@/shared/interfaces/message.interface";
+import type { Message } from "@/modules/chat/interfaces/message.interface";
 import { currentUserId } from "@/modules/chat/lib/mock-data";
 import { MessageBubble } from "./MessageBubble";
 import { DateSeparator } from "./DateSeparator";
