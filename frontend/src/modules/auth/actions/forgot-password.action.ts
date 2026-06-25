@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authApi } from "@/modules/auth/api/auth.api";
 import { ApiResponse } from "@/shared/interfaces/api.interface";
-import { ForgotPasswordResponse } from "@/shared/interfaces/auth.interface";
+import { ForgotPasswordResponse } from "@/modules/auth/interfaces/auth.interface";
 
 interface ForgotPasswordPayload {
   email: string;

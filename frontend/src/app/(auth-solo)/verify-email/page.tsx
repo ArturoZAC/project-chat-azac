@@ -1,5 +1,5 @@
 import { verifyEmailAction } from "@/modules/auth/actions/verify-email.action";
-import { VerifyEmailSkeleton } from "@/modules/auth/components/verify-email/VerifyEmailSkeleton";
+import { VerifyEmailSkeleton } from "./VerifyEmailSkeleton";
 import { VerifyEmailView } from "@/modules/auth/components/verify-email/VerifyEmailView";
 import { Suspense } from "react";
 

@@ -1,4 +1,4 @@
-import type { User } from "./user.interface";
+import type { User } from "@/modules/auth/interfaces/user.interface";
 
 export type ChannelType = "PUBLIC" | "PRIVATE";
 export type ChannelMemberRole = "OWNER" | "MEMBER" | "GUEST";
