@@ -1,6 +1,6 @@
 # Admin Suite — Design Spec
 
-> **Status:** Planned
+> **Status:** Phase 1-5 Complete, Phase 6 (Channel Detail) Planned
 > **Date:** 2026-06-25
 > **Author:** AI Agent
 > **Branch:** `admin`
@@ -20,11 +20,13 @@
 app/(chat)/          ← Layout: Sidebar + TopBar + children
 ├── admin/
 │   ├── users/
-│   │   ├── page.tsx              ← User List (Server Component)
+│   │   ├── page.tsx              ← User List (Server Component) ✅
 │   │   └── [userId]/
-│   │       └── page.tsx          ← User Detail (Server Component)
+│   │       └── page.tsx          ← User Detail (Server Component) ✅
 │   └── channels/
-│       └── page.tsx              ← Channel List (Server Component)
+│       ├── page.tsx              ← Channel List (Server Component) ✅
+│       └── [channelId]/
+│           └── page.tsx          ← Channel Detail (Server Component) ⏳ Phase 6
 ├── channels/                     ← existing
 ├── dm/                           ← existing
 ├── messages/                     ← existing
@@ -48,10 +50,15 @@ modules/admin/
 │   │   ├── UserChannelsList.tsx    ← Channel participation
 │   │   ├── ActivityChart.tsx       ← Recharts BarChart
 │   │   └── SecuritySummary.tsx     ← 2FA + verification
-│   └── channels/
-│       ├── AdminChannelsToolbar.tsx ← Pills + search + create
-│       ├── AdminChannelsTable.tsx   ← TanStack Table
-│       └── CreateChannelModal.tsx   ← Modal form overlay
+│   ├── channels/
+│   │   ├── AdminChannelsToolbar.tsx ← Pills + search + create
+│   │   ├── AdminChannelsTable.tsx   ← TanStack Table
+│   │   └── CreateChannelModal.tsx   ← Modal form overlay
+│   └── channel-detail/            ⏳ Phase 6
+│       ├── ChannelProfileCard.tsx   ← Channel info header
+│       ├── ChannelStatsCards.tsx    ← 4 stat metrics
+│       ├── ChannelPieChart.tsx      ← Recharts PieChart
+│       └── ChannelMembersTable.tsx  ← Members list
 ├── interfaces/
 │   └── admin.interface.ts          ← Extended types
 └── lib/
@@ -90,6 +97,7 @@ BEFORE:                         AFTER:
 | `/admin/users` | Inicio > Administración > Usuarios |
 | `/admin/users/:userId` | Inicio > Administración > Usuarios > `username` |
 | `/admin/channels` | Inicio > Administración > Canales |
+| `/admin/channels/:channelId` | Inicio > Administración > Canales > `channel name` |
 
 ---
 
@@ -302,6 +310,50 @@ TopBarClient.tsx
 
 ---
 
+---
+
+### 11. ChannelProfileCard (`modules/admin/components/channel-detail/ChannelProfileCard.tsx`) ⏳
+- **Type:** Client Component
+- **Props:** `channel: AdminChannel`
+- **Layout:** Avatar-like hash icon + name + type badge + description + creator + dates
+- **Styling:** White bg, rounded-2xl, border, shadow-sm, p-6
+
+### 12. ChannelStatsCards (`modules/admin/components/channel-detail/ChannelStatsCards.tsx`) ⏳
+- **Type:** Client Component
+- **Props:** `totalMessages: number`, `totalMembers: number`, `activeMembers: number`, `weeklyMessages: number`
+- **Cards:**
+  | Card | Icon | Description |
+  |---|---|---|
+  | Total mensajes | IconMessage | Total messages in channel |
+  | Miembros | IconUsers | Total channel members |
+  | Activos | IconActivity | Members with 5+ messages |
+  | Esta semana | IconCalendarStats | Messages this week |
+- **Styling:** Same as MetricCards (white bg, rounded-2xl, border, shadow-sm, p-5)
+
+### 13. ChannelPieChart (`modules/admin/components/channel-detail/ChannelPieChart.tsx`) ⏳
+- **Type:** Client Component
+- **Props:** `data: Array<{ name: string; messages: number; color: string }>`
+- **Library:** Recharts (`PieChart`, `Pie`, `Cell`, `Tooltip`, `Legend`, `ResponsiveContainer`)
+- **Section title:** "Mensajes por miembro" (h5, font-semibold)
+- **Chart config:**
+  - `ResponsiveContainer` width="100%" height={280}
+  - `PieChart`
+  - `Pie` data={data} dataKey="messages" nameKey="name" cx="50%" cy="50%" outerRadius={100}
+  - `Cell` fill={entry.color} per member
+  - `Tooltip` — shows name + messages + percentage
+  - `Legend` — vertical, right side
+- **Empty state:** "No hay mensajes en este canal"
+- **Styling:** White bg, rounded-2xl, border, shadow-sm, p-6
+
+### 14. ChannelMembersTable (`modules/admin/components/channel-detail/ChannelMembersTable.tsx`) ⏳
+- **Type:** Client Component
+- **Props:** `members: Array<{ id: string; username: string; role: string; avatarUrl: string | null }>`
+- **Layout:** Simple table/list, no TanStack Table needed (small data)
+- **Columns:** Avatar with initials, Username, Role badge (Propietario/Miembro/Guest)
+- **Styling:** White bg, rounded-2xl, border, shadow-sm, p-6
+
+---
+
 ## Files Created / Modified
 
 | File | Action |
@@ -322,8 +374,15 @@ TopBarClient.tsx
 | `app/(chat)/admin/users/page.tsx` | **Create** |
 | `app/(chat)/admin/users/[userId]/page.tsx` | **Create** |
 | `app/(chat)/admin/channels/page.tsx` | **Create** |
-| `modules/chat/components/sidebar/SidebarClient.tsx` | **Modify** — add admin nav section |
-| `modules/chat/components/layout/TopBarClient.tsx` | **Modify** — add admin breadcrumbs |
+| `modules/admin/components/channel-detail/ChannelProfileCard.tsx` | **Create** ⏳ Phase 6 |
+| `modules/admin/components/channel-detail/ChannelStatsCards.tsx` | **Create** ⏳ Phase 6 |
+| `modules/admin/components/channel-detail/ChannelPieChart.tsx` | **Create** ⏳ Phase 6 — Recharts PieChart |
+| `modules/admin/components/channel-detail/ChannelMembersTable.tsx` | **Create** ⏳ Phase 6 |
+| `app/(chat)/admin/channels/[channelId]/page.tsx` | **Create** ⏳ Phase 6 |
+| `modules/chat/lib/mock-data.ts` | **Modify** ⏳ Phase 6 — add messages for ch3, ch5, ch6, ch7 |
+| `modules/admin/lib/mock-admin-data.ts` | **Modify** ⏳ Phase 6 — add message distribution helper |
+| `modules/chat/components/sidebar/SidebarClient.tsx` | **Modify** — add admin nav section ✅ |
+| `modules/chat/components/layout/TopBarClient.tsx` | **Modify** — add admin breadcrumbs ✅ |
 
 ---
 
@@ -342,7 +401,6 @@ TopBarClient.tsx
 
 ## Out of Scope
 
-- Channel Detail view (excluded by decision)
 - Real API integration
 - User create/delete/suspend (mock actions only)
 - Role management (change user role)

@@ -6,6 +6,7 @@ import { IconBell, IconChevronRight } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
+import { mockAdminUsers } from "@/modules/admin/lib/mock-admin-data";
 import { NotificationPanel } from "@/modules/chat/components/notifications/NotificationPanel";
 
 interface Breadcrumb {
@@ -35,6 +36,35 @@ function useBreadcrumbs(pathname: string): Breadcrumb[] {
     // /messages
     if (segments[0] === "messages") {
       return [{ label: "Mensajes" }];
+    }
+
+    // /admin/users
+    if (segments[0] === "admin" && segments[1] === "users" && segments.length === 2) {
+      return [
+        { label: "Administración", href: "/admin/users" },
+        { label: "Usuarios" },
+      ];
+    }
+
+    // /admin/users/:userId
+    if (segments[0] === "admin" && segments[1] === "users" && segments.length >= 3) {
+      const userId = segments[2];
+      // Try to find the username from mock data
+      const user = mockAdminUsers.find((u) => u.id === userId);
+      const label = user?.username ?? decodeURIComponent(userId);
+      return [
+        { label: "Administración", href: "/admin/users" },
+        { label: "Usuarios", href: "/admin/users" },
+        { label },
+      ];
+    }
+
+    // /admin/channels
+    if (segments[0] === "admin" && segments[1] === "channels") {
+      return [
+        { label: "Administración", href: "/admin/users" },
+        { label: "Canales" },
+      ];
     }
 
     return [{ label: "Inicio" }];

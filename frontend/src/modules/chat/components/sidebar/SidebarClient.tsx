@@ -8,6 +8,7 @@ import {
   IconMoodSad,
   IconUser,
   IconSettings,
+  IconUsers,
   IconChevronLeft,
   IconChevronRight,
 } from "@tabler/icons-react";
@@ -21,6 +22,11 @@ const NAV_ITEMS = [
   { id: "channels", label: "Canales", icon: IconHash, path: "/channels" },
   { id: "profile", label: "Perfil", icon: IconUser, path: "/profile" },
   { id: "settings", label: "Configuración", icon: IconSettings, path: "/settings" },
+] as const;
+
+const ADMIN_NAV_ITEMS = [
+  { id: "admin-users", label: "Usuarios", icon: IconUsers, path: "/admin/users" },
+  { id: "admin-channels", label: "Canales", icon: IconHash, path: "/admin/channels" },
 ] as const;
 
 export function SidebarClient() {
@@ -39,6 +45,8 @@ export function SidebarClient() {
     : pathname === "/channels" ? "channels"
     : pathname === "/profile" ? "profile"
     : pathname === "/settings" ? "settings"
+    : pathname.startsWith("/admin/users") ? "admin-users"
+    : pathname.startsWith("/admin/channels") ? "admin-channels"
     : null;
 
   const handleNavigation = (item: typeof NAV_ITEMS[number]) => {
@@ -130,6 +138,37 @@ export function SidebarClient() {
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Admin section — only when expanded */}
+        {!isSidebarCollapsed && (
+          <div className="mt-4">
+            <hr className="border-t border-gray-light mb-3" />
+            <span className="block px-3 pb-1 small-muted uppercase tracking-wider font-semibold">
+              Administración
+            </span>
+            <div className="flex flex-col gap-0.5">
+              {ADMIN_NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTabId === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => router.push(item.path)}
+                    className={`
+                      flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left w-full
+                      ${isActive ? "bg-primary-light" : "hover:bg-silver-light"}
+                    `}
+                  >
+                    <Icon size={16} className={`${isActive ? "text-primary" : "text-silver-dark"} shrink-0`} />
+                    <span className={`text-sm truncate ${isActive ? "span-primary" : "text-gray-dark"}`}>
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </nav>
