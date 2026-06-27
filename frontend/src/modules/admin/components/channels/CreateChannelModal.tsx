@@ -21,7 +21,7 @@ export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps)
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     },
-    [onClose]
+    [onClose],
   );
 
   useEffect(() => {
@@ -75,9 +75,7 @@ export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps)
             <div className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium mb-1.5">
-                  Nombre del canal
-                </label>
+                <label className="block text-sm font-medium mb-1.5">Nombre del canal</label>
                 <input
                   type="text"
                   value={name}
@@ -91,8 +89,7 @@ export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps)
               {/* Description */}
               <div>
                 <label className="block text-sm font-medium mb-1.5">
-                  Descripción{" "}
-                  <span className="small-muted">(opcional)</span>
+                  Descripción <span className="small-muted">(opcional)</span>
                 </label>
                 <textarea
                   value={description}
@@ -105,9 +102,7 @@ export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps)
 
               {/* Type */}
               <div>
-                <label className="block text-sm font-medium mb-1.5">
-                  Tipo de canal
-                </label>
+                <label className="block text-sm font-medium mb-1.5">Tipo de canal</label>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setType("PUBLIC")}

@@ -11,6 +11,7 @@ import {
   createColumnHelper,
   type SortingState,
 } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 import {
   IconHash,
   IconChevronUp,
@@ -29,6 +30,7 @@ interface AdminChannelsTableProps {
 const columnHelper = createColumnHelper<AdminChannel>();
 
 export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
@@ -171,7 +173,8 @@ export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b border-gray-light last:border-b-0 hover:bg-silver-light/50 transition-colors"
+                  onClick={() => router.push(`/admin/channels/${row.original.id}`)}
+                  className="border-b border-gray-light last:border-b-0 hover:bg-silver-light/50 transition-colors cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">

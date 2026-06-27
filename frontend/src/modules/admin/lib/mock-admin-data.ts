@@ -1,3 +1,4 @@
+import { mockMessages } from "@/modules/chat/lib/mock-data";
 import type { AdminUser, DayActivity, AdminChannel } from "@/modules/admin/interfaces/admin.interface";
 
 // ─── Admin Users (15 users) ────────────────────────────────
@@ -550,6 +551,10 @@ export function getAdminUserById(id: string): AdminUser | undefined {
   return mockAdminUsers.find((u) => u.id === id);
 }
 
+export function getAdminChannelById(id: string): AdminChannel | undefined {
+  return mockAdminChannels.find((ch) => ch.id === id);
+}
+
 export function getActivityByUserId(userId: string): DayActivity[] {
   return mockUserActivity[userId] ?? getDefaultActivity();
 }
@@ -586,4 +591,58 @@ export function formatDateTime(dateStr: string | null): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+// ─── PieChart colour palette ──────────────────────────────
+export const PIE_COLORS = [
+  "#7c3aed", // primary
+  "#f59e0b", // amber
+  "#06b6d4", // cyan
+  "#ec4899", // pink
+  "#10b981", // emerald
+  "#f97316", // orange
+  "#6366f1", // indigo
+  "#14b8a6", // teal
+  "#a855f7", // purple
+  "#84cc16", // lime
+];
+
+// ─── Message distribution per channel (for PieChart) ──────
+export interface ChannelMessageDistribution {
+  authorId: string;
+  authorName: string;
+  messages: number;
+  color: string;
+}
+
+export function getChannelMessageDistribution(
+  channelId: string
+): ChannelMessageDistribution[] {
+  const channelMessages = mockMessages[channelId];
+
+  if (!channelMessages || channelMessages.length === 0) {
+    return [];
+  }
+
+  const grouped = new Map<string, { authorId: string; authorName: string; messages: number }>();
+
+  for (const msg of channelMessages) {
+    const existing = grouped.get(msg.author.id);
+    if (existing) {
+      existing.messages++;
+    } else {
+      grouped.set(msg.author.id, {
+        authorId: msg.author.id,
+        authorName: msg.author.username,
+        messages: 1,
+      });
+    }
+  }
+
+  const sorted = Array.from(grouped.values()).sort((a, b) => b.messages - a.messages);
+
+  return sorted.map((entry, index) => ({
+    ...entry,
+    color: PIE_COLORS[index % PIE_COLORS.length],
+  }));
 }

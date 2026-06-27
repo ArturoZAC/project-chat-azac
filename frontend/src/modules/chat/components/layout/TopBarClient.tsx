@@ -6,7 +6,7 @@ import { IconBell, IconChevronRight } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
-import { mockAdminUsers } from "@/modules/admin/lib/mock-admin-data";
+import { mockAdminUsers, mockAdminChannels } from "@/modules/admin/lib/mock-admin-data";
 import { NotificationPanel } from "@/modules/chat/components/notifications/NotificationPanel";
 
 interface Breadcrumb {
@@ -60,10 +60,22 @@ function useBreadcrumbs(pathname: string): Breadcrumb[] {
     }
 
     // /admin/channels
-    if (segments[0] === "admin" && segments[1] === "channels") {
+    if (segments[0] === "admin" && segments[1] === "channels" && segments.length === 2) {
       return [
         { label: "Administración", href: "/admin/users" },
         { label: "Canales" },
+      ];
+    }
+
+    // /admin/channels/:channelId
+    if (segments[0] === "admin" && segments[1] === "channels" && segments.length >= 3) {
+      const channelId = segments[2];
+      const channel = mockAdminChannels.find((ch) => ch.id === channelId);
+      const label = channel?.name ?? decodeURIComponent(channelId);
+      return [
+        { label: "Administración", href: "/admin/users" },
+        { label: "Canales", href: "/admin/channels" },
+        { label },
       ];
     }
 
