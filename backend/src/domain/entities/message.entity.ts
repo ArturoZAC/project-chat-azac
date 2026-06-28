@@ -4,7 +4,8 @@ export interface MessageEntityProps {
   isEdited: boolean;
   editedAt: Date | null;
   createdAt: Date;
-  channelId: string;
+  channelId: string | null;
+  conversationId: string | null;
   senderId: string;
   parentId: string | null;
 }
@@ -15,7 +16,8 @@ export class MessageEntity {
   public isEdited: boolean;
   public editedAt: Date | null;
   public createdAt: Date;
-  public channelId: string;
+  public channelId: string | null;
+  public conversationId: string | null;
   public senderId: string;
   public parentId: string | null;
 
@@ -26,6 +28,7 @@ export class MessageEntity {
     this.editedAt = props.editedAt;
     this.createdAt = props.createdAt;
     this.channelId = props.channelId;
+    this.conversationId = props.conversationId;
     this.senderId = props.senderId;
     this.parentId = props.parentId;
   }

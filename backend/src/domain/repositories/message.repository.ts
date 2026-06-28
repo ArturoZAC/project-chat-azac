@@ -2,7 +2,8 @@ import { MessageEntity } from '../entities/message.entity';
 
 export interface CreateMessageData {
   content: string;
-  channelId: string;
+  channelId?: string | null;
+  conversationId?: string | null;
   senderId: string;
   parentId?: string | null;
 }

@@ -8,8 +8,6 @@ import { ForgotPasswordUseCase } from '../../../application/use-cases/auth/forgo
 import { ResetPasswordUseCase } from '../../../application/use-cases/auth/reset-password.usecase';
 import { PrismaModule } from '../../../infrastructure/prisma/prisma.module';
 import { MailModule } from '../../../infrastructure/mail/mail.module';
-import { UserRepository } from '../../../domain/repositories/user.repository';
-import { UserPrismaRepository } from '../../../infrastructure/prisma/repositories/user.prisma.repository';
 import { EmailVerificationRepository } from '../../../domain/repositories/email-verification.repository';
 import { EmailVerificationPrismaRepository } from '../../../infrastructure/prisma/repositories/email-verification.prisma.repository';
 import { PasswordResetRepository } from '../../../domain/repositories/password-reset.repository';
@@ -39,7 +37,6 @@ import { ResendVerificationUseCase } from '../../../application/use-cases/auth/r
     ResetPasswordUseCase,
     ResendVerificationUseCase,
     JwtStrategy,
-    { provide: UserRepository, useClass: UserPrismaRepository },
     {
       provide: EmailVerificationRepository,
       useClass: EmailVerificationPrismaRepository,
