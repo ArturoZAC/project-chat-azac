@@ -1,32 +1,92 @@
 "use client";
 
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { IconArrowLeft, IconMessageOff, IconUserOff } from "@tabler/icons-react";
-import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
-import {
-  mockDMConversations,
-  getOtherParticipant,
-} from "@/modules/chat/lib/mock-dm-data";
+import { useEffect, useMemo } from "react";
+import { IconArrowLeft, IconUserOff } from "@tabler/icons-react";
+import { useConversationQueries } from "@/modules/chat/hooks/useConversationQueries";
+import { useConversationMutations } from "@/modules/chat/hooks/useConversationMutations";
 import { MessageList } from "@/modules/chat/components/chat/MessageList";
 import { ChatInput } from "@/modules/chat/components/chat/ChatInput";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 interface DMViewProps {
   userId: string;
 }
 
+// Mapping from raw backend message shape to the Message type used by MessageList
+function mapMessage(msg: {
+  id: string;
+  content: string;
+  senderId: string;
+  createdAt: string;
+  isEdited?: boolean;
+}, currentUserId: string, otherUsername: string) {
+  return {
+    id: msg.id,
+    content: msg.content,
+    author: {
+      id: msg.senderId,
+      username: msg.senderId === currentUserId ? "Tú" : otherUsername,
+      avatarUrl: null,
+    },
+    channel: { id: "", name: "" },
+    replyTo: null,
+    readBy: [],
+    createdAt: msg.createdAt,
+    updatedAt: msg.createdAt,
+  };
+}
+
 export function DMView({ userId }: DMViewProps) {
   const router = useRouter();
-  const otherUser = mockUsers.find((u) => u.id === userId);
+  const currentUser = useAuthStore((s) => s.user);
 
+  const { getConversations, getConversationMessages } = useConversationQueries();
+  const { sendMessageMutation, createOrGetConversationMutation } = useConversationMutations();
+
+  // Find the conversation with this user
+  const conversations = getConversations.data ?? [];
   const dmConversation = useMemo(() => {
-    return mockDMConversations.find((dm) =>
-      dm.participants.includes(currentUserId) && dm.participants.includes(userId)
+    return conversations.find((conv) =>
+      conv.participants.some((p) => p.id === userId),
     );
-  }, [userId]);
+  }, [conversations, userId]);
 
-  // User not found
-  if (!otherUser) {
+  const conversationId = dmConversation?.conversation?.id;
+  const otherParticipant = dmConversation?.participants.find((p) => p.id !== currentUser?.id);
+  const otherUsername = otherParticipant?.username ?? "Usuario";
+
+  // Fetch messages once we have the conversationId
+  const { data: messagesData, isLoading: messagesLoading } = getConversationMessages;
+
+  // Auto-create conversation if it doesn't exist
+  useEffect(() => {
+    if (!dmConversation && !createOrGetConversationMutation.isPending) {
+      createOrGetConversationMutation.mutate(userId);
+    }
+  }, [dmConversation, userId, createOrGetConversationMutation]);
+
+  const mappedMessages = useMemo(() => {
+    if (!messagesData?.data) return [];
+    const currentUserId = currentUser?.id ?? "";
+    return messagesData.data.map((msg) => mapMessage(msg, currentUserId, otherUsername));
+  }, [messagesData, currentUser?.id, otherUsername]);
+
+  const handleSend = async (content: string) => {
+    if (!conversationId) return;
+    sendMessageMutation.mutate({ conversationId, content });
+  };
+
+  if (!currentUser) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center">
@@ -34,23 +94,15 @@ export function DMView({ userId }: DMViewProps) {
             <IconUserOff size={28} className="text-primary" />
           </div>
           <div>
-            <h6 className="font-semibold">Usuario no encontrado</h6>
+            <h6 className="font-semibold">Debes iniciar sesión</h6>
             <p className="p-muted text-sm max-w-xs">
-              El usuario que buscas no existe o no está disponible.
+              Inicia sesión para ver tus mensajes.
             </p>
           </div>
         </div>
       </div>
     );
   }
-
-  const messages = dmConversation?.messages ?? [];
-  const otherInitials = getInitials(otherUser.username);
-
-  const handleSend = (content: string) => {
-    // Mock: no actual send for now — will connect to real API later
-    console.log("Send DM:", { to: userId, content });
-  };
 
   return (
     <div className="flex-1 flex flex-col h-full">
@@ -65,26 +117,21 @@ export function DMView({ userId }: DMViewProps) {
         </button>
         <div className="relative shrink-0">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-            <span className="p-white text-xs font-semibold">{otherInitials}</span>
+            <span className="p-white text-xs font-semibold">{getInitials(otherUsername)}</span>
           </div>
-          {otherUser.isOnline && (
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
-          )}
+          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
         </div>
         <div className="min-w-0">
-          <h6 className="font-semibold text-sm truncate">{otherUser.username}</h6>
-          <p className="small-muted">
-            {otherUser.isOnline ? "En línea" : "Desconectado"}
-          </p>
+          <h6 className="font-semibold text-sm truncate">{otherUsername}</h6>
+          <p className="small-muted">En línea</p>
         </div>
       </div>
 
-      {/* Messages — cuando conectes API real, envolver en Suspense:
-          <Suspense fallback={<MessagesSpinner />}>
-            <MessageListFetcher userId={userId} />
-          </Suspense>
-      */}
-      <MessageList messages={messages} isLoading={false} />
+      {/* Messages */}
+      <MessageList
+        messages={mappedMessages}
+        isLoading={messagesLoading}
+      />
 
       {/* DM Input */}
       <ChatInput onSend={handleSend} />

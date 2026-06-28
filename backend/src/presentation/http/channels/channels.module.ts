@@ -7,14 +7,8 @@ import { UpdateChannelUseCase } from '../../../application/use-cases/channels/up
 import { DeleteChannelUseCase } from '../../../application/use-cases/channels/delete-channel.usecase';
 import { JoinChannelUseCase } from '../../../application/use-cases/channels/join-channel.usecase';
 import { LeaveChannelUseCase } from '../../../application/use-cases/channels/leave-channel.usecase';
-import { PrismaModule } from '../../../infrastructure/prisma/prisma.module';
-import { ChannelRepository } from '../../../domain/repositories/channel.repository';
-import { ChannelPrismaRepository } from '../../../infrastructure/prisma/repositories/channel.prisma.repository';
-import { ChannelMemberRepository } from '../../../domain/repositories/channel-member.repository';
-import { ChannelMemberPrismaRepository } from '../../../infrastructure/prisma/repositories/channel-member.prisma.repository';
 
 @Module({
-  imports: [PrismaModule],
   controllers: [ChannelsController],
   providers: [
     CreateChannelUseCase,
@@ -24,11 +18,6 @@ import { ChannelMemberPrismaRepository } from '../../../infrastructure/prisma/re
     DeleteChannelUseCase,
     JoinChannelUseCase,
     LeaveChannelUseCase,
-    { provide: ChannelRepository, useClass: ChannelPrismaRepository },
-    {
-      provide: ChannelMemberRepository,
-      useClass: ChannelMemberPrismaRepository,
-    },
   ],
 })
 export class ChannelsModule {}

@@ -11,6 +11,7 @@ export class MessageMapper {
       editedAt: prisma.editedAt,
       createdAt: prisma.createdAt,
       channelId: prisma.channelId,
+      conversationId: prisma.conversationId,
       senderId: prisma.senderId,
       parentId: prisma.parentId,
     });
@@ -24,6 +25,7 @@ export class MessageMapper {
       editedAt: entity.editedAt,
       createdAt: entity.createdAt,
       channelId: entity.channelId,
+      conversationId: entity.conversationId,
       senderId: entity.senderId,
       parentId: entity.parentId,
     };
@@ -32,7 +34,8 @@ export class MessageMapper {
   static toCreatePrisma(data: CreateMessageData) {
     return {
       content: data.content,
-      channelId: data.channelId,
+      channelId: data.channelId ?? null,
+      conversationId: data.conversationId ?? null,
       senderId: data.senderId,
       parentId: data.parentId ?? null,
     };
@@ -46,6 +49,7 @@ export class MessageMapper {
       editedAt: entity.editedAt,
       createdAt: entity.createdAt,
       channelId: entity.channelId,
+      conversationId: entity.conversationId,
       senderId: entity.senderId,
       parentId: entity.parentId,
     };

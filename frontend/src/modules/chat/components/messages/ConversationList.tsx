@@ -3,12 +3,9 @@
 import { useRouter } from "next/navigation";
 import { IconHash, IconCheck, IconMessage } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
+import { useConversationQueries } from "@/modules/chat/hooks/useConversationQueries";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { mockMessages, getInitials } from "@/modules/chat/lib/mock-data";
-import {
-  mockDMConversations,
-  getOtherParticipant,
-  getDMUnreadCount,
-} from "@/modules/chat/lib/mock-dm-data";
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -39,11 +36,14 @@ interface ConversationItem {
 
 export function ConversationList() {
   const router = useRouter();
+  const currentUser = useAuthStore((s) => s.user);
   const { getAllChannels, getUnreadCounts, getMemberships } = useChannelQueries();
+  const { getConversations } = useConversationQueries();
 
   const channels = getAllChannels.data ?? [];
   const memberships = getMemberships.data ?? [];
   const unreadCounts = getUnreadCounts.data ?? {};
+  const conversations = getConversations.data ?? [];
 
   // Build conversation list: channels (memberships) + DMs
   const items: ConversationItem[] = [];
@@ -69,28 +69,36 @@ export function ConversationList() {
     });
   });
 
-  // Add DM conversations
-  mockDMConversations.forEach((dm) => {
-    const other = getOtherParticipant(dm);
-    const last = dm.messages[dm.messages.length - 1];
+  // Add DM conversations from API
+  conversations.forEach((conv) => {
+    const otherParticipant = conv.participants.find(
+      (p) => p.id !== currentUser?.id,
+    );
+    if (!otherParticipant) return;
 
     items.push({
-      id: dm.id,
+      id: conv.conversation.id,
       type: "dm",
-      name: other.username,
-      lastMessage: last
-        ? `${last.author.username === "Artur" ? "Tú" : last.author.username}: ${last.content}`
+      name: otherParticipant.username,
+      lastMessage: conv.lastMessage
+        ? `${
+            conv.lastMessage.senderId === currentUser?.id
+              ? "Tú"
+              : otherParticipant.username
+          }: ${conv.lastMessage.content}`
         : "Sin mensajes aún",
-      lastTime: last?.createdAt ?? dm.lastActivity,
-      unreadCount: getDMUnreadCount(dm.id),
-      avatarInitials: getInitials(other.username),
-      isOnline: other.isOnline,
-      href: `/dm/${other.id}`,
+      lastTime: conv.lastMessage?.createdAt ?? conv.conversation.updatedAt,
+      unreadCount: conv.unreadCount,
+      avatarInitials: getInitials(otherParticipant.username),
+      isOnline: true, // We could get online status from the participants list
+      href: `/dm/${otherParticipant.id}`,
     });
   });
 
   // Sort by last activity (most recent first)
-  items.sort((a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime());
+  items.sort(
+    (a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime(),
+  );
 
   if (items.length === 0) {
     return (
@@ -161,7 +169,9 @@ function ConversationItemRow({
           <span className="font-semibold truncate">
             {item.type === "channel" ? `#${item.name}` : item.name}
           </span>
-          <span className="small-muted shrink-0">{formatTimeAgo(item.lastTime)}</span>
+          <span className="small-muted shrink-0">
+            {formatTimeAgo(item.lastTime)}
+          </span>
         </div>
         <p className="p-muted truncate mt-0.5">{item.lastMessage}</p>
       </div>

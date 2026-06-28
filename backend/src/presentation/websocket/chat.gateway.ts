@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../../domain/repositories/user.repository';
 import { MessageRepository } from '../../domain/repositories/message.repository';
 import { ChannelMemberRepository } from '../../domain/repositories/channel-member.repository';
+import { ConversationRepository } from '../../domain/repositories/conversation.repository';
 import { MessageMapper } from '../../infrastructure/prisma/mappers/message.mapper';
 import { UserMapper } from '../../infrastructure/prisma/mappers/user.mapper';
 import { envs } from 'src/config/envs';
@@ -31,6 +32,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly userRepo: UserRepository,
     private readonly messageRepo: MessageRepository,
     private readonly channelMemberRepo: ChannelMemberRepository,
+    private readonly conversationRepo: ConversationRepository,
   ) {}
 
   // private async getUserFromSocket(client: Socket) {
@@ -71,7 +73,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // console.log('PAYLOAD:', payload);
 
       return await this.userRepo.findById(payload.id);
-    } catch (e) {
+    } catch {
       // console.log('ERROR:', e);
       return null;
     }
@@ -251,5 +253,107 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       messageId: data.messageId,
       channelId: message.channelId,
     });
+  }
+
+  @SubscribeMessage('conversation.join')
+  async handleJoinConversation(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { conversationId: string },
+  ) {
+    const user = client.data.user;
+    if (!user) return;
+
+    const isMember = await this.conversationRepo.isMember(
+      data.conversationId,
+      user.id,
+    );
+    if (!isMember) return;
+
+    client.join(`conversation:${data.conversationId}`);
+
+    this.server
+      .to(`conversation:${data.conversationId}`)
+      .emit('conversation.joined', {
+        conversationId: data.conversationId,
+        userId: user.id,
+        username: user.username,
+      });
+  }
+
+  @SubscribeMessage('conversation.message.send')
+  async handleSendConversationMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: { conversationId: string; content: string },
+  ) {
+    const user = client.data.user;
+    if (!user) return;
+
+    const isMember = await this.conversationRepo.isMember(
+      data.conversationId,
+      user.id,
+    );
+    if (!isMember) return;
+
+    const message = await this.messageRepo.create({
+      content: data.content,
+      conversationId: data.conversationId,
+      senderId: user.id,
+    });
+
+    this.server
+      .to(`conversation:${data.conversationId}`)
+      .emit('conversation.message.sent', {
+        ...MessageMapper.toResponse(message),
+        sender: UserMapper.toResponse(user),
+      });
+  }
+
+  @SubscribeMessage('conversation.message.edit')
+  async handleEditConversationMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: { conversationId: string; messageId: string; content: string },
+  ) {
+    const user = client.data.user;
+    if (!user) return;
+
+    const message = await this.messageRepo.findById(data.messageId);
+    if (!message || message.senderId !== user.id) return;
+    if (message.conversationId !== data.conversationId) return;
+
+    const updated = await this.messageRepo.update(data.messageId, {
+      content: data.content,
+    });
+
+    this.server
+      .to(`conversation:${data.conversationId}`)
+      .emit('conversation.message.edited', {
+        ...MessageMapper.toResponse(updated),
+        sender: UserMapper.toResponse(user),
+      });
+  }
+
+  @SubscribeMessage('conversation.message.delete')
+  async handleDeleteConversationMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: { conversationId: string; messageId: string },
+  ) {
+    const user = client.data.user;
+    if (!user) return;
+
+    const message = await this.messageRepo.findById(data.messageId);
+    if (!message || message.senderId !== user.id) return;
+    if (message.conversationId !== data.conversationId) return;
+
+    await this.messageRepo.delete(data.messageId);
+
+    this.server
+      .to(`conversation:${data.conversationId}`)
+      .emit('conversation.message.deleted', {
+        messageId: data.messageId,
+        conversationId: data.conversationId,
+      });
   }
 }
