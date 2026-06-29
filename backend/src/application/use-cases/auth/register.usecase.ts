@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, Logger } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { EmailVerificationRepository } from '../../../domain/repositories/email-verification.repository';
 import { MailService } from '../../../infrastructure/mail/mail.service';
@@ -36,12 +36,12 @@ export class RegisterUseCase {
       userId: user.id,
     });
 
-    // await this.mailService.sendVerificationEmail(user.email, token);
-    await this.mailService.sendVerificationEmail(
+    // Fire & Forget: email en background, User A no espera
+    this.mailService.sendVerificationEmail(
       user.email,
       user.username,
       token,
-    );
+    ).catch(err => Logger.error('Error enviando email de verificación:', err));
 
     return user;
   }

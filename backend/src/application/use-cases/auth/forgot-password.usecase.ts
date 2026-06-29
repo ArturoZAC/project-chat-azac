@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { PasswordResetRepository } from '../../../domain/repositories/password-reset.repository';
 import { MailService } from '../../../infrastructure/mail/mail.service';
@@ -28,11 +28,11 @@ export class ForgotPasswordUseCase {
       userId: user.id,
     });
 
-    // await this.mailService.sendPasswordResetEmail(user.email, token);
-    await this.mailService.sendResetPasswordEmail(
+    // Fire & Forget: email en background, User A no espera
+    this.mailService.sendResetPasswordEmail(
       user.email,
       user.username,
       token,
-    );
+    ).catch(err => Logger.error('Error enviando email de reset:', err));
   }
 }

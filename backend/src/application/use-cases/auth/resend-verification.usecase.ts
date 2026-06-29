@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { EmailVerificationRepository } from '../../../domain/repositories/email-verification.repository';
@@ -36,10 +37,11 @@ export class ResendVerificationUseCase {
       userId: user.id,
     });
 
-    await this.mailService.sendVerificationEmail(
+    // Fire & Forget: email en background, User A no espera
+    this.mailService.sendVerificationEmail(
       user.email,
       user.username,
       token,
-    );
+    ).catch(err => Logger.error('Error reenviando verificación:', err));
   }
 }
