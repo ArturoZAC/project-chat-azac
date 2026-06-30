@@ -2,13 +2,13 @@
 
 ## Stack
 
-| Layer | Tech | Notes |
-|---|---|---|
-| Backend | NestJS 11 + Prisma 7.8 + PostgreSQL | Clean Architecture |
-| Frontend | Next.js 16.2 App Router | Screaming Architecture |
-| Auth | JWT in httpOnly cookie (`token`) | No refresh tokens; expires 1d |
-| Real-time | Socket.io (server + client) | Cookie-based WS auth |
-| UI | Tailwind CSS v4 + Tabler Icons + Framer Motion | Custom typography system |
+| Layer     | Tech                                           | Notes                         |
+| --------- | ---------------------------------------------- | ----------------------------- |
+| Backend   | NestJS 11 + Prisma 7.8 + PostgreSQL            | Clean Architecture            |
+| Frontend  | Next.js 16.2 App Router                        | Screaming Architecture        |
+| Auth      | JWT in httpOnly cookie (`token`)               | No refresh tokens; expires 1d |
+| Real-time | Socket.io (server + client)                    | Cookie-based WS auth          |
+| UI        | Tailwind CSS v4 + Tabler Icons + Framer Motion | Custom typography system      |
 
 ## Project structure
 
@@ -32,6 +32,7 @@ frontend/         → Next.js app (port 5173 or 3000)
 ## Key commands
 
 ### Backend (`cd backend`)
+
 - `pnpm run start:dev` — dev with watch
 - `pnpm run build` — compile
 - `pnpm run lint` — ESLint with --fix
@@ -42,6 +43,7 @@ frontend/         → Next.js app (port 5173 or 3000)
 - `pnpm run prisma:studio` — DB UI at localhost:5555
 
 ### Frontend (`cd frontend`)
+
 - `pnpm run dev` — Next.js dev server
 - `pnpm run build` — production build
 - `pnpm run lint` — ESLint (next/core-web-vitals + typescript)
@@ -64,6 +66,7 @@ Controller → UseCase → Domain Repository Interface → Prisma Repository (In
 - `envs` object is validated at startup with Zod; process exits if missing vars
 
 ### WebSocket (Socket.io)
+
 - Gateway authenticates via JWT from cookie (parsed manually in `getUserFromSocket`)
 - Rooms: `user:{userId}` for direct notifications, `channel:{channelId}` for channel events
 - Events: `message.send`, `message.edit`, `message.delete`, `channel.join`
@@ -71,18 +74,20 @@ Controller → UseCase → Domain Repository Interface → Prisma Repository (In
 - Disconnects unauthenticated clients
 
 ### Auth endpoints
-| Method | Path | Description |
-|---|---|---|
-| POST | /api/auth/register | Register (returns user, no cookie) |
-| POST | /api/auth/login | Login (sets httpOnly cookie) |
-| GET | /api/auth/verify-email | Query param `?token=` |
-| POST | /api/auth/forgot-password | Sends recovery email |
-| POST | /api/auth/reset-password | Resets password |
-| POST | /api/auth/resend-verification | Resends verification email |
+
+| Method | Path                          | Description                        |
+| ------ | ----------------------------- | ---------------------------------- |
+| POST   | /api/auth/register            | Register (returns user, no cookie) |
+| POST   | /api/auth/login               | Login (sets httpOnly cookie)       |
+| GET    | /api/auth/verify-email        | Query param `?token=`              |
+| POST   | /api/auth/forgot-password     | Sends recovery email               |
+| POST   | /api/auth/reset-password      | Resets password                    |
+| POST   | /api/auth/resend-verification | Resends verification email         |
 
 ## Frontend conventions
 
 ### Routes
+
 ```
 /(auth)/login         → Login page (with AuthBranding sidebar)
 /(auth)/register      → Register page (with AuthBranding sidebar)
@@ -93,7 +98,8 @@ Controller → UseCase → Domain Repository Interface → Prisma Repository (In
 ```
 
 ### Typography (globals.css)
-- **Never use Tailwind text-* classes** — use the system classes instead
+
+- **Never use Tailwind text-\* classes** — use the system classes instead
 - Body font: Montserrat (CSS var `--font-montserrat`)
 - Heading font: Sora (CSS var `--font-sora`)
 - Classes: `.display`, `.lead`, `.lead2`, `.h2-hero`, `.h3-card`, `.subtitle1`, `.subtitle2`
@@ -101,6 +107,7 @@ Controller → UseCase → Domain Repository Interface → Prisma Repository (In
 - Theme colors as CSS vars: `--color-primary` (#7c3aed), `--color-black` (#111111), etc.
 
 ### Styling rules
+
 - Tailwind CSS v4 with `@tailwindcss/postcss` plugin
 - Use `@theme inline {}` CSS vars for colors
 - No Tailwind `text-white`, `text-black` — use system classes
