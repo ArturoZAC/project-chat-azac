@@ -16,6 +16,7 @@ import { JwtStrategy } from '../../../infrastructure/auth/jwt.strategy';
 import { envs } from '../../../config/envs';
 import { PassportModule } from '@nestjs/passport';
 import { ResendVerificationUseCase } from '../../../application/use-cases/auth/resend-verification.usecase';
+import { RenewSessionUseCase } from '../../../application/use-cases/auth/renew-session.usecase';
 
 @Global()
 @Module({
@@ -36,6 +37,7 @@ import { ResendVerificationUseCase } from '../../../application/use-cases/auth/r
     ForgotPasswordUseCase,
     ResetPasswordUseCase,
     ResendVerificationUseCase,
+    RenewSessionUseCase,
     JwtStrategy,
     {
       provide: EmailVerificationRepository,

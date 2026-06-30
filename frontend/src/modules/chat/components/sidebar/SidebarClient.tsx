@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   IconHash,
   IconMessage,
@@ -12,12 +14,14 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconMessageCircle,
+  IconLogout,
 } from "@tabler/icons-react";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { useUIStore } from "@/shared/store/ui.store";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
 import { useConversationQueries } from "@/modules/chat/hooks/useConversationQueries";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { logoutAction } from "@/modules/auth/actions/logout.action";
 
 function getInitials(name: string): string {
   return name
@@ -46,8 +50,30 @@ export function SidebarClient() {
   const { getTotalUnread: getChannelUnread, getMemberships } = useChannelQueries();
   const { getTotalUnread: getConvUnread, getUsers } = useConversationQueries();
   const user = useAuthStore((s) => s.user);
+  const clearSession = useAuthStore((s) => s.clearSession);
   const router = useRouter();
   const pathname = usePathname();
+
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    setShowUserMenu(false);
+    await logoutAction();
+    clearSession();
+    router.push("/login");
+  };
 
   const totalChannelUnread = getChannelUnread.data ?? 0;
   const totalConvUnread = getConvUnread.data ?? 0;
@@ -233,16 +259,23 @@ export function SidebarClient() {
       )}
 
       {/* User profile + collapse toggle */}
-      <div className={`border-t border-gray-light px-4 py-3 flex items-center gap-3 ${isSidebarCollapsed ? "flex-col px-2" : ""}`}>
-        {/* Avatar */}
-        <div className="relative shrink-0">
+      <div
+        ref={menuRef}
+        className={`relative border-t border-gray-light px-4 py-3 flex items-center gap-3 ${isSidebarCollapsed ? "flex-col px-2" : ""}`}
+      >
+        {/* Avatar — click to open menu */}
+        <button
+          onClick={() => setShowUserMenu((prev) => !prev)}
+          className="relative shrink-0 focus:outline-none"
+          title="Menú de usuario"
+        >
           <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
             <span className="p-white text-xs font-semibold">
               {currentUser ? getInitials(currentUser.username) : "?"}
             </span>
           </div>
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
-        </div>
+        </button>
 
         {/* User info — only when expanded */}
         {!isSidebarCollapsed && (
@@ -260,6 +293,34 @@ export function SidebarClient() {
         >
           {isSidebarCollapsed ? <IconChevronRight size={16} /> : <IconChevronLeft size={16} />}
         </button>
+
+        {/* User dropdown menu */}
+        <AnimatePresence>
+          {showUserMenu && (
+            <motion.div
+              initial={{ opacity: 0, y: -4, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.96 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className={`
+                absolute z-50 bg-white rounded-xl shadow-lg border border-gray-light py-1 min-w-[180px]
+                ${isSidebarCollapsed ? "bottom-full left-1/2 -translate-x-1/2 mb-2" : "bottom-full left-0 mb-2"}
+              `}
+            >
+              <div className="px-3 py-2 border-b border-gray-light">
+                <p className="text-sm font-semibold truncate">{currentUser?.username ?? "Usuario"}</p>
+                <p className="small-muted truncate">{currentUser?.email ?? ""}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-error hover:bg-red-50 transition-colors rounded-lg"
+              >
+                <IconLogout size={16} />
+                Cerrar sesión
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

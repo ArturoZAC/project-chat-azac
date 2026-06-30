@@ -21,7 +21,7 @@ export const LoginFormFields = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema) as any,
   });
 
   const onSubmit = async (data: LoginInput) => {
@@ -82,6 +82,7 @@ export const LoginFormFields = () => {
       <label className="flex items-center gap-2.5 cursor-pointer">
         <input
           type="checkbox"
+          {...register("rememberMe")}
           className="w-4 h-4 rounded border-gray-light accent-primary cursor-pointer"
         />
         <span className="small-muted">Recordar sesión</span>

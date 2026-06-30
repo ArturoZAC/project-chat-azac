@@ -14,7 +14,7 @@ export function ChannelsPageClient() {
 
   useEffect(() => {
     console.log({ user });
-  }, []);
+  }, [user]);
 
   const { getAllChannels } = useChannelQueries();
   const { setCreateModalOpen } = useChatStore();

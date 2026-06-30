@@ -5,7 +5,7 @@ import { IconHash, IconCheck, IconMessage } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
 import { useConversationQueries } from "@/modules/chat/hooks/useConversationQueries";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
-import { mockMessages, getInitials } from "@/modules/chat/lib/mock-data";
+import { getInitials } from "@/shared/helpers/get-initials";
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -53,17 +53,12 @@ export function ConversationList() {
     const channel = channels.find((ch) => ch.id === channelId);
     if (!channel) return;
 
-    const msgs = mockMessages[channelId] ?? [];
-    const last = msgs[msgs.length - 1];
-
     items.push({
       id: channelId,
       type: "channel",
       name: channel.name,
-      lastMessage: last
-        ? `${last.author.username}: ${last.content}`
-        : "Sin mensajes aún",
-      lastTime: last?.createdAt ?? channel.updatedAt,
+      lastMessage: "Sin mensajes aún",
+      lastTime: channel.updatedAt,
       unreadCount: unreadCounts[channelId] ?? 0,
       href: `/channels/${channelId}`,
     });

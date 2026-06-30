@@ -5,7 +5,8 @@ import { useMemo } from "react";
 import { IconBell, IconChevronRight } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
 import { useChatStore } from "@/modules/chat/store/chat.store";
-import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { getInitials } from "@/shared/helpers/get-initials";
 import { mockAdminUsers, mockAdminChannels } from "@/modules/admin/lib/mock-admin-data";
 import { NotificationPanel } from "@/modules/chat/components/notifications/NotificationPanel";
 
@@ -91,7 +92,7 @@ export function TopBarClient() {
   const { isNotificationPanelOpen, setNotificationPanelOpen } = useChatStore();
 
   const totalUnread = getTotalUnread.data ?? 0;
-  const currentUser = mockUsers.find((user) => user.id === currentUserId)!;
+  const currentUser = useAuthStore((s) => s.user);
 
   return (
     <>
@@ -137,7 +138,7 @@ export function TopBarClient() {
         {/* Avatar */}
         <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
           <span className="p-white text-xs font-semibold">
-            {getInitials(currentUser.username)}
+            {getInitials(currentUser?.username ?? "?")}
           </span>
         </div>
       </div>

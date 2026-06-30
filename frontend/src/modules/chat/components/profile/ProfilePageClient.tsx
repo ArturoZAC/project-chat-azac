@@ -2,11 +2,20 @@
 
 import { useRouter } from "next/navigation";
 import { IconArrowLeft, IconMail, IconCalendar, IconClock, IconCircleCheck, IconEdit } from "@tabler/icons-react";
-import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { getInitials } from "@/shared/helpers/get-initials";
 
 export function ProfilePageClient() {
   const router = useRouter();
-  const currentUser = mockUsers.find((user) => user.id === currentUserId)!;
+  const currentUser = useAuthStore((s) => s.user);
+
+  if (!currentUser) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
 
   const initials = getInitials(currentUser.username);
   const joinDate = new Date(currentUser.createdAt).toLocaleDateString("es-ES", {

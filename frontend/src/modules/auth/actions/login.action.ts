@@ -11,6 +11,8 @@ export const loginAction = async (payload: LoginPayload) => {
     const { data } = await authApi.post("/login", payload);
     return data;
   } catch (error: any) {
-    return error.response.data;
+    console.log(error);
+
+    return error.response?.data;
   }
 };

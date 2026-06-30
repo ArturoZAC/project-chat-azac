@@ -33,7 +33,7 @@ export class UsersController {
   ) {}
 
   @Get()
-  @Auth(Role.ADMIN)
+  @Auth()
   async getUsers(@Query() query: GetUsersDto) {
     const result = await this.getUsersUseCase.execute(query);
     return ResponseInterceptor.success(

@@ -1,11 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  sendConversationMessageApi,
-  editConversationMessageApi,
-  deleteConversationMessageApi,
-  markConversationReadApi,
-  createOrGetConversationApi,
-} from "../api/conversation.api";
+import { sendConversationMessageAction } from "../actions/conversations/send-conversation-message.action";
+import { editConversationMessageAction } from "../actions/conversations/edit-conversation-message.action";
+import { deleteConversationMessageAction } from "../actions/conversations/delete-conversation-message.action";
+import { markConversationReadAction } from "../actions/conversations/mark-conversation-read.action";
+import { createOrGetConversationAction } from "../actions/conversations/create-or-get-conversation.action";
 
 const CONVERSATIONS_KEY = ["conversations"];
 export function useConversationMutations() {
@@ -13,7 +11,8 @@ export function useConversationMutations() {
 
   const createOrGetConversationMutation = useMutation({
     mutationFn: async (participantId: string) => {
-      const res = await createOrGetConversationApi(participantId);
+      const res = await createOrGetConversationAction(participantId);
+      if (!res.success) throw new Error(res.message ?? "Error al crear conversación");
       return res.data;
     },
     onSuccess: () => {
@@ -29,7 +28,8 @@ export function useConversationMutations() {
       conversationId: string;
       content: string;
     }) => {
-      const res = await sendConversationMessageApi(convId, content);
+      const res = await sendConversationMessageAction(convId, content);
+      if (!res.success) throw new Error(res.message ?? "Error al enviar mensaje");
       return res.data;
     },
     onSuccess: () => {
@@ -50,7 +50,8 @@ export function useConversationMutations() {
       messageId: string;
       content: string;
     }) => {
-      const res = await editConversationMessageApi(convId, messageId, content);
+      const res = await editConversationMessageAction(convId, messageId, content);
+      if (!res.success) throw new Error(res.message ?? "Error al editar mensaje");
       return res.data;
     },
     onSuccess: () => {
@@ -68,7 +69,8 @@ export function useConversationMutations() {
       conversationId: string;
       messageId: string;
     }) => {
-      await deleteConversationMessageApi(convId, messageId);
+      const res = await deleteConversationMessageAction(convId, messageId);
+      if (!res.success) throw new Error(res.message ?? "Error al eliminar mensaje");
     },
     onSuccess: () => {
       qc.invalidateQueries({
@@ -80,7 +82,8 @@ export function useConversationMutations() {
 
   const markReadMutation = useMutation({
     mutationFn: async (convId: string) => {
-      await markConversationReadApi(convId);
+      const res = await markConversationReadAction(convId);
+      if (!res.success) throw new Error(res.message ?? "Error al marcar como leído");
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: CONVERSATIONS_KEY });

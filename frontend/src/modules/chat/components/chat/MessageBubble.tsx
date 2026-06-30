@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
-import { getInitials } from "@/modules/chat/lib/mock-data";
+import { getInitials } from "@/shared/helpers/get-initials";
 
 interface MessageBubbleProps {
   message: Message;

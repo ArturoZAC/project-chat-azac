@@ -48,7 +48,7 @@ export class UserMapper {
       id: user.id,
       username: user.username,
       email: user.email,
-      passwordHash: user.passwordHash,
+      // passwordHash: user.passwordHash,
       avatarUrl: user.avatarUrl,
       role: user.role,
       isOnline: user.isOnline,

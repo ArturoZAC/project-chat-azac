@@ -10,6 +10,8 @@ interface ChatStore {
   isMembersPanelOpen: boolean;
   isCreateModalOpen: boolean;
   isNotificationPanelOpen: boolean;
+  /** IDs of channels the current user has joined (tracked client-side) */
+  joinedChannelIds: string[];
 
   setActiveTab: (tab: ChatTab) => void;
   setActiveChannelId: (id: string | null) => void;
@@ -18,6 +20,8 @@ interface ChatStore {
   setMembersPanelOpen: (open: boolean) => void;
   setCreateModalOpen: (open: boolean) => void;
   setNotificationPanelOpen: (open: boolean) => void;
+  addJoinedChannel: (id: string) => void;
+  removeJoinedChannel: (id: string) => void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
@@ -27,6 +31,7 @@ export const useChatStore = create<ChatStore>((set) => ({
   isMembersPanelOpen: false,
   isCreateModalOpen: false,
   isNotificationPanelOpen: false,
+  joinedChannelIds: [],
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   setActiveChannelId: (id) => set({ activeChannelId: id }),
@@ -35,4 +40,10 @@ export const useChatStore = create<ChatStore>((set) => ({
   setMembersPanelOpen: (open) => set({ isMembersPanelOpen: open }),
   setCreateModalOpen: (open) => set({ isCreateModalOpen: open }),
   setNotificationPanelOpen: (open) => set({ isNotificationPanelOpen: open }),
+  addJoinedChannel: (id) => set((s) => ({
+    joinedChannelIds: s.joinedChannelIds.includes(id) ? s.joinedChannelIds : [...s.joinedChannelIds, id],
+  })),
+  removeJoinedChannel: (id) => set((s) => ({
+    joinedChannelIds: s.joinedChannelIds.filter((c) => c !== id),
+  })),
 }));

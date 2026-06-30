@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { IconMessage } from "@tabler/icons-react";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
-import { currentUserId } from "@/modules/chat/lib/mock-data";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { MessageBubble } from "./MessageBubble";
 import { DateSeparator } from "./DateSeparator";
 
@@ -25,6 +25,8 @@ function shouldShowDateSeparator(messages: Message[], index: number): boolean {
 
 export function MessageList({ messages, isLoading }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const currentUser = useAuthStore((s) => s.user);
+  const currentUserId = currentUser?.id ?? "";
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

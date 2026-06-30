@@ -3,14 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconPhoto, IconArrowLeft } from "@tabler/icons-react";
-import { mockUsers, currentUserId, getInitials } from "@/modules/chat/lib/mock-data";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { getInitials } from "@/shared/helpers/get-initials";
 
 export function EditProfilePageClient() {
   const router = useRouter();
-  const currentUser = mockUsers.find((user) => user.id === currentUserId)!;
+  const currentUser = useAuthStore((s) => s.user);
+  const [username, setUsername] = useState(currentUser?.username ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl ?? "");
 
-  const [username, setUsername] = useState(currentUser.username);
-  const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl ?? "");
+  if (!currentUser) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
 
   const handleSave = () => {
     // Mock: would call API to update profile

@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconArrowLeft, IconMail, IconLock, IconCircleCheck, IconBell, IconMusic, IconLogout } from "@tabler/icons-react";
-import { mockUsers, currentUserId } from "@/modules/chat/lib/mock-data";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { logoutAction } from "@/modules/auth/actions/logout.action";
 
 export function SettingsPageClient() {
   const router = useRouter();
-  const currentUser = mockUsers.find((user) => user.id === currentUserId)!;
+  const currentUser = useAuthStore((s) => s.user);
+  const clearSession = useAuthStore((s) => s.clearSession);
 
   const [notifications, setNotifications] = useState({
     messages: true,
@@ -18,9 +20,10 @@ export function SettingsPageClient() {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleLogout = () => {
-    // Mock: would call auth API to logout
-    console.log("Logout");
+  const handleLogout = async () => {
+    await logoutAction();
+    clearSession();
+    router.push("/login");
   };
 
   return (
@@ -50,7 +53,7 @@ export function SettingsPageClient() {
                     <IconMail size={16} className="text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{currentUser.email}</p>
+                    <p className="text-sm font-medium truncate">{currentUser?.email ?? "—"}</p>
                     <p className="small-muted">Correo electrónico</p>
                   </div>
                 </div>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { IconHash, IconCheck, IconChevronRight } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
-import { mockMessages } from "@/modules/chat/lib/mock-data";
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -34,20 +33,16 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
   const channels = getAllChannels.data ?? [];
   const unreadCounts = getUnreadCounts.data ?? {};
 
-  // Build unread items — same data as /messages but show only last 5
+  // Build unread items — only channels with unread messages
   const items = channels
     .filter((ch) => (unreadCounts[ch.id] ?? 0) > 0)
-    .map((ch) => {
-      const msgs = mockMessages[ch.id] ?? [];
-      const last = msgs[msgs.length - 1];
-      return {
-        channelId: ch.id,
-        channelName: ch.name,
-        unreadCount: unreadCounts[ch.id] ?? 0,
-        lastMessage: last ? `${last.author.username}: ${last.content}` : "",
-        lastTime: last?.createdAt ?? ch.updatedAt,
-      };
-    })
+    .map((ch) => ({
+      channelId: ch.id,
+      channelName: ch.name,
+      unreadCount: unreadCounts[ch.id] ?? 0,
+      lastMessage: "Mensajes sin leer",
+      lastTime: ch.updatedAt,
+    }))
     .sort((a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime())
     .slice(0, 5);
 

@@ -2,11 +2,13 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { LoginDto } from '../../../presentation/http/auth/dtos/login.dto';
+import { envs } from '../../../config/envs';
 import * as bcrypt from 'bcryptjs';
 
 export interface LoginResult {
   token: string;
   userId: string;
+  rememberMe: boolean;
 }
 
 @Injectable()
@@ -26,11 +28,17 @@ export class LoginUseCase {
     if (!user.isEmailVerified)
       throw new UnauthorizedException('You must verify your email first');
 
-    const token = this.jwtService.sign({
-      id: user.id,
-      email: user.email,
-    });
+    const rememberMe = dto.rememberMe ?? false;
 
-    return { token, userId: user.id };
+    const token = this.jwtService.sign(
+      {
+        id: user.id,
+        email: user.email,
+        rememberMe,
+      },
+      { expiresIn: rememberMe ? '7d' : envs.JWT_EXPIRES_IN } as any,
+    );
+
+    return { token, userId: user.id, rememberMe };
   }
 }
