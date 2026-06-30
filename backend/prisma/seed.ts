@@ -70,56 +70,6 @@ async function main() {
   );
 
   console.log('✅ 10 usuarios creados');
-
-  // Create DM conversations between first user and some others
-  const dmPairs = [
-    [createdUsers[0].id, createdUsers[1].id], // arturo <-> pedro
-    [createdUsers[0].id, createdUsers[2].id], // arturo <-> maria
-    [createdUsers[0].id, createdUsers[3].id], // arturo <-> carlos
-    [createdUsers[1].id, createdUsers[2].id], // pedro <-> maria
-  ];
-
-  const dmMessages = [
-    { conversationIdx: 0, senderIdx: 1, content: '¡Hola Arturo! ¿Cómo estás?' },
-    { conversationIdx: 0, senderIdx: 0, content: 'Muy bien Pedro, ¿y tú?' },
-    { conversationIdx: 0, senderIdx: 1, content: 'Genial, quería consultarte sobre el proyecto' },
-    { conversationIdx: 0, senderIdx: 0, content: 'Claro, dime en qué puedo ayudarte' },
-    { conversationIdx: 1, senderIdx: 2, content: 'Hola Arturo, ¿tienes un momento?' },
-    { conversationIdx: 1, senderIdx: 0, content: 'Hola Maria, sí claro' },
-    { conversationIdx: 1, senderIdx: 2, content: 'Te envié los documentos por correo' },
-    { conversationIdx: 2, senderIdx: 0, content: 'Carlos, ¿revisaste el diseño?' },
-    { conversationIdx: 2, senderIdx: 3, content: 'Sí, ya lo revisé, me gusta mucho' },
-    { conversationIdx: 3, senderIdx: 1, content: 'Maria, ¿viste el último cambio?' },
-    { conversationIdx: 3, senderIdx: 2, content: 'Sí, quedó muy bien' },
-  ];
-
-  const conversations = await Promise.all(
-    dmPairs.map(([user1Id, user2Id]) =>
-      prisma.conversation.create({
-        data: {
-          members: {
-            create: [{ userId: user1Id }, { userId: user2Id }],
-          },
-        },
-      }),
-    ),
-  );
-
-  console.log(`✅ ${conversations.length} conversaciones creadas`);
-
-  const messages = await Promise.all(
-    dmMessages.map((msg) =>
-      prisma.message.create({
-        data: {
-          content: msg.content,
-          conversationId: conversations[msg.conversationIdx].id,
-          senderId: createdUsers[msg.senderIdx].id,
-        },
-      }),
-    ),
-  );
-
-  console.log(`✅ ${messages.length} mensajes DM creados`);
 }
 
 main()

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IconX, IconHash } from "@tabler/icons-react";
 import { useChatStore } from "@/modules/chat/store/chat.store";
-import { useChannelMutations } from "@/modules/chat/hooks/useChannelMutations";
+import { useChannelMutations } from "@/modules/chat/hooks/channels/useChannelMutations";
 import { createChannelSchema, type CreateChannelInput } from "@/modules/chat/schemas/chat.schema";
 
 export function CreateChannelModal() {

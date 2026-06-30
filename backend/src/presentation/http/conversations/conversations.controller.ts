@@ -64,7 +64,7 @@ export class ConversationsController {
       user.id,
     );
     return ResponseInterceptor.success(
-      conversations.map(ConversationMapper.toDetailsResponse),
+      conversations.map((conv) => ConversationMapper.toDetailsResponse(conv)),
       'Conversaciones obtenidas exitosamente',
     );
   }

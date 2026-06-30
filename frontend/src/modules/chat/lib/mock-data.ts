@@ -1,4 +1,4 @@
-import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channel.interface";
+import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channels/channel.interface";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
 import type { User } from "@/modules/auth/interfaces/user.interface";
 

@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { IconArrowLeft, IconUserOff } from "@tabler/icons-react";
-import { useConversationQueries } from "@/modules/chat/hooks/useConversationQueries";
-import { useConversationMutations } from "@/modules/chat/hooks/useConversationMutations";
+import { useConversationQueries } from "@/modules/chat/hooks/conversations/useConversationQueries";
+import { useConversationMutations } from "@/modules/chat/hooks/conversations/useConversationMutations";
 import { MessageList } from "@/modules/chat/components/chat/MessageList";
 import { ChatInput } from "@/modules/chat/components/chat/ChatInput";
 import { useAuthStore } from "@/modules/auth/store/auth.store";

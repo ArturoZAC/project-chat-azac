@@ -1,7 +1,7 @@
 "use client";
 
 import { IconArrowLeft, IconHash, IconLock, IconUsers } from "@tabler/icons-react";
-import type { Channel } from "@/modules/chat/interfaces/channel.interface";
+import type { Channel } from "@/modules/chat/interfaces/channels/channel.interface";
 
 interface ChatHeaderProps {
   channel: Channel;

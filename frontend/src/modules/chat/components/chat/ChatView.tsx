@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { IconMessageOff } from "@tabler/icons-react";
-import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
+import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";

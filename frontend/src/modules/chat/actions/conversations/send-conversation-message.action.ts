@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { conversationsApi } from "@/modules/chat/api/conversations.api";
 import type { ApiResponse } from "@/shared/interfaces/api.interface";
-import type { MessageInConversation } from "@/modules/chat/interfaces/conversation.interface";
+import type { MessageInConversation } from "@/modules/chat/interfaces/conversations/conversation.interface";
 
 export const sendConversationMessageAction = async (
   conversationId: string,

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { IconHash, IconCheck, IconChevronRight } from "@tabler/icons-react";
-import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
+import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);

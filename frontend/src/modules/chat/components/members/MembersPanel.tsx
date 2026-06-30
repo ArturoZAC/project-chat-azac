@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { IconX, IconUsers } from "@tabler/icons-react";
-import type { ChannelMember } from "@/modules/chat/interfaces/channel.interface";
+import type { ChannelMember } from "@/modules/chat/interfaces/channels/channel.interface";
 import { getInitials } from "@/shared/helpers/get-initials";
 
 interface MembersPanelProps {

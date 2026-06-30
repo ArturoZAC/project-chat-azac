@@ -3,10 +3,10 @@ import { getChannelsAction } from "@/modules/chat/actions/channels/get-channels.
 import { getChannelAction } from "@/modules/chat/actions/channels/get-channel.action";
 import { getChannelMessagesAction } from "@/modules/chat/actions/channels/get-channel-messages.action";
 import { useChatStore } from "@/modules/chat/store/chat.store";
-import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channel.interface";
+import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channels/channel.interface";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
-import type { ChannelBackend } from "@/modules/chat/interfaces/channel-backend.interface";
-import type { ChannelMessageBackend } from "@/modules/chat/interfaces/channel-message-backend.interface";
+import type { ChannelBackend } from "@/modules/chat/interfaces/channels/channel-backend.interface";
+import type { ChannelMessageBackend } from "@/modules/chat/interfaces/channels/channel-message-backend.interface";
 
 const CHANNELS_KEY = ["channels"];
 const CHANNEL_KEY = (id: string) => ["channels", id];
@@ -30,10 +30,7 @@ function mapChannel(ch: ChannelBackend): Channel {
   };
 }
 
-function mapChannelMessage(
-  msg: ChannelMessageBackend,
-  channelName: string,
-): Message {
+function mapChannelMessage(msg: ChannelMessageBackend, channelName: string): Message {
   return {
     id: msg.id,
     content: msg.content,
@@ -81,8 +78,7 @@ export function useChannelQueries(channelId?: string) {
       if (!res.success) return [];
 
       // Look up channel name from cache
-      const channelName =
-        getAllChannels.data?.find((c) => c.id === channelId)?.name ?? "";
+      const channelName = getAllChannels.data?.find((c) => c.id === channelId)?.name ?? "";
 
       return (res.data as { data: ChannelMessageBackend[] }).data.map((msg) =>
         mapChannelMessage(msg, channelName),

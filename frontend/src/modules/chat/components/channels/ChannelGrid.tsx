@@ -1,4 +1,4 @@
-import type { Channel } from "@/modules/chat/interfaces/channel.interface";
+import type { Channel } from "@/modules/chat/interfaces/channels/channel.interface";
 import { ChannelCard } from "./ChannelCard";
 
 interface ChannelGridProps {

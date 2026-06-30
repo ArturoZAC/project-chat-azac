@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { IconHash, IconLock, IconUsers, IconArrowRight } from "@tabler/icons-react";
-import type { Channel } from "@/modules/chat/interfaces/channel.interface";
-import { useChannelMutations } from "@/modules/chat/hooks/useChannelMutations";
-import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
+import type { Channel } from "@/modules/chat/interfaces/channels/channel.interface";
+import { useChannelMutations } from "@/modules/chat/hooks/channels/useChannelMutations";
+import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 
 interface ChannelCardProps {
   channel: Channel;

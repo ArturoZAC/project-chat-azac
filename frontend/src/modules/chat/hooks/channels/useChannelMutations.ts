@@ -94,13 +94,7 @@ export function useChannelMutations() {
 
   // ── Delete message ──────────────────────────────────
   const deleteMessageMutation = useMutation({
-    mutationFn: async ({
-      channelId,
-      messageId,
-    }: {
-      channelId: string;
-      messageId: string;
-    }) => {
+    mutationFn: async ({ channelId, messageId }: { channelId: string; messageId: string }) => {
       const res = await deleteChannelMessageAction(channelId, messageId);
       if (!res.success) throw new Error(res.message ?? "Error al eliminar mensaje");
     },

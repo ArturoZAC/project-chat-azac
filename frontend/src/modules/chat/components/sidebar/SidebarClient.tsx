@@ -18,12 +18,13 @@ import {
 } from "@tabler/icons-react";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { useUIStore } from "@/shared/store/ui.store";
-import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
-import { useConversationQueries } from "@/modules/chat/hooks/useConversationQueries";
+import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
+import { useConversationQueries } from "@/modules/chat/hooks/conversations/useConversationQueries";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { logoutAction } from "@/modules/auth/actions/logout.action";
 
-function getInitials(name: string): string {
+function getInitials(name: string | null | undefined): string {
+  if (!name) return "?";
   return name
     .split(" ")
     .map((n) => n[0])
@@ -48,7 +49,7 @@ export function SidebarClient() {
   const { activeTab, setActiveTab } = useChatStore();
   const { isSidebarCollapsed, toggleSidebar } = useUIStore();
   const { getTotalUnread: getChannelUnread, getMemberships } = useChannelQueries();
-  const { getTotalUnread: getConvUnread, getUsers } = useConversationQueries();
+  const { getTotalUnread: getConvUnread, getConversations } = useConversationQueries();
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
   const router = useRouter();
@@ -79,7 +80,7 @@ export function SidebarClient() {
   const totalConvUnread = getConvUnread.data ?? 0;
   const totalUnread = totalChannelUnread + totalConvUnread;
   const memberships = getMemberships.data ?? [];
-  const users = getUsers.data ?? [];
+  const conversations = getConversations.data ?? [];
   const currentUser = user;
 
   // Sync activeTab with current path
@@ -160,37 +161,56 @@ export function SidebarClient() {
         <div className="flex-1 overflow-y-auto px-3 mt-2 space-y-3">
           {/* ====== DIRECTOS ====== */}
           <div>
-            <button
-              onClick={() => router.push("/messages")}
-              className="w-full text-left px-3 pb-1 small-muted uppercase tracking-wider font-semibold hover:text-gray-dark transition-colors flex items-center justify-between"
-            >
-              <span>Directos</span>
-              <IconMessageCircle size={14} className="text-silver-dark" />
-            </button>
+            <div className="flex items-center justify-between px-3 pb-1">
+              <span className="small-muted uppercase tracking-wider font-semibold">Directos</span>
+              <button
+                onClick={() => router.push("/messages/start")}
+                className="p-1 rounded-lg hover:bg-silver-light text-silver-dark hover:text-primary transition-colors"
+                title="Nueva conversación"
+              >
+                <IconMessageCircle size={16} />
+              </button>
+            </div>
 
-            {users.length > 0 ? (
-              <div className="flex flex-col gap-0.5">
-                {users
-                  .filter((u) => u.id !== currentUser?.id)
-                  .slice(0, 6)
-                  .map((u) => (
-                    <UserShortcut
-                      key={u.id}
-                      userId={u.id}
-                      username={u.username}
-                      isOnline={u.isOnline}
-                      onClick={() => router.push(`/dm/${u.id}`)}
-                    />
-                  ))}
-              </div>
+            {conversations.length > 0 ? (
+              <>
+                <div className="flex flex-col gap-0.5">
+                  {conversations.slice(0, 6).map((conv) => {
+                    const other = conv.participants.find((p) => p.id !== currentUser?.id);
+                    if (!other) return null;
+                    return (
+                      <UserShortcut
+                        key={other.id}
+                        userId={other.id}
+                        username={other.username}
+                        isOnline={true}
+                        onClick={() => router.push(`/dm/${other.id}`)}
+                      />
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => router.push("/messages/start")}
+                  className="flex items-center gap-2 w-full mt-1 px-3 py-2 rounded-lg hover:bg-silver-light text-silver-dark hover:text-primary transition-colors btn-sans text-xs font-semibold cursor-pointer border-none bg-transparent"
+                >
+                  <IconMessageCircle size={14} />
+                  Nueva conversación
+                </button>
+              </>
             ) : (
               <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
                 <div className="w-10 h-10 rounded-xl bg-silver-light flex items-center justify-center">
                   <IconMoodSad size={20} className="text-silver-dark" />
                 </div>
                 <p className="p-muted text-sm">
-                  No hay usuarios disponibles
+                  No tienes conversaciones
                 </p>
+                <button
+                  onClick={() => router.push("/messages/start")}
+                  className="btn-sans text-xs font-semibold span-primary hover:underline mt-1 cursor-pointer border-none bg-transparent"
+                >
+                  Iniciar una nueva
+                </button>
               </div>
             )}
           </div>
@@ -222,34 +242,36 @@ export function SidebarClient() {
             )}
           </div>
 
-          {/* Admin section — only when expanded */}
-          <div>
-            <hr className="border-t border-gray-light mb-3" />
-            <span className="block px-3 pb-1 small-muted uppercase tracking-wider font-semibold">
-              Administración
-            </span>
-            <div className="flex flex-col gap-0.5">
-              {ADMIN_NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTabId === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => router.push(item.path)}
-                    className={`
-                      flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left w-full
-                      ${isActive ? "bg-primary-light" : "hover:bg-silver-light"}
-                    `}
-                  >
-                    <Icon size={16} className={`${isActive ? "text-primary" : "text-silver-dark"} shrink-0`} />
-                    <span className={`text-sm truncate ${isActive ? "span-primary" : "text-gray-dark"}`}>
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
+          {/* Admin section — only for ADMIN role */}
+          {currentUser?.role === "ADMIN" && (
+            <div>
+              <hr className="border-t border-gray-light mb-3" />
+              <span className="block px-3 pb-1 small-muted uppercase tracking-wider font-semibold">
+                Administración
+              </span>
+              <div className="flex flex-col gap-0.5">
+                {ADMIN_NAV_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTabId === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => router.push(item.path)}
+                      className={`
+                        flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left w-full
+                        ${isActive ? "bg-primary-light" : "hover:bg-silver-light"}
+                      `}
+                    >
+                      <Icon size={16} className={`${isActive ? "text-primary" : "text-silver-dark"} shrink-0`} />
+                      <span className={`text-sm truncate ${isActive ? "span-primary" : "text-gray-dark"}`}>
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 

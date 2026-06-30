@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { sendConversationMessageAction } from "../actions/conversations/send-conversation-message.action";
-import { editConversationMessageAction } from "../actions/conversations/edit-conversation-message.action";
-import { deleteConversationMessageAction } from "../actions/conversations/delete-conversation-message.action";
-import { markConversationReadAction } from "../actions/conversations/mark-conversation-read.action";
-import { createOrGetConversationAction } from "../actions/conversations/create-or-get-conversation.action";
+import { sendConversationMessageAction } from "@/modules/chat/actions/conversations/send-conversation-message.action";
+import { editConversationMessageAction } from "@/modules/chat/actions/conversations/edit-conversation-message.action";
+import { deleteConversationMessageAction } from "@/modules/chat/actions/conversations/delete-conversation-message.action";
+import { markConversationReadAction } from "@/modules/chat/actions/conversations/mark-conversation-read.action";
+import { createOrGetConversationAction } from "@/modules/chat/actions/conversations/create-or-get-conversation.action";
 
 const CONVERSATIONS_KEY = ["conversations"];
 export function useConversationMutations() {

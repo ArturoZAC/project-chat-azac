@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
-import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
+import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { ChannelGrid } from "./ChannelGrid";
@@ -12,13 +12,16 @@ import { CreateChannelModal } from "./CreateChannelModal";
 export function ChannelsPageClient() {
   const { user } = useAuthStore();
 
-  useEffect(() => {
-    console.log({ user });
-  }, [user]);
-
   const { getAllChannels } = useChannelQueries();
   const { setCreateModalOpen } = useChatStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // Ensures server render matches client's first render (both show skeleton),
+  // then client switches to real content without hydration mismatch.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const channels = getAllChannels.data ?? [];
   const isLoading = getAllChannels.isLoading;
@@ -31,6 +34,8 @@ export function ChannelsPageClient() {
   );
 
   const skeletonCards = Array.from({ length: 4 });
+
+  const showSkeleton = !mounted || isLoading;
 
   return (
     <div className="flex flex-col h-full p-6">
@@ -65,7 +70,7 @@ export function ChannelsPageClient() {
       </div>
 
       {/* Content */}
-      {isLoading ? (
+      {showSkeleton ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {skeletonCards.map((_placeholder, index) => (
             <motion.div

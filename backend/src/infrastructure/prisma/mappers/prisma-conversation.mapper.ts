@@ -30,7 +30,7 @@ export class ConversationMapper {
 
   static toDetailsResponse(details: ConversationWithDetails) {
     return {
-      conversation: this.toResponse(details.conversation),
+      conversation: ConversationMapper.toResponse(details.conversation),
       participants: details.participants,
       lastMessage: details.lastMessage
         ? MessageMapper.toResponse(details.lastMessage)

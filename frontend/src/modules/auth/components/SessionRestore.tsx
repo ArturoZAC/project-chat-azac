@@ -6,7 +6,6 @@ import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { restoreSessionAction } from "@/modules/auth/actions/restore-session.action";
 
 export function SessionRestore({ children }: { children: React.ReactNode }) {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const setSession = useAuthStore((s) => s.setSession);
   const setUser = useAuthStore((s) => s.setUser);
   const clearSession = useAuthStore((s) => s.clearSession);
@@ -19,14 +18,11 @@ export function SessionRestore({ children }: { children: React.ReactNode }) {
     if (restored.current) return;
     restored.current = true;
 
-    // If already authenticated (e.g. just logged in), skip
-    if (isAuthenticated) return;
-
     const restore = async () => {
       const result = await restoreSessionAction();
 
       if (result.success) {
-        setSession(result.data.userId);
+        setSession(result.data.id);
         setUser(result.data);
       } else {
         clearSession();

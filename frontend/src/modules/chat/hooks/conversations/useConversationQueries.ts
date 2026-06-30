@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getConversationsAction } from "../actions/conversations/get-conversations.action";
-import { getConversationMessagesAction } from "../actions/conversations/get-conversation-messages.action";
+import { getConversationsAction } from "@/modules/chat/actions/conversations/get-conversations.action";
+import { getConversationMessagesAction } from "@/modules/chat/actions/conversations/get-conversation-messages.action";
 import { getUsersAction } from "@/shared/actions/get-users.action";
-import type { ConversationWithDetails } from "../interfaces/conversation.interface";
-import type { PaginatedMessages } from "../interfaces/conversation.interface";
+import type { ConversationWithDetails } from "@/modules/chat/interfaces/conversations/conversation.interface";
+import type { PaginatedMessages } from "@/modules/chat/interfaces/conversations/conversation.interface";
 import type { User } from "@/modules/auth/interfaces/user.interface";
 
 const CONVERSATIONS_KEY = ["conversations"];

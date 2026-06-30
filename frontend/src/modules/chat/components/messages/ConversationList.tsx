@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { IconHash, IconCheck, IconMessage } from "@tabler/icons-react";
-import { useChannelQueries } from "@/modules/chat/hooks/useChannelQueries";
-import { useConversationQueries } from "@/modules/chat/hooks/useConversationQueries";
+import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
+import { useConversationQueries } from "@/modules/chat/hooks/conversations/useConversationQueries";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { getInitials } from "@/shared/helpers/get-initials";
 
@@ -39,6 +40,11 @@ export function ConversationList() {
   const currentUser = useAuthStore((s) => s.user);
   const { getAllChannels, getUnreadCounts, getMemberships } = useChannelQueries();
   const { getConversations } = useConversationQueries();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const channels = getAllChannels.data ?? [];
   const memberships = getMemberships.data ?? [];
@@ -94,6 +100,24 @@ export function ConversationList() {
   items.sort(
     (a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime(),
   );
+
+  if (!mounted) {
+    return (
+      <div className="overflow-y-auto flex-1 px-6 py-4">
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-start gap-3 w-full px-4 py-3.5 rounded-xl border border-gray-light animate-pulse">
+              <div className="w-10 h-10 rounded-full bg-gray-light shrink-0" />
+              <div className="flex-1 min-w-0 self-center space-y-2">
+                <div className="h-4 w-28 bg-gray-light rounded" />
+                <div className="h-3 w-40 bg-gray-light rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

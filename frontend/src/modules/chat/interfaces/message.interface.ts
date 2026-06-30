@@ -1,5 +1,5 @@
 import type { User } from "@/modules/auth/interfaces/user.interface";
-import type { Channel } from "@/modules/chat/interfaces/channel.interface";
+import type { Channel } from "@/modules/chat/interfaces/channels/channel.interface";
 
 export interface Message {
   id: string;

@@ -45,7 +45,7 @@ export class ConversationPrismaRepository implements ConversationRepository {
       },
     });
 
-    return Promise.all(
+    const result = await Promise.all(
       memberships.map(async (membership) => {
         const conv = membership.conversation;
 
@@ -69,35 +69,43 @@ export class ConversationPrismaRepository implements ConversationRepository {
         };
       }),
     );
+
+    // Sort by most recent activity (lastMessage createdAt desc, then conversation updatedAt desc)
+    result.sort((a, b) => {
+      const aTime = a.lastMessage?.createdAt ?? a.conversation.updatedAt;
+      const bTime = b.lastMessage?.createdAt ?? b.conversation.updatedAt;
+      return bTime.getTime() - aTime.getTime();
+    });
+
+    return result;
   }
 
   async findByParticipants(
     userIds: string[],
   ): Promise<ConversationEntity | null> {
-    // Need to find a conversation that has exactly these two participants
     const [firstId, secondId] = userIds;
 
-    const common = await this.prisma.conversationMember.findFirst({
+    // Get all conversation IDs for the first user
+    const firstMemberships = await this.prisma.conversationMember.findMany({
       where: { userId: firstId },
-      include: {
-        conversation: {
-          include: {
-            members: {
-              where: { userId: secondId },
-            },
-          },
+      select: { conversationId: true },
+    });
+
+    if (firstMemberships.length === 0) return null;
+
+    // Find if the second user shares any of those conversations
+    const common = await this.prisma.conversationMember.findFirst({
+      where: {
+        userId: secondId,
+        conversationId: {
+          in: firstMemberships.map((m) => m.conversationId),
         },
       },
     });
 
-    if (
-      common?.conversation?.members &&
-      common.conversation.members.length > 0
-    ) {
-      return ConversationMapper.toDomain(common.conversation);
-    }
+    if (!common) return null;
 
-    return null;
+    return this.findById(common.conversationId);
   }
 
   async create(data: CreateConversationData): Promise<ConversationEntity> {
