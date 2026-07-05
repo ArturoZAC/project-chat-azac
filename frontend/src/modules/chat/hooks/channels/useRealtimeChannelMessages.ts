@@ -42,6 +42,7 @@ export function useRealtimeChannelMessages(
           return [...old, data];
         },
       );
+      queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
     [channelId, queryClient],
   );

@@ -42,6 +42,8 @@ export function useRealtimeConversationMessages(
           return [...old, data];
         },
       );
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["unread"] });
     },
     [conversationId, queryClient],
   );
