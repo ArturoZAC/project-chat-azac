@@ -5,6 +5,8 @@ import { useEffect, useMemo } from "react";
 import { IconArrowLeft, IconUserOff } from "@tabler/icons-react";
 import { useConversationQueries } from "@/modules/chat/hooks/conversations/useConversationQueries";
 import { useConversationMutations } from "@/modules/chat/hooks/conversations/useConversationMutations";
+import { useRealtimeConversationMessages } from "@/modules/chat/hooks/conversations/useRealtimeConversationMessages";
+import { useOnlineStatus } from "@/modules/chat/hooks/useOnlineStatus";
 import { MessageList } from "@/modules/chat/components/chat/MessageList";
 import { ChatInput } from "@/modules/chat/components/chat/ChatInput";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
@@ -49,6 +51,7 @@ function mapMessage(msg: {
 export function DMView({ userId }: DMViewProps) {
   const router = useRouter();
   const currentUser = useAuthStore((s) => s.user);
+  const { isOnline } = useOnlineStatus();
 
   const { getConversations, getConversationMessages } = useConversationQueries();
   const { sendMessageMutation, createOrGetConversationMutation } = useConversationMutations();
@@ -64,6 +67,11 @@ export function DMView({ userId }: DMViewProps) {
   const conversationId = dmConversation?.conversation?.id;
   const otherParticipant = dmConversation?.participants.find((p) => p.id !== currentUser?.id);
   const otherUsername = otherParticipant?.username ?? "Usuario";
+  const otherUserId = otherParticipant?.id ?? userId;
+  const isOtherOnline = isOnline(otherUserId);
+
+  // Real-time DM messages
+  useRealtimeConversationMessages(conversationId);
 
   // Fetch messages once we have the conversationId
   const { data: messagesData, isLoading: messagesLoading } = getConversationMessages;
@@ -119,11 +127,13 @@ export function DMView({ userId }: DMViewProps) {
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
             <span className="p-white text-xs font-semibold">{getInitials(otherUsername)}</span>
           </div>
-          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+          {isOtherOnline && (
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+          )}
         </div>
         <div className="min-w-0">
           <h6 className="font-semibold text-sm truncate">{otherUsername}</h6>
-          <p className="small-muted">En línea</p>
+          <p className="small-muted">{isOtherOnline ? "En línea" : "Desconectado"}</p>
         </div>
       </div>
 
