@@ -7,6 +7,7 @@ import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueri
 import { useConversationQueries } from "@/modules/chat/hooks/conversations/useConversationQueries";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { getInitials } from "@/shared/helpers/get-initials";
+import { useOnlineStatus } from "@/modules/chat/hooks/useOnlineStatus";
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -40,6 +41,7 @@ export function ConversationList() {
   const currentUser = useAuthStore((s) => s.user);
   const { getAllChannels, getUnreadCounts, getMemberships } = useChannelQueries();
   const { getConversations } = useConversationQueries();
+  const { isOnline } = useOnlineStatus();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -91,7 +93,7 @@ export function ConversationList() {
       lastTime: conv.lastMessage?.createdAt ?? conv.conversation.updatedAt,
       unreadCount: conv.unreadCount,
       avatarInitials: getInitials(otherParticipant.username),
-      isOnline: true, // We could get online status from the participants list
+      isOnline: isOnline(otherParticipant.id),
       href: `/dm/${otherParticipant.id}`,
     });
   });
