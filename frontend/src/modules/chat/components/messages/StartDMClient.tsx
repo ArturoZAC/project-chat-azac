@@ -7,6 +7,7 @@ import { useConversationQueries } from "@/modules/chat/hooks/conversations/useCo
 import { useConversationMutations } from "@/modules/chat/hooks/conversations/useConversationMutations";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { getInitials } from "@/shared/helpers/get-initials";
+import { useOnlineStatus } from "@/modules/chat/hooks/useOnlineStatus";
 
 export function StartDMClient() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export function StartDMClient() {
   const { getUsers } = useConversationQueries();
   const { createOrGetConversationMutation } = useConversationMutations();
   const [search, setSearch] = useState("");
+  const { isOnline: isUserOnline } = useOnlineStatus();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -109,14 +111,14 @@ export function StartDMClient() {
                       {getInitials(u.username)}
                     </span>
                   </div>
-                  {u.isOnline && (
+                  {(u.isOnline || isUserOnline(u.id)) && (
                     <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate">{u.username}</p>
                   <p className="small-muted truncate">
-                    {u.isOnline ? "En línea" : "Desconectado"}
+                    {u.isOnline || isUserOnline(u.id) ? "En línea" : "Desconectado"}
                   </p>
                 </div>
                 <div className="p-2 rounded-lg bg-primary-light text-primary shrink-0">

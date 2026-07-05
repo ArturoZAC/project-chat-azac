@@ -22,6 +22,7 @@ import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueri
 import { useConversationQueries } from "@/modules/chat/hooks/conversations/useConversationQueries";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { logoutAction } from "@/modules/auth/actions/logout.action";
+import { useOnlineStatus } from "@/modules/chat/hooks/useOnlineStatus";
 
 function getInitials(name: string | null | undefined): string {
   if (!name) return "?";
@@ -54,6 +55,7 @@ export function SidebarClient() {
   const clearSession = useAuthStore((s) => s.clearSession);
   const router = useRouter();
   const pathname = usePathname();
+  const { isOnline } = useOnlineStatus();
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -183,7 +185,7 @@ export function SidebarClient() {
                         key={other.id}
                         userId={other.id}
                         username={other.username}
-                        isOnline={true}
+                        isOnline={isOnline(other.id)}
                         onClick={() => router.push(`/dm/${other.id}`)}
                       />
                     );
