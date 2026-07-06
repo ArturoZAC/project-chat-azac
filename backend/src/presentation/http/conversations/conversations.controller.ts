@@ -24,8 +24,10 @@ import { GetConversationMessagesDto } from './dtos/get-conversation-messages.dto
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
 import { ConversationMapper } from '../../../infrastructure/prisma/mappers/prisma-conversation.mapper';
 import { MessageMapper } from '../../../infrastructure/prisma/mappers/message.mapper';
+import { UserMapper } from '../../../infrastructure/prisma/mappers/user.mapper';
 import { Auth } from '../decorators/auth.decorator';
 import { UserEntity } from '../../../domain/entities/user.entity';
+import { ChatGateway } from '../../websocket/chat.gateway';
 import type { Request } from 'express';
 
 @Auth()
@@ -39,6 +41,7 @@ export class ConversationsController {
     private readonly editConversationMessageUseCase: EditConversationMessageUseCase,
     private readonly deleteConversationMessageUseCase: DeleteConversationMessageUseCase,
     private readonly markConversationReadUseCase: MarkConversationReadUseCase,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   @Post()
@@ -100,6 +103,14 @@ export class ConversationsController {
       content: dto.content,
       senderId: user.id,
     });
+
+    this.chatGateway.server
+      .to(`conversation:${conversationId}`)
+      .emit('conversation.message.sent', {
+        ...MessageMapper.toResponse(message),
+        sender: UserMapper.toResponse(user),
+      });
+
     return ResponseInterceptor.success(
       MessageMapper.toResponse(message),
       'Mensaje enviado exitosamente',
@@ -120,6 +131,14 @@ export class ConversationsController {
       content: dto.content,
       userId: user.id,
     });
+
+    this.chatGateway.server
+      .to(`conversation:${conversationId}`)
+      .emit('conversation.message.edited', {
+        ...MessageMapper.toResponse(message),
+        sender: UserMapper.toResponse(user),
+      });
+
     return ResponseInterceptor.success(
       MessageMapper.toResponse(message),
       'Mensaje editado exitosamente',
@@ -138,6 +157,11 @@ export class ConversationsController {
       messageId,
       userId: user.id,
     });
+
+    this.chatGateway.server
+      .to(`conversation:${conversationId}`)
+      .emit('conversation.message.deleted', { messageId, conversationId });
+
     return ResponseInterceptor.success(null, 'Mensaje eliminado exitosamente');
   }
 

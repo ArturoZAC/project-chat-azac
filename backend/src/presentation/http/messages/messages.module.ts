@@ -4,8 +4,10 @@ import { SendMessageUseCase } from '../../../application/use-cases/messages/send
 import { GetMessagesUseCase } from '../../../application/use-cases/messages/get-messages.usecase';
 import { EditMessageUseCase } from '../../../application/use-cases/messages/edit-message.usecase';
 import { DeleteMessageUseCase } from '../../../application/use-cases/messages/delete-message.usecase';
+import { ChatModule } from '../../websocket/chat.module';
 
 @Module({
+  imports: [ChatModule],
   controllers: [MessagesController],
   providers: [
     SendMessageUseCase,

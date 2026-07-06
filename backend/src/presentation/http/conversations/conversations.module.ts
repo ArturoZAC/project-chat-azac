@@ -7,8 +7,10 @@ import { SendConversationMessageUseCase } from '../../../application/use-cases/c
 import { EditConversationMessageUseCase } from '../../../application/use-cases/conversations/edit-conversation-message.usecase';
 import { DeleteConversationMessageUseCase } from '../../../application/use-cases/conversations/delete-conversation-message.usecase';
 import { MarkConversationReadUseCase } from '../../../application/use-cases/conversations/mark-conversation-read.usecase';
+import { ChatModule } from '../../websocket/chat.module';
 
 @Module({
+  imports: [ChatModule],
   controllers: [ConversationsController],
   providers: [
     CreateOrGetConversationUseCase,

@@ -19,8 +19,10 @@ import { GetMessagesDto } from './dtos/get-messages.dto';
 import { EditMessageDto } from './dtos/edit-message.dto';
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
 import { MessageMapper } from '../../../infrastructure/prisma/mappers/message.mapper';
+import { UserMapper } from '../../../infrastructure/prisma/mappers/user.mapper';
 import { Auth } from '../decorators/auth.decorator';
 import { UserEntity } from '../../../domain/entities/user.entity';
+import { ChatGateway } from '../../websocket/chat.gateway';
 import type { Request } from 'express';
 
 @Auth()
@@ -31,6 +33,7 @@ export class MessagesController {
     private readonly getMessagesUseCase: GetMessagesUseCase,
     private readonly editMessageUseCase: EditMessageUseCase,
     private readonly deleteMessageUseCase: DeleteMessageUseCase,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   @Post()
@@ -46,6 +49,14 @@ export class MessagesController {
       senderId: user.id,
       parentId: dto.parentId ?? null,
     });
+
+    this.chatGateway.server
+      .to(`channel:${channelId}`)
+      .emit('message.sent', {
+        ...MessageMapper.toResponse(message),
+        sender: UserMapper.toResponse(user),
+      });
+
     return ResponseInterceptor.success(
       MessageMapper.toResponse(message),
       'Mensaje enviado exitosamente',
@@ -73,6 +84,7 @@ export class MessagesController {
 
   @Patch(':messageId')
   async editMessage(
+    @Param('channelId', ParseUUIDPipe) channelId: string,
     @Param('messageId', ParseUUIDPipe) messageId: string,
     @Body() dto: EditMessageDto,
     @Req() req: Request,
@@ -83,6 +95,14 @@ export class MessagesController {
       content: dto.content,
       requesterId: user.id,
     });
+
+    this.chatGateway.server
+      .to(`channel:${channelId}`)
+      .emit('message.edited', {
+        ...MessageMapper.toResponse(message),
+        sender: UserMapper.toResponse(user),
+      });
+
     return ResponseInterceptor.success(
       MessageMapper.toResponse(message),
       'Mensaje editado exitosamente',
@@ -91,6 +111,7 @@ export class MessagesController {
 
   @Delete(':messageId')
   async deleteMessage(
+    @Param('channelId', ParseUUIDPipe) channelId: string,
     @Param('messageId', ParseUUIDPipe) messageId: string,
     @Req() req: Request,
   ) {
@@ -99,6 +120,11 @@ export class MessagesController {
       id: messageId,
       requesterId: user.id,
     });
+
+    this.chatGateway.server
+      .to(`channel:${channelId}`)
+      .emit('message.deleted', { messageId, channelId });
+
     return ResponseInterceptor.success(null, 'Mensaje eliminado exitosamente');
   }
 }
