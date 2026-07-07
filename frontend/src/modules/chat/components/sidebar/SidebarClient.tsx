@@ -305,7 +305,7 @@ export function SidebarClient() {
         {!isSidebarCollapsed && (
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate">{currentUser?.username ?? "Usuario"}</p>
-            <p className="small-muted truncate">Online</p>
+            <p className="small-muted truncate">En línea</p>
           </div>
         )}
 

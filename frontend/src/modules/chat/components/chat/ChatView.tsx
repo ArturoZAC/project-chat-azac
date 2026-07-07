@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { IconMessageOff } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 import { useRealtimeChannelMessages } from "@/modules/chat/hooks/channels/useRealtimeChannelMessages";
@@ -22,7 +23,11 @@ export function ChatView({ channelId }: ChatViewProps) {
   useRealtimeChannelMessages(channelId);
 
   const channel = getChannel.data;
-  const messages = getMessages.data ?? [];
+  // API returns newest-first, but chat renders oldest-first (cascading down)
+  const messages = useMemo(() => {
+    const raw = getMessages.data ?? [];
+    return [...raw].reverse();
+  }, [getMessages.data]);
   const members = getMembers.data ?? [];
   const isChannelLoading = getChannel.isPending;
   const isMessagesLoading = getMessages.isPending;

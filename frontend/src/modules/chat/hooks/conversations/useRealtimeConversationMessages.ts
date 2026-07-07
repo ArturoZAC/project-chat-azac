@@ -22,6 +22,14 @@ interface MessagePayload {
   parentId: string | null;
 }
 
+interface PaginatedMessages {
+  data: MessagePayload[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 /**
  * Keeps conversation (DM) messages in sync via Socket.IO.
  */
@@ -36,10 +44,13 @@ export function useRealtimeConversationMessages(
 
       queryClient.setQueryData(
         ["conversation-messages", conversationId],
-        (old: MessagePayload[] | undefined) => {
-          if (!old) return [data];
-          if (old.some((m) => m.id === data.id)) return old;
-          return [...old, data];
+        (old: PaginatedMessages | undefined) => {
+          if (!old) {
+            return { data: [data], total: 1, page: 1, limit: 50, totalPages: 1 };
+          }
+          if (old.data?.some((existingMessage) => existingMessage.id === data.id)) return old;
+          // Cache stores newest-first, so prepend
+          return { ...old, data: [data, ...old.data], total: old.total + 1 };
         },
       );
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -54,9 +65,14 @@ export function useRealtimeConversationMessages(
 
       queryClient.setQueryData(
         ["conversation-messages", conversationId],
-        (old: MessagePayload[] | undefined) => {
+        (old: PaginatedMessages | undefined) => {
           if (!old) return old;
-          return old.map((m) => (m.id === data.id ? data : m));
+          return {
+            ...old,
+            data: old.data.map((existingMessage) =>
+              existingMessage.id === data.id ? data : existingMessage,
+            ),
+          };
         },
       );
     },
@@ -69,9 +85,13 @@ export function useRealtimeConversationMessages(
 
       queryClient.setQueryData(
         ["conversation-messages", conversationId],
-        (old: MessagePayload[] | undefined) => {
+        (old: PaginatedMessages | undefined) => {
           if (!old) return old;
-          return old.filter((m) => m.id !== data.messageId);
+          return {
+            ...old,
+            data: old.data.filter((existingMessage) => existingMessage.id !== data.messageId),
+            total: old.total - 1,
+          };
         },
       );
     },

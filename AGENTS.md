@@ -84,7 +84,19 @@ Controller → UseCase → Domain Repository Interface → Prisma Repository (In
 | POST   | /api/auth/reset-password      | Resets password                    |
 | POST   | /api/auth/resend-verification | Resends verification email         |
 
-## Frontend conventions
+## Código limpio — REGLA OBLIGATORIA
+
+- **Nombres descriptivos SIEMPRE**: nada de `m`, `x`, `el`, `arr`, `obj`. Usar `message`, `user`, `conversation`, `channel`, `existingMessage`, etc.
+- **Variables booleanas** con prefijo `is`, `has`, `can`, `should`, `did`:
+  - ✅ `isLoading`, `isOnline`, `hasPermission`, `canEdit`, `shouldRefetch`, `didSubmit`
+  - ❌ `loading`, `online`, `permission`, `edit`
+- **Callbacks de .map(), .filter(), .some(), .find()**: el parámetro debe describir el elemento:
+  - ✅ `.map((user) => ...)`, `.filter((message) => ...)`, `.some((channel) => ...)`
+  - ❌ `.map((m) => ...)`, `.filter((x) => ...)`, `.some((el) => ...)`
+- **Props de componentes**: mismo estilo — `isDisabled`, `hasError`, `onSubmit`, `onUserSelect`
+- **Constantes y config**: `API_BASE_URL`, `MAX_FILE_SIZE`, `RECONNECTION_DELAY`
+- **Un archivo, una responsabilidad**: si el nombre dice `useRealtimeMessages`, que solo haga eso
+- **Nada de abreviaturas crípticas**: `usr` → `user`, `conv` → `conversation`, `btn` → `button`, `msg` → `message`
 
 ### Routes
 

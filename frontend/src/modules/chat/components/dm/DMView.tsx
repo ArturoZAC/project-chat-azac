@@ -88,7 +88,10 @@ export function DMView({ userId }: DMViewProps) {
   const mappedMessages = useMemo(() => {
     if (!messagesData?.data) return [];
     const currentUserId = currentUser?.id ?? "";
-    return messagesData.data.map((msg) => mapMessage(msg, currentUserId, otherUsername));
+    // API returns newest-first, but chat renders oldest-first (cascading down)
+    return [...messagesData.data]
+      .reverse()
+      .map((message) => mapMessage(message, currentUserId, otherUsername));
   }, [messagesData, currentUser?.id, otherUsername]);
 
   const handleSend = async (content: string) => {
@@ -115,7 +118,7 @@ export function DMView({ userId }: DMViewProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <div className="flex-1 flex flex-col h-full min-h-0">
       {/* DM Header */}
       <div className="flex items-center gap-3 px-6 py-3 border-b border-gray-light shrink-0">
         <button

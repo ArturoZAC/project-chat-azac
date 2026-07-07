@@ -27,6 +27,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  /** Track online users in-memory so new clients get the full list on connect */
+  private onlineUsers = new Map<string, { userId: string; username: string }>();
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly userRepo: UserRepository,
@@ -100,7 +103,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       lastSeenAt: new Date(),
     });
 
-    this.server.emit('user.online', {
+    // Add to in-memory online set
+    this.onlineUsers.set(user.id, { userId: user.id, username: user.username });
+
+    // Tell other clients that this user came online
+    client.broadcast.emit('user.online', {
       userId: user.id,
       username: user.username,
     });
@@ -109,6 +116,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const user = client.data.user;
     if (!user) return;
+
+    // Remove from in-memory online set
+    this.onlineUsers.delete(user.id);
 
     await this.userRepo.update({
       ...user,
@@ -253,6 +263,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       messageId: data.messageId,
       channelId: message.channelId,
     });
+  }
+
+  @SubscribeMessage('request.online.list')
+  handleRequestOnlineList(@ConnectedSocket() client: Socket) {
+    client.emit(
+      'user.online.list',
+      Array.from(this.onlineUsers.values()),
+    );
   }
 
   @SubscribeMessage('conversation.join')

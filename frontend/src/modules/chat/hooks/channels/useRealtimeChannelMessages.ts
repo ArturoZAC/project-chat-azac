@@ -34,8 +34,9 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
 
       queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
         if (!old) return [data];
-        if (old.some((m) => m.id === data.id)) return old;
-        return [...old, data];
+        if (old.some((existingMessage) => existingMessage.id === data.id)) return old;
+        // Cache stores newest-first, so prepend
+        return [data, ...old];
       });
       queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
@@ -48,7 +49,9 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
 
       queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
         if (!old) return old;
-        return old.map((m) => (m.id === data.id ? data : m));
+        return old.map((existingMessage) =>
+          existingMessage.id === data.id ? data : existingMessage,
+        );
       });
     },
     [channelId, queryClient],
@@ -60,7 +63,7 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
 
       queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
         if (!old) return old;
-        return old.filter((m) => m.id !== data.messageId);
+        return old.filter((existingMessage) => existingMessage.id !== data.messageId);
       });
     },
     [channelId, queryClient],

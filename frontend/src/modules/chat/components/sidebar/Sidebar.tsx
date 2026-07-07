@@ -2,7 +2,7 @@ import { SidebarClient } from "./SidebarClient";
 
 export function Sidebar() {
   return (
-    <aside className="min-h-screen bg-gray-ultra flex flex-col shrink-0 border-r border-gray-light">
+    <aside className="h-screen bg-gray-ultra border-r border-gray-light overflow-hidden shrink-0">
       <SidebarClient />
     </aside>
   );
