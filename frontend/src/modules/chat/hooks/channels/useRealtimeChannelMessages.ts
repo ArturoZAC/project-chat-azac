@@ -25,23 +25,18 @@ interface MessagePayload {
 /**
  * Keeps channel messages in sync via Socket.IO.
  */
-export function useRealtimeChannelMessages(
-  channelId: string | undefined,
-) {
+export function useRealtimeChannelMessages(channelId: string | undefined) {
   const queryClient = useQueryClient();
 
   const handleMessageSent = useCallback(
     (data: MessagePayload) => {
       if (data.channelId !== channelId) return;
 
-      queryClient.setQueryData(
-        ["messages", channelId],
-        (old: MessagePayload[] | undefined) => {
-          if (!old) return [data];
-          if (old.some((m) => m.id === data.id)) return old;
-          return [...old, data];
-        },
-      );
+      queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
+        if (!old) return [data];
+        if (old.some((m) => m.id === data.id)) return old;
+        return [...old, data];
+      });
       queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
     [channelId, queryClient],
@@ -51,13 +46,10 @@ export function useRealtimeChannelMessages(
     (data: MessagePayload) => {
       if (data.channelId !== channelId) return;
 
-      queryClient.setQueryData(
-        ["messages", channelId],
-        (old: MessagePayload[] | undefined) => {
-          if (!old) return old;
-          return old.map((m) => (m.id === data.id ? data : m));
-        },
-      );
+      queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
+        if (!old) return old;
+        return old.map((m) => (m.id === data.id ? data : m));
+      });
     },
     [channelId, queryClient],
   );
@@ -66,13 +58,10 @@ export function useRealtimeChannelMessages(
     (data: { messageId: string; channelId: string }) => {
       if (data.channelId !== channelId) return;
 
-      queryClient.setQueryData(
-        ["messages", channelId],
-        (old: MessagePayload[] | undefined) => {
-          if (!old) return old;
-          return old.filter((m) => m.id !== data.messageId);
-        },
-      );
+      queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
+        if (!old) return old;
+        return old.filter((m) => m.id !== data.messageId);
+      });
     },
     [channelId, queryClient],
   );

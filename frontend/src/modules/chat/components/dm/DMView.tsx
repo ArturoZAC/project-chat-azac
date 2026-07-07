@@ -53,7 +53,8 @@ export function DMView({ userId }: DMViewProps) {
   const currentUser = useAuthStore((s) => s.user);
   const { isOnline } = useOnlineStatus();
 
-  const { getConversations, getConversationMessages } = useConversationQueries();
+  // 1st call: get conversation list (no conversationId needed yet)
+  const { getConversations } = useConversationQueries();
   const { sendMessageMutation, createOrGetConversationMutation } = useConversationMutations();
 
   // Find the conversation with this user
@@ -73,7 +74,8 @@ export function DMView({ userId }: DMViewProps) {
   // Real-time DM messages
   useRealtimeConversationMessages(conversationId);
 
-  // Fetch messages once we have the conversationId
+  // 2nd call: fetch messages with the REAL conversationId
+  const { getConversationMessages } = useConversationQueries(conversationId);
   const { data: messagesData, isLoading: messagesLoading } = getConversationMessages;
 
   // Auto-create conversation if it doesn't exist

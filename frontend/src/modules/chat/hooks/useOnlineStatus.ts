@@ -14,26 +14,20 @@ export function useOnlineStatus() {
     setOnlineUsers((prev) => new Set(prev).add(data.userId));
   }, []);
 
-  const handleUserOffline = useCallback(
-    (data: { userId: string }) => {
-      setOnlineUsers((prev) => {
-        const next = new Set(prev);
-        next.delete(data.userId);
-        return next;
-      });
-    },
-    [],
-  );
+  const handleUserOffline = useCallback((data: { userId: string }) => {
+    setOnlineUsers((prev) => {
+      const next = new Set(prev);
+      next.delete(data.userId);
+      return next;
+    });
+  }, []);
 
   useSocketEvents({
     "user.online": handleUserOnline,
     "user.offline": handleUserOffline,
   });
 
-  const isOnline = useCallback(
-    (userId: string) => onlineUsers.has(userId),
-    [onlineUsers],
-  );
+  const isOnline = useCallback((userId: string) => onlineUsers.has(userId), [onlineUsers]);
 
   return { onlineUsers, isOnline };
 }
