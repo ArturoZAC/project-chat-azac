@@ -74,6 +74,8 @@ export function ChannelCard({ channel }: ChannelCardProps) {
             <span className="btn-sans text-sm">Ver canal</span>
             <IconArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
           </button>
+        ) : channel.type === "PRIVATE" ? (
+          <span className="small-muted italic">Solo invitación</span>
         ) : (
           <button
             onClick={handleJoin}

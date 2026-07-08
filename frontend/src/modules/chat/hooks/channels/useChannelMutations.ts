@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { createChannelAction } from "@/modules/chat/actions/channels/create-channel.action";
 import { joinChannelAction } from "@/modules/chat/actions/channels/join-channel.action";
@@ -14,6 +15,7 @@ const MEMBERSHIPS_KEY = ["memberships"];
 
 export function useChannelMutations() {
   const qc = useQueryClient();
+  const router = useRouter();
   const setCreateModalOpen = useChatStore((s) => s.setCreateModalOpen);
   const addJoinedChannel = useChatStore((s) => s.addJoinedChannel);
   const removeJoinedChannel = useChatStore((s) => s.removeJoinedChannel);
@@ -29,9 +31,14 @@ export function useChannelMutations() {
       if (!res.success) throw new Error(res.message ?? "Error al crear canal");
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (channel) => {
       qc.invalidateQueries({ queryKey: CHANNELS_KEY });
+      qc.invalidateQueries({ queryKey: MEMBERSHIPS_KEY });
+      addJoinedChannel(channel.id);
       setCreateModalOpen(false);
+      if (channel?.id) {
+        router.push(`/channels/${channel.id}`);
+      }
     },
   });
 

@@ -56,7 +56,7 @@ async function main() {
   await prisma.passwordReset.deleteMany();
   await prisma.user.deleteMany();
 
-  const createdUsers = await Promise.all(
+  await Promise.all(
     users.map(async (user) => {
       const passwordHash = await bcrypt.hash('Password123!', 10);
       return prisma.user.create({
