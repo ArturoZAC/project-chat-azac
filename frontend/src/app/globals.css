@@ -135,7 +135,8 @@
     }
     p,
     /* label, */
-    a, span {
+    /* a,  */
+    span {
       font-size: 16px;
     }
     small,

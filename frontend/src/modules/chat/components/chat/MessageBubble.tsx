@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
 import { getInitials } from "@/shared/helpers/get-initials";
+import { linkify } from "@/shared/helpers/linkify";
 
 interface MessageBubbleProps {
   message: Message;
@@ -56,7 +57,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             }
           `}
         >
-          {message.content}
+          {linkify(message.content)}
         </div>
 
         <span className={`text-[10px] text-gray-mid mt-0.5 ${isOwn ? "mr-1" : "ml-1"}`}>

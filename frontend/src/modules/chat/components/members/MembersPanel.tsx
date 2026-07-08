@@ -28,9 +28,9 @@ export function MembersPanel({ isOpen, members, onClose, onGenerateInvite }: Mem
         >
           <div className="w-[240px] h-full flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-light">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-light h-[71px]">
               <div className="flex items-center gap-2">
-                <IconUsers size={16} className="text-silver-dark" />
+                <IconUsers size={18} className="text-silver-dark" />
                 <span className="text-sm font-semibold">Miembros</span>
                 <span className="small-muted">({members.length})</span>
               </div>
@@ -38,7 +38,7 @@ export function MembersPanel({ isOpen, members, onClose, onGenerateInvite }: Mem
                 onClick={onClose}
                 className="p-1 rounded hover:bg-silver-light text-silver-dark transition-colors"
               >
-                <IconX size={14} />
+                <IconX size={18} />
               </button>
             </div>
 

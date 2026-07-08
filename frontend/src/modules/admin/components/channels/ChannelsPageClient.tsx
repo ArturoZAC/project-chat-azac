@@ -29,7 +29,7 @@ export function ChannelsPageClient({ channels }: ChannelsPageClientProps) {
       result = result.filter(
         (ch) =>
           ch.name.toLowerCase().includes(q) ||
-          (ch.description && ch.description.toLowerCase().includes(q))
+          (ch.description && ch.description.toLowerCase().includes(q)),
       );
     }
 
@@ -50,10 +50,7 @@ export function ChannelsPageClient({ channels }: ChannelsPageClientProps) {
 
       <AdminChannelsTable channels={filteredChannels} />
 
-      <CreateChannelModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <CreateChannelModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 }

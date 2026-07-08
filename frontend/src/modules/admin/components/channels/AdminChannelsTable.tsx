@@ -48,21 +48,15 @@ export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
       columnHelper.accessor("name", {
         header: "Nombre",
         sortingFn: "text",
-        cell: (info) => (
-          <span className="text-sm font-medium">{info.getValue()}</span>
-        ),
+        cell: (info) => <span className="text-sm font-medium">{info.getValue()}</span>,
       }),
       columnHelper.accessor("description", {
         header: "Descripción",
         enableSorting: false,
         cell: (info) => {
           const desc = info.getValue();
-          const truncated = desc && desc.length > 60
-            ? desc.slice(0, 60) + "..."
-            : desc ?? "-";
-          return (
-            <span className="text-sm text-gray-dark">{truncated}</span>
-          );
+          const truncated = desc && desc.length > 60 ? desc.slice(0, 60) + "..." : (desc ?? "-");
+          return <span className="text-sm text-gray-dark">{truncated}</span>;
         },
       }),
       columnHelper.accessor("type", {
@@ -72,9 +66,7 @@ export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
           return (
             <span
               className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                type === "PUBLIC"
-                  ? "bg-blue-50 text-blue-600"
-                  : "bg-orange-50 text-orange-600"
+                type === "PUBLIC" ? "bg-blue-50 text-blue-600" : "bg-orange-50 text-orange-600"
               }`}
             >
               {type === "PUBLIC" ? "Público" : "Privado"}
@@ -84,28 +76,22 @@ export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
       }),
       columnHelper.accessor("membersCount", {
         header: "Miembros",
-        cell: (info) => (
-          <span className="text-sm">{info.getValue()}</span>
-        ),
+        cell: (info) => <span className="text-sm">{info.getValue()}</span>,
       }),
       columnHelper.accessor((row) => row.owner.username, {
         id: "creator",
         header: "Creador",
-        cell: (info) => (
-          <span className="text-sm">{info.getValue()}</span>
-        ),
+        cell: (info) => <span className="text-sm">{info.getValue()}</span>,
       }),
       columnHelper.accessor("createdAt", {
         header: "Creado el",
         sortingFn: "datetime",
         cell: (info) => (
-          <span className="text-sm text-gray-dark">
-            {formatDate(info.getValue())}
-          </span>
+          <span className="text-sm text-gray-dark">{formatDate(info.getValue())}</span>
         ),
       }),
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -138,10 +124,7 @@ export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <div className="flex items-center gap-1">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      {flexRender(header.column.columnDef.header, header.getContext())}
                       {header.column.getCanSort() && (
                         <div className="flex flex-col leading-none">
                           <IconChevronUp
@@ -178,20 +161,14 @@ export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
                 </tr>
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-4 py-12 text-center"
-                >
+                <td colSpan={columns.length} className="px-4 py-12 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-10 h-10 rounded-xl bg-silver-light flex items-center justify-center">
                       <IconMoodSad size={20} className="text-silver-dark" />
@@ -209,8 +186,7 @@ export function AdminChannelsTable({ channels }: AdminChannelsTableProps) {
       {table.getPageCount() > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-gray-light">
           <p className="small-muted">
-            Página {table.getState().pagination.pageIndex + 1} de{" "}
-            {table.getPageCount()}
+            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
           </p>
           <div className="flex items-center gap-2">
             <button

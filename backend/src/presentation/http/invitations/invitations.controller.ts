@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Post,
-  Param,
-  Req,
-  ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Post, Param, Req, ParseUUIDPipe } from '@nestjs/common';
 import { CreateInvitationUseCase } from '../../../application/use-cases/invitations/create-invitation.usecase';
 import { AcceptInvitationUseCase } from '../../../application/use-cases/invitations/accept-invitation.usecase';
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
@@ -12,6 +6,7 @@ import { ChatGateway } from '../../websocket/chat.gateway';
 import { Auth } from '../decorators/auth.decorator';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import type { Request } from 'express';
+import { envs } from 'src/config/envs';
 
 @Controller()
 export class InvitationsController {
@@ -32,7 +27,7 @@ export class InvitationsController {
       channelId,
       requestedById: user.id,
     });
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = envs.CLIENT_URL || 'http://localhost:5173';
     return ResponseInterceptor.success(
       {
         token: invitation.token,
@@ -45,10 +40,7 @@ export class InvitationsController {
 
   @Auth()
   @Post('invitations/:token/accept')
-  async acceptInvitation(
-    @Param('token') token: string,
-    @Req() req: Request,
-  ) {
+  async acceptInvitation(@Param('token') token: string, @Req() req: Request) {
     const user = req.user as UserEntity;
     const result = await this.acceptInvitationUseCase.execute({
       token,
