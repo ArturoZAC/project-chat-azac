@@ -2,6 +2,7 @@
 export interface ChannelMessageBackend {
   id: string;
   content: string;
+  isSystem: boolean;
   isEdited: boolean;
   editedAt: string | null;
   createdAt: string;

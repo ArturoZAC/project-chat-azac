@@ -34,6 +34,7 @@ function mapChannelMessage(msg: ChannelMessageBackend, channelName: string): Mes
   return {
     id: msg.id,
     content: msg.content,
+    isSystem: msg.isSystem,
     author: { id: msg.senderId, username: "", avatarUrl: "" },
     channel: { id: msg.channelId, name: channelName },
     replyTo: msg.parentId ?? null,

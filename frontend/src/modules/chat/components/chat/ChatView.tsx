@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { IconMessageOff } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 import { useRealtimeChannelMessages } from "@/modules/chat/hooks/channels/useRealtimeChannelMessages";
@@ -10,6 +10,8 @@ import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
 import { MembersPanel } from "@/modules/chat/components/members/MembersPanel";
+import { InviteLinkModal } from "@/modules/chat/components/members/InviteLinkModal";
+import { useInvitationMutations } from "@/modules/chat/hooks/invitations/useInvitationMutations";
 import { ChannelChatSkeleton } from "@/modules/chat/components/skeletons/ChannelChatSkeleton";
 
 interface ChatViewProps {
@@ -22,6 +24,9 @@ export function ChatView({ channelId }: ChatViewProps) {
   const { isMembersPanelOpen, toggleMembersPanel, setMembersPanelOpen } = useChatStore();
   useRealtimeChannelMessages(channelId);
 
+  const [isInviteModalOpen, setInviteModalOpen] = useState(false);
+  const { createInvitationMutation } = useInvitationMutations();
+
   const channel = getChannel.data;
   // API returns newest-first, but chat renders oldest-first (cascading down)
   const messages = useMemo(() => {
@@ -31,6 +36,11 @@ export function ChatView({ channelId }: ChatViewProps) {
   const members = getMembers.data ?? [];
   const isChannelLoading = getChannel.isPending;
   const isMessagesLoading = getMessages.isPending;
+
+  const handleGenerateInvite = () => {
+    setInviteModalOpen(true);
+    createInvitationMutation.mutate(channelId);
+  };
 
   const handleSend = (content: string) => {
     // Mock: no actual send for now — will connect to real API later
@@ -85,6 +95,16 @@ export function ChatView({ channelId }: ChatViewProps) {
         isOpen={isMembersPanelOpen}
         members={members}
         onClose={() => setMembersPanelOpen(false)}
+        onGenerateInvite={handleGenerateInvite}
+      />
+
+      {/* Invite link modal */}
+      <InviteLinkModal
+        isOpen={isInviteModalOpen}
+        inviteUrl={createInvitationMutation.data?.url ?? null}
+        isGenerating={createInvitationMutation.isPending}
+        onClose={() => setInviteModalOpen(false)}
+        onGenerate={() => createInvitationMutation.mutate(channelId)}
       />
     </div>
   );

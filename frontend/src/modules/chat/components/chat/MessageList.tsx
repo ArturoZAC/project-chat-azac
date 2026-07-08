@@ -23,6 +23,29 @@ function shouldShowDateSeparator(messages: Message[], index: number): boolean {
   );
 }
 
+function SystemMessage({ content }: { content: string }) {
+  let parsed: { type: string; username?: string } | null = null;
+  try {
+    parsed = JSON.parse(content) as { type: string; username?: string };
+  } catch {
+    return null;
+  }
+
+  if (parsed.type === "system.join") {
+    return (
+      <div className="flex items-center justify-center py-1.5">
+        <div className="flex items-center gap-2 px-4 py-1 bg-primary-light/40 rounded-full">
+          <span className="text-xs text-primary font-medium">
+            {parsed.username ?? "Alguien"} se unió al canal
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function MessageList({ messages, isLoading }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const currentUser = useAuthStore((s) => s.user);
@@ -68,7 +91,14 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
           {shouldShowDateSeparator(messages, index) && (
             <DateSeparator date={msg.createdAt} />
           )}
-          <MessageBubble message={msg} isOwn={msg.author.id === currentUserId} />
+          {msg.isSystem ? (
+            <SystemMessage content={msg.content} />
+          ) : (
+            <MessageBubble
+              message={msg}
+              isOwn={msg.author.id === currentUserId}
+            />
+          )}
         </div>
       ))}
       <div ref={bottomRef} />

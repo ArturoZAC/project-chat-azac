@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { IconMail, IconLock, IconEye, IconEyeOff, IconArrowRight } from "@tabler/icons-react";
 import { loginSchema, type LoginInput } from "@/modules/auth/schemas/auth.schema";
 import { useToastStore } from "@/store/toast.store";
@@ -14,6 +14,8 @@ export const LoginFormFields = () => {
   const { success, error } = useToastStore();
   const { setSession } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "/channels";
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -32,7 +34,7 @@ export const LoginFormFields = () => {
     if (result.success) {
       setSession(result.data?.userId);
       success("Bienvenido", result.message);
-      router.push("/channels");
+      router.push(redirectTo);
       return;
     }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { IconX, IconUsers } from "@tabler/icons-react";
+import { IconX, IconUsers, IconLink } from "@tabler/icons-react";
 import type { ChannelMember } from "@/modules/chat/interfaces/channels/channel.interface";
 import { getInitials } from "@/shared/helpers/get-initials";
 
@@ -9,9 +9,10 @@ interface MembersPanelProps {
   isOpen: boolean;
   members: ChannelMember[];
   onClose: () => void;
+  onGenerateInvite?: () => void;
 }
 
-export function MembersPanel({ isOpen, members, onClose }: MembersPanelProps) {
+export function MembersPanel({ isOpen, members, onClose, onGenerateInvite }: MembersPanelProps) {
   const online = members.filter((m) => m.user.isOnline);
   const offline = members.filter((m) => !m.user.isOnline);
 
@@ -71,6 +72,19 @@ export function MembersPanel({ isOpen, members, onClose }: MembersPanelProps) {
                 </div>
               )}
             </div>
+
+            {/* Invite link button */}
+            {onGenerateInvite && (
+              <div className="border-t border-gray-light p-3">
+                <button
+                  onClick={onGenerateInvite}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/5 hover:bg-primary/10 text-primary text-sm font-medium transition-colors"
+                >
+                  <IconLink size={16} />
+                  <span>Generar enlace de invitación</span>
+                </button>
+              </div>
+            )}
           </div>
         </motion.aside>
       )}

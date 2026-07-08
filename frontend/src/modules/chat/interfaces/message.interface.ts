@@ -10,4 +10,5 @@ export interface Message {
   readBy: { userId: string; readAt: string }[];
   createdAt: string;
   updatedAt: string;
+  isSystem?: boolean;
 }
