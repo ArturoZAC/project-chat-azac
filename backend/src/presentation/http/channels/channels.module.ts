@@ -7,6 +7,8 @@ import { UpdateChannelUseCase } from '../../../application/use-cases/channels/up
 import { DeleteChannelUseCase } from '../../../application/use-cases/channels/delete-channel.usecase';
 import { JoinChannelUseCase } from '../../../application/use-cases/channels/join-channel.usecase';
 import { LeaveChannelUseCase } from '../../../application/use-cases/channels/leave-channel.usecase';
+import { GetUserMembershipsUseCase } from '../../../application/use-cases/channels/get-user-memberships.usecase';
+import { GetChannelMembersUseCase } from '../../../application/use-cases/channels/get-channel-members.usecase';
 
 @Module({
   controllers: [ChannelsController],
@@ -18,6 +20,8 @@ import { LeaveChannelUseCase } from '../../../application/use-cases/channels/lea
     DeleteChannelUseCase,
     JoinChannelUseCase,
     LeaveChannelUseCase,
+    GetUserMembershipsUseCase,
+    GetChannelMembersUseCase,
   ],
 })
 export class ChannelsModule {}

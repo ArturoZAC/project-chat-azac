@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getChannelsAction } from "@/modules/chat/actions/channels/get-channels.action";
 import { getChannelAction } from "@/modules/chat/actions/channels/get-channel.action";
 import { getChannelMessagesAction } from "@/modules/chat/actions/channels/get-channel-messages.action";
-import { useChatStore } from "@/modules/chat/store/chat.store";
+import { getMembershipsAction } from "@/modules/chat/actions/channels/get-memberships.action";
+import { getChannelMembersAction, type MemberApiData } from "@/modules/chat/actions/channels/get-channel-members.action";
 import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channels/channel.interface";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
 import type { ChannelBackend } from "@/modules/chat/interfaces/channels/channel-backend.interface";
@@ -24,7 +25,7 @@ function mapChannel(ch: ChannelBackend): Channel {
     description: ch.description ?? undefined,
     type: ch.isPrivate ? "PRIVATE" : "PUBLIC",
     owner: { id: ch.createdById, username: "" },
-    membersCount: 0, // TODO: backend should return this
+    membersCount: ch.membersCount,
     createdAt: ch.createdAt,
     updatedAt: ch.updatedAt,
   };
@@ -45,7 +46,6 @@ function mapChannelMessage(msg: ChannelMessageBackend, channelName: string): Mes
 }
 
 export function useChannelQueries(channelId?: string) {
-  const joinedChannelIds = useChatStore((s) => s.joinedChannelIds);
 
   // ── Channels ──────────────────────────────────────────
 
@@ -88,25 +88,40 @@ export function useChannelQueries(channelId?: string) {
     enabled: !!channelId,
   });
 
-  // ── Members (not yet available from backend) ─────────
+  // ── Members (fetched from API) ─────────────────────
 
   const getMembers = useQuery({
     queryKey: MEMBERS_KEY(channelId!),
     queryFn: async (): Promise<ChannelMember[]> => {
-      // TODO: implement backend endpoint for members
-      return [];
+      if (!channelId) return [];
+      const response = await getChannelMembersAction(channelId);
+      if (!response.success || !response.data) return [];
+      return response.data.map((member: MemberApiData) => ({
+        id: member.id,
+        user: {
+          id: member.userId,
+          username: member.username,
+          email: "",
+          avatarUrl: null,
+          isOnline: member.isOnline,
+        },
+        role: member.role === "ADMIN" ? "OWNER" : "MEMBER",
+        joinedAt: member.joinedAt,
+      }));
     },
     enabled: !!channelId,
   });
 
-  // ── Memberships (tracked client-side) ────────────────
+  // ── Memberships (fetched from API, synced to Zustand) ─
 
   const getMemberships = useQuery({
     queryKey: MEMBERSHIPS_KEY,
     queryFn: async (): Promise<string[]> => {
-      return joinedChannelIds;
+      const response = await getMembershipsAction();
+      if (!response.success) return [];
+      return response.data;
     },
-    staleTime: 0,
+    staleTime: 30_000,
   });
 
   // ── Unread counts (not yet available from backend) ───

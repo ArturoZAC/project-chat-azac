@@ -72,6 +72,11 @@ export class InvitationsController {
         username: user.username,
       });
 
+    // NEW: Emit to the new member's user room so memberships sync
+    this.chatGateway.server
+      .to(`user:${user.id}`)
+      .emit('membership.added', { channelId: result.member.channelId });
+
     return ResponseInterceptor.success(
       {
         channelId: result.member.channelId,

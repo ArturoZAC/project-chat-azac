@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Req,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CreateChannelUseCase } from '../../../application/use-cases/channels/create-channel.usecase';
 import { GetChannelsUseCase } from '../../../application/use-cases/channels/get-channels.usecase';
@@ -17,6 +18,8 @@ import { UpdateChannelUseCase } from '../../../application/use-cases/channels/up
 import { DeleteChannelUseCase } from '../../../application/use-cases/channels/delete-channel.usecase';
 import { JoinChannelUseCase } from '../../../application/use-cases/channels/join-channel.usecase';
 import { LeaveChannelUseCase } from '../../../application/use-cases/channels/leave-channel.usecase';
+import { GetUserMembershipsUseCase } from '../../../application/use-cases/channels/get-user-memberships.usecase';
+import { GetChannelMembersUseCase } from '../../../application/use-cases/channels/get-channel-members.usecase';
 import { CreateChannelDto } from './dtos/create-channel.dto';
 import { UpdateChannelDto } from './dtos/update-channel.dto';
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
@@ -38,6 +41,8 @@ export class ChannelsController {
     private readonly deleteChannelUseCase: DeleteChannelUseCase,
     private readonly joinChannelUseCase: JoinChannelUseCase,
     private readonly leaveChannelUseCase: LeaveChannelUseCase,
+    private readonly getUserMembershipsUseCase: GetUserMembershipsUseCase,
+    private readonly getChannelMembersUseCase: GetChannelMembersUseCase,
   ) {}
 
   @Post()
@@ -63,6 +68,23 @@ export class ChannelsController {
       { ...result, data: result.data.map(ChannelMapper.toResponse) },
       'Canales obtenidos exitosamente',
     );
+  }
+
+  @Get('memberships')
+  async getUserMemberships(@Req() req: Request) {
+    const user = req.user as UserEntity;
+    const channelIds = await this.getUserMembershipsUseCase.execute(user.id);
+    return ResponseInterceptor.success(channelIds, 'Memberships obtenidas');
+  }
+
+  @Get(':id/members')
+  async getChannelMembers(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as UserEntity;
+    const members = await this.getChannelMembersUseCase.execute(id, user.id);
+    return ResponseInterceptor.success(members, 'Miembros obtenidos');
   }
 
   @Public()

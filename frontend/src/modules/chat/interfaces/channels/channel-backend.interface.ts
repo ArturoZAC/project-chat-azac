@@ -7,4 +7,5 @@ export interface ChannelBackend {
   createdById: string;
   createdAt: string;
   updatedAt: string;
+  membersCount: number;
 }

@@ -27,6 +27,7 @@ import { MessageMapper } from '../../../infrastructure/prisma/mappers/message.ma
 import { UserMapper } from '../../../infrastructure/prisma/mappers/user.mapper';
 import { Auth } from '../decorators/auth.decorator';
 import { UserEntity } from '../../../domain/entities/user.entity';
+import { ConversationRepository } from '../../../domain/repositories/conversation.repository';
 import { ChatGateway } from '../../websocket/chat.gateway';
 import type { Request } from 'express';
 
@@ -42,6 +43,7 @@ export class ConversationsController {
     private readonly deleteConversationMessageUseCase: DeleteConversationMessageUseCase,
     private readonly markConversationReadUseCase: MarkConversationReadUseCase,
     private readonly chatGateway: ChatGateway,
+    private readonly conversationRepository: ConversationRepository,
   ) {}
 
   @Post()
@@ -104,12 +106,23 @@ export class ConversationsController {
       senderId: user.id,
     });
 
+    // Emit to conversation room (existing behavior)
     this.chatGateway.server
       .to(`conversation:${conversationId}`)
       .emit('conversation.message.sent', {
         ...MessageMapper.toResponse(message),
         sender: UserMapper.toResponse(user),
       });
+
+    // NEW: Emit to each participant's user room so /messages page refreshes
+    const participantIds = await this.conversationRepository.findParticipants(
+      conversationId,
+    );
+    for (const participantId of participantIds) {
+      this.chatGateway.server
+        .to(`user:${participantId}`)
+        .emit('conversation.updated', { conversationId });
+    }
 
     return ResponseInterceptor.success(
       MessageMapper.toResponse(message),

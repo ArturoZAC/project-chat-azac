@@ -42,4 +42,5 @@ export abstract class ConversationRepository {
     conversationId: string,
     userId: string,
   ): Promise<number>;
+  abstract findParticipants(conversationId: string): Promise<string[]>;
 }

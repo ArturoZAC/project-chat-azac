@@ -197,4 +197,12 @@ export class ConversationPrismaRepository implements ConversationRepository {
       },
     });
   }
+
+  async findParticipants(conversationId: string): Promise<string[]> {
+    const members = await this.prisma.conversationMember.findMany({
+      where: { conversationId },
+      select: { userId: true },
+    });
+    return members.map((m) => m.userId);
+  }
 }

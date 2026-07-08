@@ -6,6 +6,7 @@ export interface ChannelEntityProps {
   createdById: string;
   createdAt: Date;
   updatedAt: Date;
+  membersCount: number;
 }
 
 export class ChannelEntity {
@@ -16,6 +17,7 @@ export class ChannelEntity {
   public createdById: string;
   public createdAt: Date;
   public updatedAt: Date;
+  public membersCount: number;
 
   constructor(props: ChannelEntityProps) {
     this.id = props.id;
@@ -25,5 +27,6 @@ export class ChannelEntity {
     this.createdById = props.createdById;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
+    this.membersCount = props.membersCount;
   }
 }

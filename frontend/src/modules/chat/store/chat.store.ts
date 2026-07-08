@@ -22,6 +22,7 @@ interface ChatStore {
   setNotificationPanelOpen: (open: boolean) => void;
   addJoinedChannel: (id: string) => void;
   removeJoinedChannel: (id: string) => void;
+  initializeMemberships: (channelIds: string[]) => void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
@@ -46,4 +47,5 @@ export const useChatStore = create<ChatStore>((set) => ({
   removeJoinedChannel: (id) => set((s) => ({
     joinedChannelIds: s.joinedChannelIds.filter((c) => c !== id),
   })),
+  initializeMemberships: (channelIds) => set({ joinedChannelIds: channelIds }),
 }));

@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { IconMessageOff } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 import { useRealtimeChannelMessages } from "@/modules/chat/hooks/channels/useRealtimeChannelMessages";
+import { useRealtimeChannelMembers } from "@/modules/chat/hooks/channels/useRealtimeChannelMembers";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
@@ -23,6 +24,7 @@ export function ChatView({ channelId }: ChatViewProps) {
   const { getChannel, getMessages, getMembers } = useChannelQueries(channelId);
   const { isMembersPanelOpen, toggleMembersPanel, setMembersPanelOpen } = useChatStore();
   useRealtimeChannelMessages(channelId);
+  useRealtimeChannelMembers(channelId);
 
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
   const { createInvitationMutation } = useInvitationMutations();

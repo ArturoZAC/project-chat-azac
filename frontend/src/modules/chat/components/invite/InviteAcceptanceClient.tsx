@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { IconHash, IconLinkOff } from "@tabler/icons-react";
 import { acceptInvitationAction } from "@/modules/chat/actions/invitations/accept-invitation.action";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { useChannelMutations } from "@/modules/chat/hooks/channels/useChannelMutations";
+import { useChatStore } from "@/modules/chat/store/chat.store";
 
 interface InviteAcceptanceClientProps {
   token: string;
@@ -18,6 +20,8 @@ export function InviteAcceptanceClient({
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const { joinChannelMutation } = useChannelMutations();
+  const queryClient = useQueryClient();
+  const addJoinedChannel = useChatStore((s) => s.addJoinedChannel);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<
     "checking-auth" | "accepting" | "redirecting" | "error"
@@ -44,6 +48,10 @@ export function InviteAcceptanceClient({
           setStatus("error");
           return;
         }
+        // Sync memberships: add channel to store and invalidate query
+        addJoinedChannel(res.data.channelId);
+        queryClient.invalidateQueries({ queryKey: ["memberships"] });
+
         setStatus("redirecting");
         // Brief delay to show success animation
         setTimeout(() => {
