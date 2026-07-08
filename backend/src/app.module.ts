@@ -8,6 +8,7 @@ import { ChannelsModule } from './presentation/http/channels/channels.module';
 import { MessagesModule } from './presentation/http/messages/messages.module';
 import { ConversationsModule } from './presentation/http/conversations/conversations.module';
 import { ChatModule } from './presentation/websocket/chat.module';
+import { InvitationsModule } from './presentation/http/invitations/invitations.module';
 // import { APP_INTERCEPTOR } from '@nestjs/core/constants';
 // import { LoggingInterceptor } from './presentation/interceptors/logging.interceptor';
 // import { ResponseInterceptor } from './presentation/interceptors/response.interceptor';
@@ -23,6 +24,7 @@ import { ChatModule } from './presentation/websocket/chat.module';
     ChannelsModule,
     MessagesModule,
     ConversationsModule,
+    InvitationsModule,
     ChatModule,
   ],
 })

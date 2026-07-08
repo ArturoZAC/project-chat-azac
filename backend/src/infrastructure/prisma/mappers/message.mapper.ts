@@ -7,6 +7,7 @@ export class MessageMapper {
     return new MessageEntity({
       id: prisma.id,
       content: prisma.content,
+      isSystem: prisma.isSystem,
       isEdited: prisma.isEdited,
       editedAt: prisma.editedAt,
       createdAt: prisma.createdAt,
@@ -21,6 +22,7 @@ export class MessageMapper {
     return {
       id: entity.id,
       content: entity.content,
+      isSystem: entity.isSystem,
       isEdited: entity.isEdited,
       editedAt: entity.editedAt,
       createdAt: entity.createdAt,
@@ -34,6 +36,7 @@ export class MessageMapper {
   static toCreatePrisma(data: CreateMessageData) {
     return {
       content: data.content,
+      isSystem: data.isSystem ?? false,
       channelId: data.channelId ?? null,
       conversationId: data.conversationId ?? null,
       senderId: data.senderId,
@@ -45,6 +48,7 @@ export class MessageMapper {
     return {
       id: entity.id,
       content: entity.content,
+      isSystem: entity.isSystem,
       isEdited: entity.isEdited,
       editedAt: entity.editedAt,
       createdAt: entity.createdAt,

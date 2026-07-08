@@ -62,6 +62,7 @@ model User {
 
   channelsCreated     Channel[]               @relation("ChannelCreator")
   memberships         ChannelMember[]
+  channelInvitations  ChannelInvitation[]
   messages            Message[]               @relation("MessageAuthor")
   messageReads        MessageRead[]
   emailVerifications  EmailVerification[]
@@ -83,6 +84,7 @@ model Channel {
   createdBy       User      @relation("ChannelCreator", fields: [createdById], references: [id])
 
   members         ChannelMember[]
+  invitations     ChannelInvitation[]
   messages        Message[]
 
   @@index([createdById])
@@ -135,9 +137,26 @@ model ConversationMember {
   @@map("conversation_members")
 }
 
+model ChannelInvitation {
+  id          String    @id @default(uuid())
+  token       String    @unique @db.Text
+  channelId   String    @map("channel_id")
+  channel     Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  createdById String    @map("created_by_id")
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  expiresAt   DateTime  @map("expires_at")
+  usedAt      DateTime? @map("used_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([token])
+  @@index([channelId])
+  @@map("channel_invitations")
+}
+
 model Message {
   id              String      @id                        @default(uuid())
   content         String      @db.Text
+  isSystem        Boolean     @default(false)            @map("is_system")
   isEdited        Boolean     @default(false)            @map("is_edited")
   editedAt        DateTime?   @map("edited_at")
   createdAt       DateTime    @default(now())            @map("created_at")

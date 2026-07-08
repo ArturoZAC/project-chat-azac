@@ -10,6 +10,8 @@ import { MessageRepository } from '../../domain/repositories/message.repository'
 import { MessagePrismaRepository } from './repositories/message.prisma.repository';
 import { ConversationRepository } from '../../domain/repositories/conversation.repository';
 import { ConversationPrismaRepository } from './repositories/conversation.prisma.repository';
+import { ChannelInvitationRepository } from '../../domain/repositories/channel-invitation.repository';
+import { ChannelInvitationPrismaRepository } from './repositories/channel-invitation.prisma.repository';
 
 @Global()
 @Module({
@@ -23,6 +25,10 @@ import { ConversationPrismaRepository } from './repositories/conversation.prisma
     },
     { provide: MessageRepository, useClass: MessagePrismaRepository },
     { provide: ConversationRepository, useClass: ConversationPrismaRepository },
+    {
+      provide: ChannelInvitationRepository,
+      useClass: ChannelInvitationPrismaRepository,
+    },
   ],
   exports: [
     PrismaService,
@@ -31,6 +37,7 @@ import { ConversationPrismaRepository } from './repositories/conversation.prisma
     ChannelMemberRepository,
     MessageRepository,
     ConversationRepository,
+    ChannelInvitationRepository,
   ],
 })
 export class PrismaModule {}

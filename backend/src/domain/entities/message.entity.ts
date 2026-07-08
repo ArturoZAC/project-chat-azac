@@ -1,6 +1,7 @@
 export interface MessageEntityProps {
   id: string;
   content: string;
+  isSystem: boolean;
   isEdited: boolean;
   editedAt: Date | null;
   createdAt: Date;
@@ -13,6 +14,7 @@ export interface MessageEntityProps {
 export class MessageEntity {
   public id: string;
   public content: string;
+  public isSystem: boolean;
   public isEdited: boolean;
   public editedAt: Date | null;
   public createdAt: Date;
@@ -24,6 +26,7 @@ export class MessageEntity {
   constructor(props: MessageEntityProps) {
     this.id = props.id;
     this.content = props.content;
+    this.isSystem = props.isSystem;
     this.isEdited = props.isEdited;
     this.editedAt = props.editedAt;
     this.createdAt = props.createdAt;
