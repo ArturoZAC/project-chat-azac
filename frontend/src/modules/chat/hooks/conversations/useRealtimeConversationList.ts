@@ -15,6 +15,8 @@ export function useRealtimeConversationList() {
     const handler = () => {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
       queryClient.invalidateQueries({ queryKey: ["unread"] });
+      // Force immediate refetch so the list updates with full timestamps
+      queryClient.refetchQueries({ queryKey: ["conversations"] });
     };
 
     const socket = getSocket();

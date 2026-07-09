@@ -12,7 +12,7 @@ interface ChatHeaderProps {
 
 export function ChatHeader({ channel, membersCount, onToggleMembers, onBack }: ChatHeaderProps) {
   return (
-    <header className="flex items-center justify-between px-6 py-3 border-b border-gray-light shrink-0">
+    <div className="flex items-center justify-between px-6 py-3 border-b border-gray-light shrink-0">
       <div className="flex items-center gap-2 min-w-0">
         {onBack && (
           <button
@@ -41,6 +41,6 @@ export function ChatHeader({ channel, membersCount, onToggleMembers, onBack }: C
         <IconUsers size={18} className="text-silver-dark" />
         <span className="text-sm text-gray-dark font-medium">{membersCount}</span>
       </button>
-    </header>
+    </div>
   );
 }

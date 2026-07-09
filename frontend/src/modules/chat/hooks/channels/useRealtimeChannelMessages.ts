@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSocketEvents } from "@/modules/chat/hooks/useSocketEvents";
 import { getSocket } from "@/modules/chat/lib/socket";
+import { Message } from "../../interfaces/message.interface";
 
 interface MessagePayload {
   id: string;
@@ -32,11 +33,21 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
     (data: MessagePayload) => {
       if (data.channelId !== channelId) return;
 
-      queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
-        if (!old) return [data];
-        if (old.some((existingMessage) => existingMessage.id === data.id)) return old;
-        // Cache stores newest-first, so prepend
-        return [data, ...old];
+      const formatData: Message = {
+        id: data.id,
+        content: data.content,
+        author: { ...data.sender },
+        channel: { id: data.channelId, name: "" },
+        replyTo: null,
+        readBy: [],
+        createdAt: data.createdAt,
+        updatedAt: data.createdAt,
+      };
+
+      queryClient.setQueryData(["messages", channelId], (old: Message[] | undefined) => {
+        if (!old) return [formatData];
+        if (old.some((existingMessage) => existingMessage.id === formatData.id)) return old;
+        return [formatData, ...old];
       });
       queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
@@ -47,10 +58,18 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
     (data: MessagePayload) => {
       if (data.channelId !== channelId) return;
 
-      queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
+      queryClient.setQueryData(["messages", channelId], (old: Message[] | undefined) => {
         if (!old) return old;
         return old.map((existingMessage) =>
-          existingMessage.id === data.id ? data : existingMessage,
+          existingMessage.id === data.id
+            ? {
+                ...existingMessage,
+                content: data.content,
+                isEdited: data.isEdited,
+                editedAt: data.editedAt,
+                createdAt: data.createdAt,
+              }
+            : existingMessage,
         );
       });
     },
@@ -61,7 +80,7 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
     (data: { messageId: string; channelId: string }) => {
       if (data.channelId !== channelId) return;
 
-      queryClient.setQueryData(["messages", channelId], (old: MessagePayload[] | undefined) => {
+      queryClient.setQueryData(["messages", channelId], (old: Message[] | undefined) => {
         if (!old) return old;
         return old.filter((existingMessage) => existingMessage.id !== data.messageId);
       });

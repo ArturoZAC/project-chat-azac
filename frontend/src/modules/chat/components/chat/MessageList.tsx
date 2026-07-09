@@ -88,16 +88,11 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
     <div className="flex-1 overflow-y-auto py-3">
       {messages.map((msg, index) => (
         <div key={msg.id}>
-          {shouldShowDateSeparator(messages, index) && (
-            <DateSeparator date={msg.createdAt} />
-          )}
+          {shouldShowDateSeparator(messages, index) && <DateSeparator date={msg.createdAt} />}
           {msg.isSystem ? (
             <SystemMessage content={msg.content} />
           ) : (
-            <MessageBubble
-              message={msg}
-              isOwn={msg.author.id === currentUserId}
-            />
+            <MessageBubble message={msg} isOwn={msg.author.id === currentUserId} />
           )}
         </div>
       ))}

@@ -3,7 +3,10 @@ import { getChannelsAction } from "@/modules/chat/actions/channels/get-channels.
 import { getChannelAction } from "@/modules/chat/actions/channels/get-channel.action";
 import { getChannelMessagesAction } from "@/modules/chat/actions/channels/get-channel-messages.action";
 import { getMembershipsAction } from "@/modules/chat/actions/channels/get-memberships.action";
-import { getChannelMembersAction, type MemberApiData } from "@/modules/chat/actions/channels/get-channel-members.action";
+import {
+  getChannelMembersAction,
+  type MemberApiData,
+} from "@/modules/chat/actions/channels/get-channel-members.action";
 import type { Channel, ChannelMember } from "@/modules/chat/interfaces/channels/channel.interface";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
 import type { ChannelBackend } from "@/modules/chat/interfaces/channels/channel-backend.interface";
@@ -46,7 +49,6 @@ function mapChannelMessage(msg: ChannelMessageBackend, channelName: string): Mes
 }
 
 export function useChannelQueries(channelId?: string) {
-
   // ── Channels ──────────────────────────────────────────
 
   const getAllChannels = useQuery({

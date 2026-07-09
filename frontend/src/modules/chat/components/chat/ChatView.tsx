@@ -7,6 +7,7 @@ import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueri
 import { useRealtimeChannelMessages } from "@/modules/chat/hooks/channels/useRealtimeChannelMessages";
 import { useRealtimeChannelMembers } from "@/modules/chat/hooks/channels/useRealtimeChannelMembers";
 import { useChatStore } from "@/modules/chat/store/chat.store";
+import { getSocket } from "@/modules/chat/lib/socket";
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
@@ -45,8 +46,10 @@ export function ChatView({ channelId }: ChatViewProps) {
   };
 
   const handleSend = (content: string) => {
-    // Mock: no actual send for now — will connect to real API later
-    console.log("Send message:", content);
+    const socket = getSocket();
+    if (socket?.connected) {
+      socket.emit("message.send", { channelId, content });
+    }
   };
 
   // Loading state
