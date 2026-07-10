@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconMessageOff } from "@tabler/icons-react";
 import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 import { useRealtimeChannelMessages } from "@/modules/chat/hooks/channels/useRealtimeChannelMessages";
@@ -30,6 +30,13 @@ export function ChatView({ channelId }: ChatViewProps) {
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
   const { createInvitationMutation } = useInvitationMutations();
 
+  // Prevent hydration mismatch: server always renders skeleton (no query data),
+  // client must match until hydration is complete
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
   const channel = getChannel.data;
   // API returns newest-first, but chat renders oldest-first (cascading down)
   const messages = useMemo(() => {
@@ -52,8 +59,8 @@ export function ChatView({ channelId }: ChatViewProps) {
     }
   };
 
-  // Loading state
-  if (isChannelLoading) {
+  // Hydration guard: server and initial client render must match
+  if (!hydrated || isChannelLoading) {
     return <ChannelChatSkeleton />;
   }
 
