@@ -38,9 +38,14 @@ interface ConversationItem {
 
 export function ConversationList() {
   const router = useRouter();
+  const isSessionReady = useAuthStore((s) => s.isSessionReady);
   const currentUser = useAuthStore((s) => s.user);
-  const { getAllChannels, getUnreadCounts, getMemberships } = useChannelQueries();
-  const { getConversations } = useConversationQueries();
+  const { getAllChannels, getUnreadCounts, getMemberships } = useChannelQueries(undefined, {
+    enabled: isSessionReady,
+  });
+  const { getConversations } = useConversationQueries(undefined, {
+    enabled: isSessionReady,
+  });
   const { isOnline } = useOnlineStatus();
   const [mounted, setMounted] = useState(false);
 
@@ -103,7 +108,7 @@ export function ConversationList() {
     (a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime(),
   );
 
-  if (!mounted) {
+  if (!isSessionReady || !mounted) {
     return (
       <div className="overflow-y-auto flex-1 px-6 py-4">
         <div className="flex flex-col gap-2">

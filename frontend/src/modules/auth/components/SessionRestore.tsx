@@ -9,6 +9,7 @@ export function SessionRestore({ children }: { children: React.ReactNode }) {
   const setSession = useAuthStore((s) => s.setSession);
   const setUser = useAuthStore((s) => s.setUser);
   const clearSession = useAuthStore((s) => s.clearSession);
+  const setSessionReady = useAuthStore((s) => s.setSessionReady);
   const router = useRouter();
 
   const restored = useRef(false);
@@ -19,14 +20,18 @@ export function SessionRestore({ children }: { children: React.ReactNode }) {
     restored.current = true;
 
     const restore = async () => {
-      const result = await restoreSessionAction();
+      try {
+        const result = await restoreSessionAction();
 
-      if (result.success) {
-        setSession(result.data.id);
-        setUser(result.data);
-      } else {
-        clearSession();
-        router.push("/login");
+        if (result.success) {
+          setSession(result.data.id);
+          setUser(result.data);
+        } else {
+          clearSession();
+          router.push("/login");
+        }
+      } finally {
+        setSessionReady();
       }
     };
 

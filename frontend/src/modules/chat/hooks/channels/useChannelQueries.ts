@@ -48,7 +48,8 @@ function mapChannelMessage(msg: ChannelMessageBackend, channelName: string): Mes
   };
 }
 
-export function useChannelQueries(channelId?: string) {
+export function useChannelQueries(channelId?: string, options?: { enabled?: boolean }) {
+  const queriesEnabled = options?.enabled ?? true;
   // ── Channels ──────────────────────────────────────────
 
   const getAllChannels = useQuery({
@@ -58,6 +59,7 @@ export function useChannelQueries(channelId?: string) {
       if (!res.success) return [];
       return (res.data as { data: ChannelBackend[] }).data.map(mapChannel);
     },
+    enabled: queriesEnabled,
   });
 
   const getChannel = useQuery({
@@ -124,6 +126,7 @@ export function useChannelQueries(channelId?: string) {
       return response.data;
     },
     staleTime: 30_000,
+    enabled: queriesEnabled,
   });
 
   // ── Unread counts (not yet available from backend) ───

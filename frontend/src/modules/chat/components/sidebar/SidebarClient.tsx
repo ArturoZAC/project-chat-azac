@@ -49,8 +49,13 @@ const ADMIN_NAV_ITEMS = [
 export function SidebarClient() {
   const { activeTab, setActiveTab } = useChatStore();
   const { isSidebarCollapsed, toggleSidebar } = useUIStore();
-  const { getTotalUnread: getChannelUnread, getMemberships } = useChannelQueries();
-  const { getTotalUnread: getConvUnread, getConversations } = useConversationQueries();
+  const isSessionReady = useAuthStore((s) => s.isSessionReady);
+  const { getTotalUnread: getChannelUnread, getMemberships } = useChannelQueries(undefined, {
+    enabled: isSessionReady,
+  });
+  const { getTotalUnread: getConvUnread, getConversations } = useConversationQueries(undefined, {
+    enabled: isSessionReady,
+  });
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
   const router = useRouter();
@@ -161,116 +166,152 @@ export function SidebarClient() {
       {/* Scrollable area: channels + DMs */}
       {!isSidebarCollapsed && (
         <div className="flex-1 overflow-y-auto px-3 mt-2 space-y-3">
-          {/* ====== DIRECTOS ====== */}
-          <div>
-            <div className="flex items-center justify-between px-3 pb-1">
-              <span className="small-muted uppercase tracking-wider font-semibold">Directos</span>
-              <button
-                onClick={() => router.push("/messages/start")}
-                className="p-1 rounded-lg hover:bg-silver-light text-silver-dark hover:text-primary transition-colors"
-                title="Nueva conversación"
-              >
-                <IconMessageCircle size={16} />
-              </button>
-            </div>
-
-            {conversations.length > 0 ? (
-              <>
-                <div className="flex flex-col gap-0.5">
-                  {conversations.slice(0, 6).map((conv) => {
-                    const other = conv.participants.find((p) => p.id !== currentUser?.id);
-                    if (!other) return null;
-                    return (
-                      <UserShortcut
-                        key={other.id}
-                        userId={other.id}
-                        username={other.username}
-                        isOnline={isOnline(other.id)}
-                        onClick={() => router.push(`/dm/${other.id}`)}
-                      />
-                    );
-                  })}
+          {isSessionReady ? (
+            <>
+              {/* ====== DIRECTOS ====== */}
+              <div>
+                <div className="flex items-center justify-between px-3 pb-1">
+                  <span className="small-muted uppercase tracking-wider font-semibold">Directos</span>
+                  <button
+                    onClick={() => router.push("/messages/start")}
+                    className="p-1 rounded-lg hover:bg-silver-light text-silver-dark hover:text-primary transition-colors"
+                    title="Nueva conversación"
+                  >
+                    <IconMessageCircle size={16} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => router.push("/messages/start")}
-                  className="flex items-center gap-2 w-full mt-1 px-3 py-2 rounded-lg hover:bg-silver-light text-silver-dark hover:text-primary transition-colors btn-sans text-xs font-semibold cursor-pointer border-none bg-transparent"
-                >
-                  <IconMessageCircle size={14} />
-                  Nueva conversación
-                </button>
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
-                <div className="w-10 h-10 rounded-xl bg-silver-light flex items-center justify-center">
-                  <IconMoodSad size={20} className="text-silver-dark" />
-                </div>
-                <p className="p-muted text-sm">
-                  No tienes conversaciones
-                </p>
-                <button
-                  onClick={() => router.push("/messages/start")}
-                  className="btn-sans text-xs font-semibold span-primary hover:underline mt-1 cursor-pointer border-none bg-transparent"
-                >
-                  Iniciar una nueva
-                </button>
-              </div>
-            )}
-          </div>
 
-          {/* ====== MIS CANALES ====== */}
-          <div>
-            <button
-              onClick={() => router.push("/channels")}
-              className="w-full text-left px-3 pb-1 small-muted uppercase tracking-wider font-semibold hover:text-gray-dark transition-colors"
-            >
-              Mis canales
-            </button>
-
-            {memberships.length > 0 ? (
-              <div className="flex flex-col gap-0.5">
-                {memberships.slice(0, 5).map((channelId) => (
-                  <ChannelShortcut key={channelId} channelId={channelId} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
-                <div className="w-10 h-10 rounded-xl bg-silver-light flex items-center justify-center">
-                  <IconMoodSad size={20} className="text-silver-dark" />
-                </div>
-                <p className="p-muted text-sm">
-                  Aún no estás dentro de algún canal
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Admin section — only for ADMIN role */}
-          {currentUser?.role === "ADMIN" && (
-            <div>
-              <hr className="border-t border-gray-light mb-3" />
-              <span className="block px-3 pb-1 small-muted uppercase tracking-wider font-semibold">
-                Administración
-              </span>
-              <div className="flex flex-col gap-0.5">
-                {ADMIN_NAV_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTabId === item.id;
-                  return (
+                {conversations.length > 0 ? (
+                  <>
+                    <div className="flex flex-col gap-0.5">
+                      {conversations.slice(0, 6).map((conv) => {
+                        const other = conv.participants.find((p) => p.id !== currentUser?.id);
+                        if (!other) return null;
+                        return (
+                          <UserShortcut
+                            key={other.id}
+                            userId={other.id}
+                            username={other.username}
+                            isOnline={isOnline(other.id)}
+                            onClick={() => router.push(`/dm/${other.id}`)}
+                          />
+                        );
+                      })}
+                    </div>
                     <button
-                      key={item.id}
-                      onClick={() => router.push(item.path)}
-                      className={`
-                        flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left w-full
-                        ${isActive ? "bg-primary-light" : "hover:bg-silver-light"}
-                      `}
+                      onClick={() => router.push("/messages/start")}
+                      className="flex items-center gap-2 w-full mt-1 px-3 py-2 rounded-lg hover:bg-silver-light text-silver-dark hover:text-primary transition-colors btn-sans text-xs font-semibold cursor-pointer border-none bg-transparent"
                     >
-                      <Icon size={16} className={`${isActive ? "text-primary" : "text-silver-dark"} shrink-0`} />
-                      <span className={`text-sm truncate ${isActive ? "span-primary" : "text-gray-dark"}`}>
-                        {item.label}
-                      </span>
+                      <IconMessageCircle size={14} />
+                      Nueva conversación
                     </button>
-                  );
-                })}
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
+                    <div className="w-10 h-10 rounded-xl bg-silver-light flex items-center justify-center">
+                      <IconMoodSad size={20} className="text-silver-dark" />
+                    </div>
+                    <p className="p-muted text-sm">
+                      No tienes conversaciones
+                    </p>
+                    <button
+                      onClick={() => router.push("/messages/start")}
+                      className="btn-sans text-xs font-semibold span-primary hover:underline mt-1 cursor-pointer border-none bg-transparent"
+                    >
+                      Iniciar una nueva
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* ====== MIS CANALES ====== */}
+              <div>
+                <button
+                  onClick={() => router.push("/channels")}
+                  className="w-full text-left px-3 pb-1 small-muted uppercase tracking-wider font-semibold hover:text-gray-dark transition-colors"
+                >
+                  Mis canales
+                </button>
+
+                {memberships.length > 0 ? (
+                  <div className="flex flex-col gap-0.5">
+                    {memberships.slice(0, 5).map((channelId) => (
+                      <ChannelShortcut key={channelId} channelId={channelId} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
+                    <div className="w-10 h-10 rounded-xl bg-silver-light flex items-center justify-center">
+                      <IconMoodSad size={20} className="text-silver-dark" />
+                    </div>
+                    <p className="p-muted text-sm">
+                      Aún no estás dentro de algún canal
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Admin section — only for ADMIN role */}
+              {currentUser?.role === "ADMIN" && (
+                <div>
+                  <hr className="border-t border-gray-light mb-3" />
+                  <span className="block px-3 pb-1 small-muted uppercase tracking-wider font-semibold">
+                    Administración
+                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    {ADMIN_NAV_ITEMS.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeTabId === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => router.push(item.path)}
+                          className={`
+                            flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left w-full
+                            ${isActive ? "bg-primary-light" : "hover:bg-silver-light"}
+                          `}
+                        >
+                          <Icon size={16} className={`${isActive ? "text-primary" : "text-silver-dark"} shrink-0`} />
+                          <span className={`text-sm truncate ${isActive ? "span-primary" : "text-gray-dark"}`}>
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* ── Loading skeleton ── */
+            <div className="space-y-3 animate-pulse">
+              {/* Directos skeleton */}
+              <div>
+                <div className="flex items-center justify-between px-3 pb-1">
+                  <div className="h-3 w-16 bg-gray-light rounded" />
+                  <div className="h-4 w-4 bg-gray-light rounded" />
+                </div>
+                <div className="flex flex-col gap-1 px-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-2 py-1.5">
+                      <div className="w-6 h-6 rounded-full bg-gray-light shrink-0" />
+                      <div className="h-3 w-24 bg-gray-light rounded" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Canales skeleton */}
+              <div>
+                <div className="h-3 w-20 bg-gray-light rounded px-3 pb-1 mb-2" />
+                <div className="flex flex-col gap-1 px-3">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-2 py-1.5">
+                      <div className="h-3 w-3 bg-gray-light rounded" />
+                      <div className="h-3 w-28 bg-gray-light rounded" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

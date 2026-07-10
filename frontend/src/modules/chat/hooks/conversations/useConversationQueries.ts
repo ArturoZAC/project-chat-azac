@@ -10,7 +10,8 @@ const CONVERSATIONS_KEY = ["conversations"];
 const CONVERSATION_MESSAGES_KEY = (id: string) => ["conversation-messages", id];
 const USERS_KEY = ["users"];
 
-export function useConversationQueries(conversationId?: string) {
+export function useConversationQueries(conversationId?: string, options?: { enabled?: boolean }) {
+  const queriesEnabled = options?.enabled ?? true;
   const getConversations = useQuery({
     queryKey: CONVERSATIONS_KEY,
     queryFn: async (): Promise<ConversationWithDetails[]> => {
@@ -18,6 +19,7 @@ export function useConversationQueries(conversationId?: string) {
       if (!res.success) return [];
       return res.data as ConversationWithDetails[];
     },
+    enabled: queriesEnabled,
   });
 
   const getConversationMessages = useQuery({
@@ -37,6 +39,7 @@ export function useConversationQueries(conversationId?: string) {
       if (!res.success) return [];
       return res.data.data;
     },
+    enabled: queriesEnabled,
   });
 
   // Total unread across all conversations
@@ -47,6 +50,7 @@ export function useConversationQueries(conversationId?: string) {
       const conversations = res.data as ConversationWithDetails[];
       return conversations.reduce((sum, c) => sum + c.unreadCount, 0);
     },
+    enabled: queriesEnabled,
   });
 
   return {
