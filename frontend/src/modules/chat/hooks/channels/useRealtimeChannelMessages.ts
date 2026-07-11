@@ -106,12 +106,24 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
     "message.deleted": handleMessageDeleted,
   });
 
-  // Auto-join room when channelId changes
+  // Auto-join room when channelId changes OR when socket reconnects
   useEffect(() => {
     const socket = getSocket();
-    if (socket && channelId) {
+    if (!socket || !channelId) return;
+
+    const joinRoom = () => {
       socket.emit("channel.join", { channelId });
-    }
+    };
+
+    // Join on mount / channel change
+    joinRoom();
+
+    // Re-join on every socket (re)connection — rooms don't survive reconnect
+    socket.on("connect", joinRoom);
+
+    return () => {
+      socket.off("connect", joinRoom);
+    };
   }, [channelId]);
 
   return {

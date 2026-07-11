@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconArrowLeft, IconMail, IconLock, IconCircleCheck, IconBell, IconMusic, IconLogout } from "@tabler/icons-react";
+import {
+  IconArrowLeft,
+  IconMail,
+  IconLock,
+  IconCircleCheck,
+  IconBell,
+  IconMusic,
+  IconLogout,
+} from "@tabler/icons-react";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { logoutAction } from "@/modules/auth/actions/logout.action";
 
@@ -91,69 +99,6 @@ export function SettingsPageClient() {
                   <p className="small-muted">Tu correo electrónico está verificado</p>
                 </div>
               </div>
-            </div>
-          </section>
-
-          {/* Notifications Section */}
-          <section className="bg-white rounded-2xl border border-gray-light shadow-sm p-6">
-            <h6 className="font-semibold text-sm mb-4">Notificaciones</h6>
-
-            <div className="flex flex-col gap-4">
-              {/* Messages toggle */}
-              <label className="flex items-center justify-between gap-4 cursor-pointer">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
-                    <IconBell size={16} className="text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">Mensajes</p>
-                    <p className="small-muted">Notificaciones de nuevos mensajes</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={notifications.messages}
-                  onClick={() => handleToggle("messages")}
-                  className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${
-                    notifications.messages ? "bg-primary" : "bg-gray-light"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${
-                      notifications.messages ? "translate-x-5" : ""
-                    }`}
-                  />
-                </button>
-              </label>
-
-              {/* Sounds toggle */}
-              <label className="flex items-center justify-between gap-4 cursor-pointer">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
-                    <IconMusic size={16} className="text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">Sonidos</p>
-                    <p className="small-muted">Reproducir sonido al recibir mensajes</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={notifications.sounds}
-                  onClick={() => handleToggle("sounds")}
-                  className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${
-                    notifications.sounds ? "bg-primary" : "bg-gray-light"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${
-                      notifications.sounds ? "translate-x-5" : ""
-                    }`}
-                  />
-                </button>
-              </label>
             </div>
           </section>
 

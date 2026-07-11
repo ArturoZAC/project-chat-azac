@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { IconX, IconUsers, IconLink } from "@tabler/icons-react";
 import type { ChannelMember } from "@/modules/chat/interfaces/channels/channel.interface";
 import { getInitials } from "@/shared/helpers/get-initials";
+import { useOnlineStatus } from "@/modules/chat/hooks/useOnlineStatus";
 
 interface MembersPanelProps {
   isOpen: boolean;
@@ -13,8 +14,9 @@ interface MembersPanelProps {
 }
 
 export function MembersPanel({ isOpen, members, onClose, onGenerateInvite }: MembersPanelProps) {
-  const online = members.filter((m) => m.user.isOnline);
-  const offline = members.filter((m) => !m.user.isOnline);
+  const { isOnline } = useOnlineStatus();
+  const online = members.filter((m) => isOnline(m.user.id));
+  const offline = members.filter((m) => !isOnline(m.user.id));
 
   return (
     <AnimatePresence>

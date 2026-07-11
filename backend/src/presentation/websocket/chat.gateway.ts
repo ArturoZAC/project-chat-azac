@@ -325,6 +325,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ...MessageMapper.toResponse(message),
         sender: UserMapper.toResponse(user),
       });
+
+    // Notify the conversation list to refresh (last message, timestamp)
+    this.server
+      .to(`conversation:${data.conversationId}`)
+      .emit('conversation.updated', {
+        conversationId: data.conversationId,
+      });
   }
 
   @SubscribeMessage('conversation.message.edit')

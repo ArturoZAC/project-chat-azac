@@ -7,6 +7,7 @@ import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueri
 import { useRealtimeChannelMessages } from "@/modules/chat/hooks/channels/useRealtimeChannelMessages";
 import { useRealtimeChannelMembers } from "@/modules/chat/hooks/channels/useRealtimeChannelMembers";
 import { useChatStore } from "@/modules/chat/store/chat.store";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { getSocket } from "@/modules/chat/lib/socket";
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
@@ -29,6 +30,7 @@ export function ChatView({ channelId }: ChatViewProps) {
 
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
   const { createInvitationMutation } = useInvitationMutations();
+  const currentUser = useAuthStore((s) => s.user);
 
   // Prevent hydration mismatch: server always renders skeleton (no query data),
   // client must match until hydration is complete
@@ -38,6 +40,7 @@ export function ChatView({ channelId }: ChatViewProps) {
   }, []);
 
   const channel = getChannel.data;
+  const isChannelOwner = channel?.owner.id === currentUser?.id;
   // API returns newest-first, but chat renders oldest-first (cascading down)
   const messages = useMemo(() => {
     const raw = getMessages.data ?? [];
@@ -107,7 +110,7 @@ export function ChatView({ channelId }: ChatViewProps) {
         isOpen={isMembersPanelOpen}
         members={members}
         onClose={() => setMembersPanelOpen(false)}
-        onGenerateInvite={handleGenerateInvite}
+        onGenerateInvite={isChannelOwner ? handleGenerateInvite : undefined}
       />
 
       {/* Invite link modal */}
