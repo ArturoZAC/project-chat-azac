@@ -9,6 +9,8 @@ export interface MessageEntityProps {
   conversationId: string | null;
   senderId: string;
   parentId: string | null;
+  senderUsername: string;
+  senderAvatarUrl: string | null;
 }
 
 export class MessageEntity {
@@ -22,6 +24,8 @@ export class MessageEntity {
   public conversationId: string | null;
   public senderId: string;
   public parentId: string | null;
+  public senderUsername: string;
+  public senderAvatarUrl: string | null;
 
   constructor(props: MessageEntityProps) {
     this.id = props.id;
@@ -34,5 +38,7 @@ export class MessageEntity {
     this.conversationId = props.conversationId;
     this.senderId = props.senderId;
     this.parentId = props.parentId;
+    this.senderUsername = props.senderUsername;
+    this.senderAvatarUrl = props.senderAvatarUrl;
   }
 }

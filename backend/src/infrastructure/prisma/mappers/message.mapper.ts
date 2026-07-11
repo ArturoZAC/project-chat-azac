@@ -2,8 +2,17 @@ import { Message as PrismaMessage } from '../../../../generated/prisma';
 import { MessageEntity } from '../../../domain/entities/message.entity';
 import { CreateMessageData } from '../../../domain/repositories/message.repository';
 
+// Extended type for Prisma results with included sender relation
+interface PrismaMessageWithSender extends PrismaMessage {
+  sender?: {
+    id: string;
+    username: string;
+    avatarUrl: string | null;
+  } | null;
+}
+
 export class MessageMapper {
-  static toDomain(prisma: PrismaMessage): MessageEntity {
+  static toDomain(prisma: PrismaMessageWithSender): MessageEntity {
     return new MessageEntity({
       id: prisma.id,
       content: prisma.content,
@@ -15,6 +24,8 @@ export class MessageMapper {
       conversationId: prisma.conversationId,
       senderId: prisma.senderId,
       parentId: prisma.parentId,
+      senderUsername: prisma.sender?.username ?? '',
+      senderAvatarUrl: prisma.sender?.avatarUrl ?? null,
     });
   }
 
@@ -56,6 +67,8 @@ export class MessageMapper {
       conversationId: entity.conversationId,
       senderId: entity.senderId,
       parentId: entity.parentId,
+      senderUsername: entity.senderUsername,
+      senderAvatarUrl: entity.senderAvatarUrl,
     };
   }
 }

@@ -39,7 +39,7 @@ function mapChannelMessage(msg: ChannelMessageBackend, channelName: string): Mes
     id: msg.id,
     content: msg.content,
     isSystem: msg.isSystem,
-    author: { id: msg.senderId, username: "", avatarUrl: "" },
+    author: { id: msg.senderId, username: msg.senderUsername ?? "", avatarUrl: msg.senderAvatarUrl ?? null },
     channel: { id: msg.channelId, name: channelName },
     replyTo: msg.parentId ?? null,
     readBy: [],

@@ -10,4 +10,6 @@ export interface ChannelMessageBackend {
   conversationId: string | null;
   senderId: string;
   parentId: string | null;
+  senderUsername: string;
+  senderAvatarUrl: string | null;
 }

@@ -12,15 +12,16 @@ interface MessagePayload {
   channelId: string;
   conversationId: string | null;
   senderId: string;
-  sender: {
+  sender?: {
     id: string;
     username: string;
     avatarUrl: string | null;
-  };
+  } | null;
   createdAt: string;
   isEdited: boolean;
   editedAt: string | null;
   parentId: string | null;
+  isSystem?: boolean;
 }
 
 /**
@@ -36,9 +37,20 @@ export function useRealtimeChannelMessages(channelId: string | undefined) {
       const formatData: Message = {
         id: data.id,
         content: data.content,
-        author: { ...data.sender },
+        isSystem: data.isSystem ?? false,
+        author: data.sender
+          ? {
+              id: data.sender.id,
+              username: data.sender.username,
+              avatarUrl: data.sender.avatarUrl ?? null,
+            }
+          : {
+              id: data.senderId,
+              username: "",
+              avatarUrl: null,
+            },
         channel: { id: data.channelId, name: "" },
-        replyTo: null,
+        replyTo: data.parentId ?? null,
         readBy: [],
         createdAt: data.createdAt,
         updatedAt: data.createdAt,

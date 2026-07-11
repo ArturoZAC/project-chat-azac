@@ -39,6 +39,11 @@ export class MessagePrismaRepository implements MessageRepository {
         skip,
         take: params.limit,
         orderBy: { createdAt: 'desc' },
+        include: {
+          sender: {
+            select: { id: true, username: true, avatarUrl: true },
+          },
+        },
       }),
       this.prisma.message.count({ where: { channelId } }),
     ]);
