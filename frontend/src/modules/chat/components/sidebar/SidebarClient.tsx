@@ -355,7 +355,7 @@ export function SidebarClient() {
               transition={{ duration: 0.15, ease: "easeOut" }}
               className={`
                 absolute z-50 bg-white rounded-xl shadow-lg border border-gray-light py-1 min-w-[180px]
-                ${isSidebarCollapsed ? "bottom-full left-1/2 -translate-x-1/2 mb-2" : "bottom-full left-0 mb-2"}
+                ${isSidebarCollapsed ? "bottom-full left-1/2 -translate-x-1/2 mb-2" : "bottom-full left-4 mb-2"}
               `}
             >
               <div className="px-3 py-2 border-b border-gray-light">

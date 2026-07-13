@@ -1,13 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { IconArrowLeft, IconMail, IconCalendar, IconClock, IconCircleCheck, IconEdit } from "@tabler/icons-react";
+import { IconArrowLeft, IconMail, IconCalendar, IconClock, IconCircleCheck, IconEdit, IconLogout } from "@tabler/icons-react";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { getInitials } from "@/shared/helpers/get-initials";
+import { useLogout } from "@/modules/auth/hooks/useLogout";
 
 export function ProfilePageClient() {
   const router = useRouter();
   const currentUser = useAuthStore((s) => s.user);
+  const handleLogout = useLogout();
 
   if (!currentUser) {
     return (
@@ -98,13 +100,23 @@ export function ProfilePageClient() {
           </div>
 
           {/* Actions */}
-          <button
-            onClick={() => router.push("/profile/edit")}
-            className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-hover px-4 py-2.5 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.97]"
-          >
-            <IconEdit size={18} className="text-white" />
-            <span className="btn-sans text-sm font-medium span-white">Editar perfil</span>
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => router.push("/profile/edit")}
+              className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-hover px-4 py-2.5 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.97]"
+            >
+              <IconEdit size={18} className="text-white" />
+              <span className="btn-sans text-sm font-medium span-white">Editar perfil</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg border border-error text-error hover:bg-error hover:text-white transition-all duration-200 text-sm font-medium"
+            >
+              <IconLogout size={18} />
+              Cerrar sesión
+            </button>
+          </div>
         </div>
 
         {/* Footer phrase */}
