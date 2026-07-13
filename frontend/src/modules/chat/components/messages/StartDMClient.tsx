@@ -59,7 +59,7 @@ export function StartDMClient() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-ultra">
+    <div className="flex flex-col flex-1 min-h-0 bg-gray-ultra">
       {/* Header */}
       <div className="p-6 pb-3">
         <div className="flex items-center gap-3 mb-4">
