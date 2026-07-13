@@ -18,7 +18,7 @@ export function StartDMClient() {
   const { createOrGetConversationMutation } = useConversationMutations();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterStatus>("all");
-  const { isOnline: isUserOnline } = useOnlineStatus();
+  const { isOnline: isUserOnline, hasSynced } = useOnlineStatus();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -35,15 +35,17 @@ export function StartDMClient() {
       );
 
     // Apply online/offline filter
+    // Use socket-based status (isUserOnline) as primary source.
+    // Fall back to API u.isOnline only if socket hasn't synced yet.
     switch (filter) {
       case "online":
-        return allUsers.filter((u) => u.isOnline || isUserOnline(u.id));
+        return allUsers.filter((u) => (hasSynced ? isUserOnline(u.id) : u.isOnline));
       case "offline":
-        return allUsers.filter((u) => !u.isOnline && !isUserOnline(u.id));
+        return allUsers.filter((u) => !(hasSynced ? isUserOnline(u.id) : u.isOnline));
       default:
         return allUsers;
     }
-  }, [getUsers.data, currentUser?.id, search, filter, isUserOnline]);
+  }, [getUsers.data, currentUser?.id, search, filter, isUserOnline, hasSynced]);
 
   const handleStartDM = async (participantId: string) => {
     try {
@@ -128,7 +130,7 @@ export function StartDMClient() {
       </div>
 
       {/* User list */}
-      <div className="overflow-y-auto flex-1 px-6 pb-6">
+      <div className="overflow-y-auto flex-1 min-h-0 px-6 pb-6">
         {!mounted ? (
           <div className="flex flex-col gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -147,7 +149,7 @@ export function StartDMClient() {
         ) : users.length > 0 ? (
           <div className="flex flex-col gap-1">
             {users.map((u) => {
-              const isOnline = u.isOnline || isUserOnline(u.id);
+              const isOnline = hasSynced ? isUserOnline(u.id) : u.isOnline;
               return (
                 <button
                   key={u.id}

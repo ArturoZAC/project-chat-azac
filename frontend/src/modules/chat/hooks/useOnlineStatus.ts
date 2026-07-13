@@ -21,6 +21,7 @@ interface OnlineUser {
 export function useOnlineStatus() {
   const currentUserId = useAuthStore((s) => s.userId);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [hasSynced, setHasSynced] = useState(false);
 
   useEffect(() => {
     const handler = (users: OnlineUser[]) => {
@@ -30,6 +31,7 @@ export function useOnlineStatus() {
         ids.push(currentUserId);
       }
       setOnlineUsers(new Set(ids));
+      setHasSynced(true);
     };
 
     onSocketReady((socket) => {
@@ -61,5 +63,5 @@ export function useOnlineStatus() {
 
   const isOnline = useCallback((userId: string) => onlineUsers.has(userId), [onlineUsers]);
 
-  return { onlineUsers, isOnline };
+  return { onlineUsers, isOnline, hasSynced };
 }
