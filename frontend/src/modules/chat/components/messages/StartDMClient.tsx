@@ -132,8 +132,8 @@ export function StartDMClient() {
       {/* User list */}
       <div className="overflow-y-auto flex-1 min-h-0 px-6 pb-6">
         {!mounted ? (
-          <div className="flex flex-col gap-1">
-            {Array.from({ length: 5 }).map((_, i) => (
+          <div className="grid grid-cols-2 gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
                 className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-gray-light animate-pulse"
@@ -147,7 +147,7 @@ export function StartDMClient() {
             ))}
           </div>
         ) : users.length > 0 ? (
-          <div className="flex flex-col gap-1">
+          <div className="grid grid-cols-2 gap-2">
             {users.map((u) => {
               const isOnline = hasSynced ? isUserOnline(u.id) : u.isOnline;
               return (
