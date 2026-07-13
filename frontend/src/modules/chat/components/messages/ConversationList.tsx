@@ -66,12 +66,16 @@ export function ConversationList() {
     const channel = channels.find((ch) => ch.id === channelId);
     if (!channel) return;
 
+    const channelLastMsg = channel.lastMessage
+      ? `${channel.lastMessage.senderUsername}: ${channel.lastMessage.content}`
+      : "Sin mensajes aún";
+
     items.push({
       id: channelId,
       type: "channel",
       name: channel.name,
-      lastMessage: "Sin mensajes aún",
-      lastTime: channel.updatedAt,
+      lastMessage: channelLastMsg,
+      lastTime: channel.lastMessage?.createdAt ?? channel.updatedAt,
       unreadCount: unreadCounts[channelId] ?? 0,
       href: `/channels/${channelId}`,
     });

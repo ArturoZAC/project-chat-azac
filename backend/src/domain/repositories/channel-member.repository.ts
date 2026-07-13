@@ -18,5 +18,6 @@ export abstract class ChannelMemberRepository {
   abstract findByChannel(channelId: string): Promise<ChannelMemberEntity[]>;
   abstract findByUser(userId: string): Promise<ChannelMemberEntity[]>;
   abstract updateLastRead(channelId: string, userId: string): Promise<void>;
+  abstract getUnreadCount(channelId: string, userId: string): Promise<number>;
   abstract delete(channelId: string, userId: string): Promise<void>;
 }

@@ -13,6 +13,8 @@ import { UserRepository } from '../../domain/repositories/user.repository';
 import { MessageRepository } from '../../domain/repositories/message.repository';
 import { ChannelMemberRepository } from '../../domain/repositories/channel-member.repository';
 import { ConversationRepository } from '../../domain/repositories/conversation.repository';
+import { ChannelRepository } from '../../domain/repositories/channel.repository';
+import { ChannelEntity } from '../../domain/entities/channel.entity';
 import { MessageMapper } from '../../infrastructure/prisma/mappers/message.mapper';
 import { UserMapper } from '../../infrastructure/prisma/mappers/user.mapper';
 import { envs } from 'src/config/envs';
@@ -36,6 +38,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly messageRepo: MessageRepository,
     private readonly channelMemberRepo: ChannelMemberRepository,
     private readonly conversationRepo: ConversationRepository,
+    private readonly channelRepo: ChannelRepository,
   ) {}
 
   // private async getUserFromSocket(client: Socket) {
@@ -223,6 +226,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ...MessageMapper.toResponse(message),
       sender: UserMapper.toResponse(user),
     });
+
+    // Emit channel.updated + notification to all channel members except sender
+    const channelMembers = await this.channelMemberRepo.findByChannel(
+      data.channelId,
+    );
+    const channelName =
+      (await this.channelRepo.findById(data.channelId))?.name ?? data.channelId;
+
+    for (const member of channelMembers) {
+      if (member.userId === user.id) continue;
+
+      this.server
+        .to(`user:${member.userId}`)
+        .emit('channel.updated', { channelId: data.channelId });
+
+      this.server.to(`user:${member.userId}`).emit('notification.new', {
+        id: message.id,
+        type: 'channel',
+        title: `#${channelName}`,
+        message: 'te escribió un mensaje',
+        channelName: channelName,
+        channelId: data.channelId,
+        conversationId: null,
+        senderId: user.id,
+        senderUsername: user.username,
+        createdAt: message.createdAt,
+      });
+    }
   }
 
   @SubscribeMessage('message.edit')
@@ -332,6 +363,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .emit('conversation.updated', {
         conversationId: data.conversationId,
       });
+
+    // Emit notification to the other participant
+    const participants = await this.conversationRepo.findParticipants(
+      data.conversationId,
+    );
+    const otherParticipantId = participants.find((id) => id !== user.id);
+
+    if (otherParticipantId) {
+      this.server
+        .to(`user:${otherParticipantId}`)
+        .emit('notification.new', {
+          id: message.id,
+          type: 'dm',
+          title: user.username,
+          message: 'te envió un mensaje',
+          channelName: null,
+          channelId: null,
+          conversationId: data.conversationId,
+          senderId: user.id,
+          senderUsername: user.username,
+          createdAt: message.createdAt,
+        });
+    }
   }
 
   @SubscribeMessage('conversation.message.edit')

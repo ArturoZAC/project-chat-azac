@@ -20,12 +20,14 @@ import { JoinChannelUseCase } from '../../../application/use-cases/channels/join
 import { LeaveChannelUseCase } from '../../../application/use-cases/channels/leave-channel.usecase';
 import { GetUserMembershipsUseCase } from '../../../application/use-cases/channels/get-user-memberships.usecase';
 import { GetChannelMembersUseCase } from '../../../application/use-cases/channels/get-channel-members.usecase';
+import { MarkChannelReadUseCase } from '../../../application/use-cases/channels/mark-channel-read.usecase';
 import { CreateChannelDto } from './dtos/create-channel.dto';
 import { UpdateChannelDto } from './dtos/update-channel.dto';
 import { ResponseInterceptor } from '../../interceptors/response.interceptor';
 import { ChannelMapper } from '../../../infrastructure/prisma/mappers/channel.mapper';
 import { Auth } from '../decorators/auth.decorator';
 import { Role, UserEntity } from '../../../domain/entities/user.entity';
+import { ChannelMemberRepository } from '../../../domain/repositories/channel-member.repository';
 import type { Request } from 'express';
 import { GetChannelsDto } from './dtos/get-channels.dto';
 import { Public } from '../decorators/public.decorator';
@@ -43,6 +45,8 @@ export class ChannelsController {
     private readonly leaveChannelUseCase: LeaveChannelUseCase,
     private readonly getUserMembershipsUseCase: GetUserMembershipsUseCase,
     private readonly getChannelMembersUseCase: GetChannelMembersUseCase,
+    private readonly markChannelReadUseCase: MarkChannelReadUseCase,
+    private readonly channelMemberRepo: ChannelMemberRepository,
   ) {}
 
   @Post()
@@ -65,7 +69,12 @@ export class ChannelsController {
   async getChannels(@Query() query: GetChannelsDto) {
     const result = await this.getChannelsUseCase.execute(query);
     return ResponseInterceptor.success(
-      { ...result, data: result.data.map(ChannelMapper.toResponse) },
+      {
+        ...result,
+        data: result.data.map((item) =>
+          ChannelMapper.toResponse(item.channel, item.lastMessage),
+        ),
+      },
       'Canales obtenidos exitosamente',
     );
   }
@@ -75,6 +84,31 @@ export class ChannelsController {
     const user = req.user as UserEntity;
     const channelIds = await this.getUserMembershipsUseCase.execute(user.id);
     return ResponseInterceptor.success(channelIds, 'Memberships obtenidas');
+  }
+
+  @Get('my-unread')
+  async getMyUnreadCounts(@Req() req: Request) {
+    const user = req.user as UserEntity;
+    const memberships = await this.channelMemberRepo.findByUser(user.id);
+
+    const byChannel: Record<string, number> = {};
+    let total = 0;
+
+    for (const membership of memberships) {
+      const count = await this.channelMemberRepo.getUnreadCount(
+        membership.channelId,
+        user.id,
+      );
+      if (count > 0) {
+        byChannel[membership.channelId] = count;
+        total += count;
+      }
+    }
+
+    return ResponseInterceptor.success(
+      { total, byChannel },
+      'No leídos obtenidos',
+    );
   }
 
   @Get(':id/members')
@@ -137,6 +171,19 @@ export class ChannelsController {
       requesterRole: user.role,
     });
     return ResponseInterceptor.success(null, 'Canal eliminado exitosamente');
+  }
+
+  @Post(':id/read')
+  async markChannelRead(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as UserEntity;
+    await this.markChannelReadUseCase.execute({
+      channelId: id,
+      userId: user.id,
+    });
+    return ResponseInterceptor.success(null, 'Canal marcado como leído');
   }
 
   @Post(':id/join')

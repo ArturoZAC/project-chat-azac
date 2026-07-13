@@ -17,5 +17,13 @@ export const sendMessageSchema = z.object({
     .max(2000, "Máximo 2000 caracteres"),
 });
 
+export const editMessageSchema = z.object({
+  content: z
+    .string()
+    .min(1, "El mensaje no puede estar vacío")
+    .max(2000, "Máximo 2000 caracteres"),
+});
+
 export type CreateChannelInput = z.infer<typeof createChannelSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
+export type EditMessageInput = z.infer<typeof editMessageSchema>;

@@ -87,6 +87,7 @@ export function useConversationMutations() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
+      qc.invalidateQueries({ queryKey: ["unread"] });
     },
   });
 

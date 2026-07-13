@@ -29,6 +29,7 @@ export interface PaginatedMessages {
 export abstract class MessageRepository {
   abstract create(data: CreateMessageData): Promise<MessageEntity>;
   abstract findById(id: string): Promise<MessageEntity | null>;
+  abstract findLastByChannel(channelId: string): Promise<MessageEntity | null>;
   abstract findByChannel(
     channelId: string,
     params: MessagePaginationParams,

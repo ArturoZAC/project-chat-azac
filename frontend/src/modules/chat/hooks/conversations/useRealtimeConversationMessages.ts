@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSocketEvents } from "@/modules/chat/hooks/useSocketEvents";
 import { getSocket } from "@/modules/chat/lib/socket";
+import { useChatStore } from "@/modules/chat/store/chat.store";
 
 interface MessagePayload {
   id: string;
@@ -33,9 +34,7 @@ interface PaginatedMessages {
 /**
  * Keeps conversation (DM) messages in sync via Socket.IO.
  */
-export function useRealtimeConversationMessages(
-  conversationId: string | undefined,
-) {
+export function useRealtimeConversationMessages(conversationId: string | undefined) {
   const queryClient = useQueryClient();
 
   const handleMessageSent = useCallback(
@@ -53,8 +52,14 @@ export function useRealtimeConversationMessages(
           return { ...old, data: [data, ...old.data], total: old.total + 1 };
         },
       );
+
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      queryClient.invalidateQueries({ queryKey: ["unread"] });
+
+      // Only invalidate unread if the user is NOT actively viewing this conversation
+      const activeConversationId = useChatStore.getState().activeConversationId;
+      if (data.conversationId !== activeConversationId) {
+        queryClient.invalidateQueries({ queryKey: ["unread"] });
+      }
     },
     [conversationId, queryClient],
   );

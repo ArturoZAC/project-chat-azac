@@ -50,6 +50,27 @@ export class ChannelMemberPrismaRepository implements ChannelMemberRepository {
     });
   }
 
+  async getUnreadCount(channelId: string, userId: string): Promise<number> {
+    const membership = await this.prisma.channelMember.findUnique({
+      where: { channelId_userId: { channelId, userId } },
+    });
+
+    const baseWhere: any = {
+      channelId,
+      senderId: { not: userId },
+      // System events (e.g. "user joined the channel") must not count as unread
+      isSystem: false,
+    };
+
+    if (membership?.lastReadAt) {
+      baseWhere.createdAt = { gt: membership.lastReadAt };
+    }
+
+    return this.prisma.message.count({
+      where: baseWhere,
+    });
+  }
+
   async delete(channelId: string, userId: string): Promise<void> {
     await this.prisma.channelMember.delete({
       where: { channelId_userId: { channelId, userId } },

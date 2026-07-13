@@ -23,6 +23,8 @@ import { UserMapper } from '../../../infrastructure/prisma/mappers/user.mapper';
 import { Auth } from '../decorators/auth.decorator';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import { ChatGateway } from '../../websocket/chat.gateway';
+import { ChannelMemberRepository } from '../../../domain/repositories/channel-member.repository';
+import { ChannelRepository } from '../../../domain/repositories/channel.repository';
 import type { Request } from 'express';
 
 @Auth()
@@ -34,6 +36,8 @@ export class MessagesController {
     private readonly editMessageUseCase: EditMessageUseCase,
     private readonly deleteMessageUseCase: DeleteMessageUseCase,
     private readonly chatGateway: ChatGateway,
+    private readonly channelMemberRepo: ChannelMemberRepository,
+    private readonly channelRepo: ChannelRepository,
   ) {}
 
   @Post()
@@ -56,6 +60,35 @@ export class MessagesController {
         ...MessageMapper.toResponse(message),
         sender: UserMapper.toResponse(user),
       });
+
+    // Emit notification to all channel members except sender
+    const channelMembers = await this.channelMemberRepo.findByChannel(channelId);
+    const channelName =
+      (await this.channelRepo.findById(channelId))?.name ?? channelId;
+
+    for (const member of channelMembers) {
+      if (member.userId === user.id) continue;
+
+      // Emit channel.updated so the /messages page refreshes the preview & unread
+      this.chatGateway.server
+        .to(`user:${member.userId}`)
+        .emit('channel.updated', { channelId });
+
+      this.chatGateway.server
+        .to(`user:${member.userId}`)
+        .emit('notification.new', {
+          id: message.id,
+          type: 'channel',
+          title: `#${channelName}`,
+          message: 'te escribió un mensaje',
+          channelName: channelName,
+          channelId: channelId,
+          conversationId: null,
+          senderId: user.id,
+          senderUsername: user.username,
+          createdAt: message.createdAt,
+        });
+    }
 
     return ResponseInterceptor.success(
       MessageMapper.toResponse(message),

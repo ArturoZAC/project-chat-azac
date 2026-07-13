@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { IconDotsVertical, IconPencil, IconTrash } from "@tabler/icons-react";
 import type { Message } from "@/modules/chat/interfaces/message.interface";
 import { getInitials } from "@/shared/helpers/get-initials";
 import { linkify } from "@/shared/helpers/linkify";
@@ -8,6 +10,8 @@ import { linkify } from "@/shared/helpers/linkify";
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
+  onEdit?: (message: Message) => void;
+  onDelete?: (message: Message) => void;
 }
 
 function formatTime(dateStr: string): string {
@@ -17,13 +21,50 @@ function formatTime(dateStr: string): string {
   });
 }
 
-export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+export function MessageBubble({ message, isOwn, onEdit, onDelete }: MessageBubbleProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsMenuOpen(false);
+        setShowDeleteConfirm(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMenuOpen]);
+
+  const handleEdit = () => {
+    setIsMenuOpen(false);
+    onEdit?.(message);
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    setIsMenuOpen(false);
+    setShowDeleteConfirm(false);
+    onDelete?.(message);
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.2 }}
-      className={`flex gap-2.5 px-4 py-0.5 ${isOwn ? "flex-row-reverse" : ""}`}
+      className={`group relative flex gap-2.5 px-4 py-0.5 ${isOwn ? "flex-row-reverse" : ""}`}
     >
       {/* Avatar */}
       <div className="shrink-0 mt-1">
@@ -47,21 +88,85 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           </span>
         )}
 
-        <div
-          className={`
-            px-3.5 py-2 rounded-2xl text-sm leading-relaxed break-words
-            ${
-              isOwn
-                ? "bg-primary text-white rounded-br-md"
-                : "bg-silver-light text-black rounded-bl-md"
-            }
-          `}
-        >
-          {linkify(message.content)}
+        <div className="relative group/bubble">
+          <div
+            className={`
+              px-3.5 py-2 rounded-2xl text-sm leading-relaxed break-words
+              ${isOwn ? "bg-primary text-white rounded-br-md" : "bg-silver-light text-black rounded-bl-md"}
+            `}
+          >
+            {linkify(message.content)}
+          </div>
+
+          {/* Action dots — only for own messages */}
+          {isOwn && (onEdit || onDelete) && (
+            <div className="absolute -top-1 -right-1 opacity-0 group-hover/bubble:opacity-100 transition-opacity">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-gray-light shadow-sm hover:bg-silver-light transition-colors"
+                aria-label="Acciones del mensaje"
+              >
+                <IconDotsVertical size={14} className="text-gray-dark" />
+              </button>
+
+              {/* Dropdown menu */}
+              {isMenuOpen && (
+                <div
+                  ref={menuRef}
+                  className="absolute right-0 top-7 z-50 w-44 bg-white rounded-lg border border-gray-light shadow-lg py-1"
+                >
+                  {showDeleteConfirm ? (
+                    <>
+                      <p className="px-3 py-2 text-xs text-gray-dark font-medium">
+                        ¿Eliminar mensaje?
+                      </p>
+                      <button
+                        onClick={handleDeleteConfirm}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <IconTrash size={14} />
+                        Sí, eliminar
+                      </button>
+                      <button
+                        onClick={handleDeleteCancel}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-gray-dark hover:bg-silver-light transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {onEdit && (
+                        <button
+                          onClick={handleEdit}
+                          className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-gray-dark hover:bg-silver-light transition-colors"
+                        >
+                          <IconPencil size={14} />
+                          Editar mensaje
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          onClick={handleDeleteClick}
+                          className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                          <IconTrash size={14} />
+                          Eliminar mensaje
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <span className={`text-[10px] text-gray-mid mt-0.5 ${isOwn ? "mr-1" : "ml-1"}`}>
+        <span
+          className={`flex items-center gap-1 text-[10px] text-gray-mid mt-0.5 ${isOwn ? "mr-1" : "ml-1"}`}
+        >
           {formatTime(message.createdAt)}
+          {message.isEdited && <span className="italic text-xs">· editado</span>}
         </span>
       </div>
     </motion.div>

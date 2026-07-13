@@ -21,7 +21,7 @@ import { useUIStore } from "@/shared/store/ui.store";
 import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
 import { useConversationQueries } from "@/modules/chat/hooks/conversations/useConversationQueries";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
-import { logoutAction } from "@/modules/auth/actions/logout.action";
+import { useLogout } from "@/modules/auth/hooks/useLogout";
 import { useOnlineStatus } from "@/modules/chat/hooks/useOnlineStatus";
 
 function getInitials(name: string | null | undefined): string {
@@ -50,17 +50,17 @@ export function SidebarClient() {
   const { activeTab, setActiveTab } = useChatStore();
   const { isSidebarCollapsed, toggleSidebar } = useUIStore();
   const isSessionReady = useAuthStore((s) => s.isSessionReady);
-  const { getTotalUnread: getChannelUnread, getMemberships } = useChannelQueries(undefined, {
+  const { getMemberships } = useChannelQueries(undefined, {
     enabled: isSessionReady,
   });
-  const { getTotalUnread: getConvUnread, getConversations } = useConversationQueries(undefined, {
+  const { getConversations } = useConversationQueries(undefined, {
     enabled: isSessionReady,
   });
   const user = useAuthStore((s) => s.user);
-  const clearSession = useAuthStore((s) => s.clearSession);
   const router = useRouter();
   const pathname = usePathname();
   const { isOnline } = useOnlineStatus();
+  const logout = useLogout();
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -78,14 +78,9 @@ export function SidebarClient() {
 
   const handleLogout = async () => {
     setShowUserMenu(false);
-    await logoutAction();
-    clearSession();
-    router.push("/login");
+    await logout();
   };
 
-  const totalChannelUnread = getChannelUnread.data ?? 0;
-  const totalConvUnread = getConvUnread.data ?? 0;
-  const totalUnread = totalChannelUnread + totalConvUnread;
   const memberships = getMemberships.data ?? [];
   const conversations = getConversations.data ?? [];
   const currentUser = user;
@@ -118,7 +113,6 @@ export function SidebarClient() {
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeTabId === item.id;
-          const showBadge = item.id === "messages" && totalUnread > 0;
 
           return (
             <button
@@ -148,15 +142,7 @@ export function SidebarClient() {
                     {item.label}
                   </span>
 
-                  {showBadge && (
-                    <span className="bg-primary text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
-                      {totalUnread > 99 ? "99+" : totalUnread}
-                    </span>
-                  )}
                 </>
-              )}
-              {isSidebarCollapsed && showBadge && (
-                <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full" />
               )}
             </button>
           );

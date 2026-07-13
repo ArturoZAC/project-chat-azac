@@ -12,12 +12,12 @@ import {
   IconLogout,
 } from "@tabler/icons-react";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
-import { logoutAction } from "@/modules/auth/actions/logout.action";
+import { useLogout } from "@/modules/auth/hooks/useLogout";
 
 export function SettingsPageClient() {
   const router = useRouter();
   const currentUser = useAuthStore((s) => s.user);
-  const clearSession = useAuthStore((s) => s.clearSession);
+  const handleLogout = useLogout();
 
   const [notifications, setNotifications] = useState({
     messages: true,
@@ -26,12 +26,6 @@ export function SettingsPageClient() {
 
   const handleToggle = (key: keyof typeof notifications) => {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleLogout = async () => {
-    await logoutAction();
-    clearSession();
-    router.push("/login");
   };
 
   return (

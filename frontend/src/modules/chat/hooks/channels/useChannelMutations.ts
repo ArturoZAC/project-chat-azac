@@ -7,6 +7,8 @@ import { leaveChannelAction } from "@/modules/chat/actions/channels/leave-channe
 import { deleteChannelAction } from "@/modules/chat/actions/channels/delete-channel.action";
 import { sendChannelMessageAction } from "@/modules/chat/actions/channels/send-channel-message.action";
 import { deleteChannelMessageAction } from "@/modules/chat/actions/channels/delete-channel-message.action";
+import { editChannelMessageAction } from "@/modules/chat/actions/channels/edit-channel-message.action";
+import { markChannelReadAction } from "@/modules/chat/actions/channels/mark-channel-read.action";
 import type { CreateChannelInput } from "@/modules/chat/schemas/chat.schema";
 
 const CHANNELS_KEY = ["channels"];
@@ -96,6 +98,7 @@ export function useChannelMutations() {
     },
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: MESSAGES_KEY(variables.channelId) });
+      qc.invalidateQueries({ queryKey: CHANNELS_KEY });
     },
   });
 
@@ -110,6 +113,37 @@ export function useChannelMutations() {
     },
   });
 
+  // ── Edit message ────────────────────────────────────
+  const editMessageMutation = useMutation({
+    mutationFn: async ({
+      channelId,
+      messageId,
+      content,
+    }: {
+      channelId: string;
+      messageId: string;
+      content: string;
+    }) => {
+      const res = await editChannelMessageAction(channelId, messageId, content);
+      if (!res.success) throw new Error(res.message ?? "Error al editar mensaje");
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: MESSAGES_KEY(variables.channelId) });
+    },
+  });
+
+  // ── Mark channel as read ────────────────────────────
+  const markReadMutation = useMutation({
+    mutationFn: async (channelId: string) => {
+      const res = await markChannelReadAction(channelId);
+      if (!res.success) throw new Error(res.message ?? "Error al marcar como leído");
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: CHANNELS_KEY });
+      qc.invalidateQueries({ queryKey: ["unread"] });
+    },
+  });
+
   return {
     createChannelMutation,
     joinChannelMutation,
@@ -117,5 +151,7 @@ export function useChannelMutations() {
     deleteChannelMutation,
     sendMessageMutation,
     deleteMessageMutation,
+    editMessageMutation,
+    markReadMutation,
   };
 }

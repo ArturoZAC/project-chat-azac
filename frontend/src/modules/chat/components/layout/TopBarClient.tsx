@@ -2,13 +2,11 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useMemo } from "react";
-import { IconBell, IconChevronRight } from "@tabler/icons-react";
-import { useChannelQueries } from "@/modules/chat/hooks/channels/useChannelQueries";
-import { useChatStore } from "@/modules/chat/store/chat.store";
+import { IconChevronRight } from "@tabler/icons-react";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { getInitials } from "@/shared/helpers/get-initials";
 import { mockAdminUsers, mockAdminChannels } from "@/modules/admin/lib/mock-admin-data";
-import { NotificationPanel } from "@/modules/chat/components/notifications/NotificationPanel";
+import { NotificationBell } from "@/modules/chat/components/notifications/NotificationBell";
 
 interface Breadcrumb {
   label: string;
@@ -88,10 +86,6 @@ export function TopBarClient() {
   const pathname = usePathname();
   const router = useRouter();
   const breadcrumbs = useBreadcrumbs(pathname);
-  const { getTotalUnread } = useChannelQueries();
-  const { isNotificationPanelOpen, setNotificationPanelOpen } = useChatStore();
-
-  const totalUnread = getTotalUnread.data ?? 0;
   const currentUser = useAuthStore((s) => s.user);
 
   return (
@@ -121,19 +115,7 @@ export function TopBarClient() {
 
       {/* Right side — bell + avatar */}
       <div className="flex items-center gap-3">
-        {/* Notification bell */}
-        <button
-          onClick={() => setNotificationPanelOpen(!isNotificationPanelOpen)}
-          className="relative p-2 rounded-lg hover:bg-silver-light transition-colors"
-          aria-label="Notificaciones"
-        >
-          <IconBell size={20} className="text-silver-dark" />
-          {totalUnread > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] font-bold px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none">
-              {totalUnread > 9 ? "9+" : totalUnread}
-            </span>
-          )}
-        </button>
+        <NotificationBell />
 
         {/* Avatar */}
         <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
@@ -142,11 +124,6 @@ export function TopBarClient() {
           </span>
         </div>
       </div>
-
-      {/* Notification panel */}
-      {isNotificationPanelOpen && (
-        <NotificationPanel onClose={() => setNotificationPanelOpen(false)} />
-      )}
     </>
   );
 }

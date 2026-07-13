@@ -6,6 +6,7 @@ type ChatTab = "messages" | "channels";
 interface ChatStore {
   activeTab: ChatTab;
   activeChannelId: string | null;
+  activeConversationId: string | null;
   activeChannel: Channel | null;
   isMembersPanelOpen: boolean;
   isCreateModalOpen: boolean;
@@ -15,6 +16,7 @@ interface ChatStore {
 
   setActiveTab: (tab: ChatTab) => void;
   setActiveChannelId: (id: string | null) => void;
+  setActiveConversationId: (id: string | null) => void;
   setActiveChannel: (channel: Channel | null) => void;
   toggleMembersPanel: () => void;
   setMembersPanelOpen: (open: boolean) => void;
@@ -23,11 +25,13 @@ interface ChatStore {
   addJoinedChannel: (id: string) => void;
   removeJoinedChannel: (id: string) => void;
   initializeMemberships: (channelIds: string[]) => void;
+  reset: () => void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
   activeTab: "channels",
   activeChannelId: null,
+  activeConversationId: null,
   activeChannel: null,
   isMembersPanelOpen: false,
   isCreateModalOpen: false,
@@ -36,6 +40,7 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   setActiveChannelId: (id) => set({ activeChannelId: id }),
+  setActiveConversationId: (id) => set({ activeConversationId: id }),
   setActiveChannel: (channel) => set({ activeChannel: channel }),
   toggleMembersPanel: () => set((s) => ({ isMembersPanelOpen: !s.isMembersPanelOpen })),
   setMembersPanelOpen: (open) => set({ isMembersPanelOpen: open }),
@@ -48,4 +53,15 @@ export const useChatStore = create<ChatStore>((set) => ({
     joinedChannelIds: s.joinedChannelIds.filter((c) => c !== id),
   })),
   initializeMemberships: (channelIds) => set({ joinedChannelIds: channelIds }),
+  reset: () =>
+    set({
+      activeTab: "channels",
+      activeChannelId: null,
+      activeConversationId: null,
+      activeChannel: null,
+      isMembersPanelOpen: false,
+      isCreateModalOpen: false,
+      isNotificationPanelOpen: false,
+      joinedChannelIds: [],
+    }),
 }));

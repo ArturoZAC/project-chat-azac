@@ -3,6 +3,7 @@ import { getChannelsAction } from "@/modules/chat/actions/channels/get-channels.
 import { getChannelAction } from "@/modules/chat/actions/channels/get-channel.action";
 import { getChannelMessagesAction } from "@/modules/chat/actions/channels/get-channel-messages.action";
 import { getMembershipsAction } from "@/modules/chat/actions/channels/get-memberships.action";
+import { getMyUnreadAction } from "@/modules/chat/actions/channels/get-my-unread.action";
 import {
   getChannelMembersAction,
   type MemberApiData,
@@ -31,6 +32,7 @@ function mapChannel(ch: ChannelBackend): Channel {
     membersCount: ch.membersCount,
     createdAt: ch.createdAt,
     updatedAt: ch.updatedAt,
+    lastMessage: ch.lastMessage ?? undefined,
   };
 }
 
@@ -129,19 +131,21 @@ export function useChannelQueries(channelId?: string, options?: { enabled?: bool
     enabled: queriesEnabled,
   });
 
-  // ── Unread counts (not yet available from backend) ───
+  // ── Unread counts per channel (from backend API) ───
 
   const getUnreadCounts = useQuery({
     queryKey: UNREAD_KEY,
     queryFn: async (): Promise<Record<string, number>> => {
-      return {};
+      const result = await getMyUnreadAction();
+      return result.byChannel;
     },
   });
 
   const getTotalUnread = useQuery({
     queryKey: ["unread", "total"],
     queryFn: async (): Promise<number> => {
-      return 0;
+      const result = await getMyUnreadAction();
+      return result.total;
     },
   });
 

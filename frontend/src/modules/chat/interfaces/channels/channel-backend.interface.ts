@@ -8,4 +8,11 @@ export interface ChannelBackend {
   createdAt: string;
   updatedAt: string;
   membersCount: number;
+  lastMessage: {
+    id: string;
+    content: string;
+    senderId: string;
+    senderUsername: string;
+    createdAt: string;
+  } | null;
 }

@@ -42,7 +42,16 @@ export class ChannelMapper {
     };
   }
 
-  static toResponse(entity: ChannelEntity) {
+  static toResponse(
+    entity: ChannelEntity,
+    lastMessage?: {
+      id: string;
+      content: string;
+      senderId: string;
+      senderUsername: string;
+      createdAt: Date;
+    } | null,
+  ) {
     return {
       id: entity.id,
       name: entity.name,
@@ -52,6 +61,7 @@ export class ChannelMapper {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       membersCount: entity.membersCount,
+      lastMessage: lastMessage ?? null,
     };
   }
 }

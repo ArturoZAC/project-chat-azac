@@ -10,6 +10,8 @@ import { DateSeparator } from "./DateSeparator";
 interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
+  onEditMessage?: (message: Message) => void;
+  onDeleteMessage?: (message: Message) => void;
 }
 
 function shouldShowDateSeparator(messages: Message[], index: number): boolean {
@@ -46,7 +48,7 @@ function SystemMessage({ content }: { content: string }) {
   return null;
 }
 
-export function MessageList({ messages, isLoading }: MessageListProps) {
+export function MessageList({ messages, isLoading, onEditMessage, onDeleteMessage }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const currentUser = useAuthStore((s) => s.user);
   const currentUserId = currentUser?.id ?? "";
@@ -92,7 +94,12 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
           {msg.isSystem ? (
             <SystemMessage content={msg.content} />
           ) : (
-            <MessageBubble message={msg} isOwn={msg.author.id === currentUserId} />
+            <MessageBubble
+              message={msg}
+              isOwn={msg.author.id === currentUserId}
+              onEdit={msg.author.id === currentUserId ? onEditMessage : undefined}
+              onDelete={msg.author.id === currentUserId ? onDeleteMessage : undefined}
+            />
           )}
         </div>
       ))}

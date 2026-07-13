@@ -27,6 +27,20 @@ export class MessagePrismaRepository implements MessageRepository {
     return MessageMapper.toDomain(message);
   }
 
+  async findLastByChannel(channelId: string): Promise<MessageEntity | null> {
+    const message = await this.prisma.message.findFirst({
+      where: { channelId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        sender: {
+          select: { id: true, username: true, avatarUrl: true },
+        },
+      },
+    });
+    if (!message) return null;
+    return MessageMapper.toDomain(message);
+  }
+
   async findByChannel(
     channelId: string,
     params: MessagePaginationParams,

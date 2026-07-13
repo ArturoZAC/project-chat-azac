@@ -114,14 +114,32 @@ export class ConversationsController {
         sender: UserMapper.toResponse(user),
       });
 
-    // NEW: Emit to each participant's user room so /messages page refreshes
-    const participantIds = await this.conversationRepository.findParticipants(
-      conversationId,
-    );
+    // Emit to each participant's user room so /messages page refreshes
+    const participantIds =
+      await this.conversationRepository.findParticipants(conversationId);
     for (const participantId of participantIds) {
       this.chatGateway.server
         .to(`user:${participantId}`)
         .emit('conversation.updated', { conversationId });
+    }
+
+    // Emit notification to the other participant
+    const otherParticipantId = participantIds.find((id) => id !== user.id);
+    if (otherParticipantId) {
+      this.chatGateway.server
+        .to(`user:${otherParticipantId}`)
+        .emit('notification.new', {
+          id: message.id,
+          type: 'dm',
+          title: user.username,
+          message: 'te envió un mensaje',
+          channelName: null,
+          channelId: null,
+          conversationId: conversationId,
+          senderId: user.id,
+          senderUsername: user.username,
+          createdAt: message.createdAt,
+        });
     }
 
     return ResponseInterceptor.success(

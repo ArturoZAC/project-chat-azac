@@ -114,6 +114,7 @@ export class ConversationPrismaRepository implements ConversationRepository {
         members: {
           create: data.participantIds.map((userId) => ({
             userId,
+            lastReadAt: new Date(),
           })),
         },
       },
@@ -183,18 +184,19 @@ export class ConversationPrismaRepository implements ConversationRepository {
       },
     });
 
-    if (!membership?.lastReadAt) {
-      // If never read, count all messages
-      return this.prisma.message.count({
-        where: { conversationId },
-      });
+    const baseWhere: any = {
+      conversationId,
+      senderId: { not: userId },
+      // System events must not count as unread
+      isSystem: false,
+    };
+
+    if (membership?.lastReadAt) {
+      baseWhere.createdAt = { gt: membership.lastReadAt };
     }
 
     return this.prisma.message.count({
-      where: {
-        conversationId,
-        createdAt: { gt: membership.lastReadAt },
-      },
+      where: baseWhere,
     });
   }
 

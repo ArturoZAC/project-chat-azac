@@ -12,6 +12,12 @@ export interface Channel {
   membersCount: number;
   createdAt: string;
   updatedAt: string;
+  lastMessage?: {
+    content: string;
+    senderId: string;
+    senderUsername: string;
+    createdAt: string;
+  };
 }
 
 export interface ChannelMember {
