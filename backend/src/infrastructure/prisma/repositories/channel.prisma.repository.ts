@@ -43,6 +43,7 @@ export class ChannelPrismaRepository implements ChannelRepository {
         orderBy: { createdAt: 'desc' },
         include: {
           _count: { select: { members: true } },
+          createdBy: { select: { id: true, username: true } },
         },
       }),
       this.prisma.channel.count(),

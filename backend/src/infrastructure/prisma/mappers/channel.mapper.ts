@@ -4,20 +4,23 @@ import { CreateChannelData } from '../../../domain/repositories/channel.reposito
 
 type PrismaChannelWithCount = PrismaChannel & {
   _count?: { members: number };
+  createdBy?: { id: string; username: string };
 };
 
 export class ChannelMapper {
   static toDomain(prisma: PrismaChannel | PrismaChannelWithCount): ChannelEntity {
-    const count = '_count' in prisma ? (prisma as PrismaChannelWithCount)._count?.members ?? 0 : 0;
+    const data = prisma as PrismaChannelWithCount;
+    const count = data._count?.members ?? 0;
     return new ChannelEntity({
-      id: prisma.id,
-      name: prisma.name,
-      description: prisma.description,
-      isPrivate: prisma.isPrivate,
-      createdById: prisma.createdById,
-      createdAt: prisma.createdAt,
-      updatedAt: prisma.updatedAt,
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      isPrivate: data.isPrivate,
+      createdById: data.createdById,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
       membersCount: count,
+      creator: data.createdBy ? { id: data.createdBy.id, username: data.createdBy.username } : null,
     });
   }
 
@@ -62,6 +65,7 @@ export class ChannelMapper {
       updatedAt: entity.updatedAt,
       membersCount: entity.membersCount,
       lastMessage: lastMessage ?? null,
+      creator: entity.creator ?? null,
     };
   }
 }

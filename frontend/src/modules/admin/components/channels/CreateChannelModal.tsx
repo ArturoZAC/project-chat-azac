@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { IconX } from "@tabler/icons-react";
+import { IconX, IconLock, IconLockOpen } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Switch } from "@/shared/ui/Switch";
+import { createChannelAction } from "@/shared/actions/create-channel.action";
 import { useToastStore } from "@/store/toast.store";
 
 interface CreateChannelModalProps {
@@ -11,10 +14,14 @@ interface CreateChannelModalProps {
 }
 
 export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps) {
+  const queryClient = useQueryClient();
   const success = useToastStore((s) => s.success);
+  const error = useToastStore((s) => s.error);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Close on Escape
   const handleKeyDown = useCallback(
@@ -31,14 +38,35 @@ export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps)
     }
   }, [isOpen, handleKeyDown]);
 
-  const handleSubmit = () => {
-    if (!name.trim()) return;
+  // Reset form on open
+  useEffect(() => {
+    if (isOpen) {
+      setName("");
+      setDescription("");
+      setIsPrivate(false);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
 
-    console.log("[MOCK] Crear canal:", { name, description, type });
+  const handleSubmit = async () => {
+    if (!name.trim() || isSubmitting) return;
+    setIsSubmitting(true);
 
-    success("Canal creado", `El canal "${name}" fue creado exitosamente.`);
+    const result = await createChannelAction({
+      name: name.trim(),
+      description: description.trim() || null,
+      isPrivate,
+    });
 
-    onClose();
+    if (result.success) {
+      success("Canal creado", `El canal "${name}" fue creado exitosamente.`);
+      queryClient.invalidateQueries({ queryKey: ["admin", "channels"] });
+      onClose();
+    } else {
+      error("Error", result.message || "No se pudo crear el canal");
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -100,30 +128,28 @@ export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps)
                 />
               </div>
 
-              {/* Type */}
+              {/* Private toggle — Switch */}
               <div>
                 <label className="block text-sm font-medium mb-1.5">Tipo de canal</label>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setType("PUBLIC")}
-                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      type === "PUBLIC"
-                        ? "bg-primary text-white"
-                        : "bg-silver-light text-gray-dark hover:bg-gray-light"
-                    }`}
-                  >
-                    Público
-                  </button>
-                  <button
-                    onClick={() => setType("PRIVATE")}
-                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      type === "PRIVATE"
-                        ? "bg-primary text-white"
-                        : "bg-silver-light text-gray-dark hover:bg-gray-light"
-                    }`}
-                  >
-                    Privado
-                  </button>
+                <div className="flex items-center justify-between rounded-lg border border-gray-light px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    {isPrivate ? (
+                      <IconLock size={18} className="text-orange-500" />
+                    ) : (
+                      <IconLockOpen size={18} className="text-green-600" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium">
+                        {isPrivate ? "Privado" : "Público"}
+                      </p>
+                      <p className="small-muted">
+                        {isPrivate
+                          ? "Solo con invitación se puede unir"
+                          : "Cualquier miembro puede unirse"}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch checked={isPrivate} onChange={setIsPrivate} />
                 </div>
               </div>
             </div>
@@ -138,10 +164,10 @@ export function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps)
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={!name.trim()}
+                disabled={!name.trim() || isSubmitting}
                 className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Crear
+                {isSubmitting ? "Creando..." : "Crear"}
               </button>
             </div>
           </motion.div>

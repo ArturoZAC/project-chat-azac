@@ -15,4 +15,5 @@ export interface ChannelBackend {
     senderUsername: string;
     createdAt: string;
   } | null;
+  creator: { id: string; username: string } | null;
 }

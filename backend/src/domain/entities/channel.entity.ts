@@ -7,6 +7,7 @@ export interface ChannelEntityProps {
   createdAt: Date;
   updatedAt: Date;
   membersCount: number;
+  creator?: { id: string; username: string } | null;
 }
 
 export class ChannelEntity {
@@ -18,6 +19,7 @@ export class ChannelEntity {
   public createdAt: Date;
   public updatedAt: Date;
   public membersCount: number;
+  public creator: { id: string; username: string } | null;
 
   constructor(props: ChannelEntityProps) {
     this.id = props.id;
@@ -28,5 +30,6 @@ export class ChannelEntity {
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
     this.membersCount = props.membersCount;
+    this.creator = props.creator ?? null;
   }
 }
