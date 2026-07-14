@@ -10,37 +10,16 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 const users = [
-  {
-    username: 'arturo_admin',
-    email: 'arturo@azacode.dev',
-    role: 'ADMIN' as const,
-    isOnline: true,
-  },
-  {
-    username: 'pedro_garcia',
-    email: 'pedro.garcia@gmail.com',
-    isOnline: false,
-  },
-  { username: 'maria_lopez', email: 'maria.lopez@gmail.com', isOnline: true },
-  { username: 'carlos_ruiz', email: 'carlos.ruiz@gmail.com', isOnline: false },
-  { username: 'ana_torres', email: 'ana.torres@gmail.com', isOnline: true },
-  {
-    username: 'luis_mendoza',
-    email: 'luis.mendoza@gmail.com',
-    isOnline: false,
-  },
-  {
-    username: 'sofia_castro',
-    email: 'sofia.castro@gmail.com',
-    isOnline: false,
-  },
-  { username: 'diego_vargas', email: 'diego.vargas@gmail.com', isOnline: true },
-  {
-    username: 'valentina_rios',
-    email: 'valentina.rios@gmail.com',
-    isOnline: false,
-  },
-  { username: 'jorge_silva', email: 'jorge.silva@gmail.com', isOnline: false },
+  { username: 'arturo_admin', email: 'arturo@azacode.dev', role: 'ADMIN' as const },
+  { username: 'pedro_garcia', email: 'pedro.garcia@gmail.com' },
+  { username: 'maria_lopez', email: 'maria.lopez@gmail.com' },
+  { username: 'carlos_ruiz', email: 'carlos.ruiz@gmail.com' },
+  { username: 'ana_torres', email: 'ana.torres@gmail.com' },
+  { username: 'luis_mendoza', email: 'luis.mendoza@gmail.com' },
+  { username: 'sofia_castro', email: 'sofia.castro@gmail.com' },
+  { username: 'diego_vargas', email: 'diego.vargas@gmail.com' },
+  { username: 'valentina_rios', email: 'valentina.rios@gmail.com' },
+  { username: 'jorge_silva', email: 'jorge.silva@gmail.com' },
 ];
 
 async function main() {

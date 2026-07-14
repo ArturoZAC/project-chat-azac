@@ -82,4 +82,25 @@ export class MessagePrismaRepository implements MessageRepository {
   async delete(id: string): Promise<void> {
     await this.prisma.message.delete({ where: { id } });
   }
+
+  async countByUserInRange(
+    userId: string,
+    from: Date,
+    to: Date,
+  ): Promise<Array<{ date: string; count: number }>> {
+    const rows: Array<{ date: string; count: bigint }> = await this.prisma
+      .$queryRaw`
+      SELECT DATE(created_at) AS date, COUNT(*)::int AS count
+      FROM messages
+      WHERE sender_id = ${userId}
+        AND created_at >= ${from}
+        AND created_at <= ${to}
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+    return rows.map((row) => ({
+      date: row.date,
+      count: Number(row.count),
+    }));
+  }
 }

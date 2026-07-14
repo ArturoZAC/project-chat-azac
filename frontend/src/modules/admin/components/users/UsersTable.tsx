@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useMemo, useState, useCallback } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -12,6 +12,7 @@ import {
   createColumnHelper,
   type SortingState,
   type ColumnFiltersState,
+  type PaginationState,
 } from "@tanstack/react-table";
 import {
   IconChevronUp,
@@ -22,23 +23,35 @@ import {
   IconX,
   IconDotsVertical,
   IconMoodSad,
+  IconEye,
 } from "@tabler/icons-react";
-import type { AdminUser } from "@/modules/admin/interfaces/admin.interface";
+import { CustomSelect } from "@/shared/ui/CustomSelect";
+import { DropdownMenu } from "@/shared/ui/DropdownMenu";
+import type { User } from "@/modules/auth/interfaces/user.interface";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { getInitials, formatDate } from "@/modules/admin/lib/mock-admin-data";
 
 interface UsersTableProps {
-  users: AdminUser[];
+  users: User[];
   search: string;
   roleFilter: string;
 }
 
-const columnHelper = createColumnHelper<AdminUser>();
+const columnHelper = createColumnHelper<User>();
 
 export function UsersTable({ users, search, roleFilter }: UsersTableProps) {
   const router = useRouter();
+  const currentUserId = useAuthStore((s) => s.userId);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const [pagination, setPaginationState] = useState<PaginationState>(() => {
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    const pageSize = Number(searchParams.get("pagesize")) || 10;
+    return { pageIndex: page - 1, pageSize };
+  });
 
   // Apply global search and role filter
   const filteredData = useMemo(() => {
@@ -138,14 +151,25 @@ export function UsersTable({ users, search, roleFilter }: UsersTableProps) {
       columnHelper.display({
         id: "actions",
         header: "",
-        cell: () => (
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="p-1.5 rounded-lg hover:bg-silver-light text-silver-dark transition-colors"
-            title="Acciones"
-          >
-            <IconDotsVertical size={16} />
-          </button>
+        cell: (info) => (
+          <DropdownMenu
+            trigger={
+              <button
+                className="p-1.5 rounded-lg hover:bg-silver-light text-silver-dark transition-colors"
+                title="Acciones"
+              >
+                <IconDotsVertical size={16} />
+              </button>
+            }
+            items={[
+              {
+                label: "Ver detalle",
+                icon: <IconEye size={15} />,
+                onClick: () =>
+                  router.push(`/admin/users/${info.row.original.id}`),
+              },
+            ]}
+          />
         ),
       }),
     ],
@@ -158,7 +182,15 @@ export function UsersTable({ users, search, roleFilter }: UsersTableProps) {
     state: { sorting, columnFilters, pagination },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    onPaginationChange: setPagination,
+    onPaginationChange: (updater) => {
+      const newState =
+        typeof updater === "function" ? updater(pagination) : updater;
+      setPaginationState(newState);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", String(newState.pageIndex + 1));
+      params.set("pagesize", String(newState.pageSize));
+      router.replace(`${pathname}?${params.toString()}`);
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -167,6 +199,67 @@ export function UsersTable({ users, search, roleFilter }: UsersTableProps) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-light shadow-sm overflow-hidden">
+      {/* Pagination — todo a la derecha */}
+      <div className="flex items-center justify-end px-4 py-3 border-b border-gray-light gap-4 flex-wrap">
+        {/* Rows per page */}
+        <div className="flex items-center gap-2">
+          <label className="small-muted">Filas por página:</label>
+          <CustomSelect
+            value={String(table.getState().pagination.pageSize)}
+            onChange={(val) => table.setPageSize(Number(val))}
+            options={[
+              { value: "5", label: "5" },
+              { value: "10", label: "10" },
+              { value: "15", label: "15" },
+            ]}
+            className="w-20"
+          />
+        </div>
+
+        {/* Page info + go to */}
+        <div className="flex items-center gap-3">
+          <p className="small-muted">
+            Página {table.getState().pagination.pageIndex + 1} de{" "}
+            {table.getPageCount()}
+          </p>
+          <div className="flex items-center gap-1">
+            <label className="small-muted">Ir a:</label>
+            <input
+              type="number"
+              min={1}
+              max={table.getPageCount()}
+              value={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = Math.min(
+                  Math.max(1, Number(e.target.value)),
+                  table.getPageCount(),
+                );
+                table.setPageIndex(page - 1);
+              }}
+              className="w-14 px-2 py-1 border border-gray-light rounded-lg text-sm bg-white focus:outline-none focus:border-primary text-center"
+            />
+          </div>
+        </div>
+
+        {/* Prev / next */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="p-1.5 rounded-lg hover:bg-silver-light text-silver-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <IconChevronLeft size={16} />
+          </button>
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="p-1.5 rounded-lg hover:bg-silver-light text-silver-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <IconChevronRight size={16} />
+          </button>
+        </div>
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -214,11 +307,17 @@ export function UsersTable({ users, search, roleFilter }: UsersTableProps) {
           </thead>
           <tbody>
             {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row) => {
+                const isCurrentUser = row.original.id === currentUserId;
+                return (
                 <tr
                   key={row.id}
                   onClick={() => router.push(`/admin/users/${row.original.id}`)}
-                  className="border-b border-gray-light last:border-b-0 hover:bg-silver-light/50 transition-colors cursor-pointer"
+                  className={`border-b border-gray-light last:border-b-0 transition-colors cursor-pointer ${
+                    isCurrentUser
+                      ? "bg-primary-light/30 hover:bg-primary-light/50"
+                      : "hover:bg-silver-light/50"
+                  }`}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">
@@ -229,7 +328,8 @@ export function UsersTable({ users, search, roleFilter }: UsersTableProps) {
                     </td>
                   ))}
                 </tr>
-              ))
+              );
+              })
             ) : (
               <tr>
                 <td
@@ -249,31 +349,6 @@ export function UsersTable({ users, search, roleFilter }: UsersTableProps) {
         </table>
       </div>
 
-      {/* Pagination */}
-      {table.getPageCount() > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-light">
-          <p className="small-muted">
-            Página {table.getState().pagination.pageIndex + 1} de{" "}
-            {table.getPageCount()}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="p-1.5 rounded-lg hover:bg-silver-light text-silver-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <IconChevronLeft size={16} />
-            </button>
-            <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="p-1.5 rounded-lg hover:bg-silver-light text-silver-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <IconChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

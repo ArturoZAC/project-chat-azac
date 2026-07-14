@@ -36,4 +36,10 @@ export abstract class MessageRepository {
   ): Promise<PaginatedMessages>;
   abstract update(id: string, data: UpdateMessageData): Promise<MessageEntity>;
   abstract delete(id: string): Promise<void>;
+
+  abstract countByUserInRange(
+    userId: string,
+    from: Date,
+    to: Date,
+  ): Promise<Array<{ date: string; count: number }>>;
 }

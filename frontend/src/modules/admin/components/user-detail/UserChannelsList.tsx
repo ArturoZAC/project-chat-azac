@@ -5,19 +5,24 @@ import { IconHash, IconMoodSad } from "@tabler/icons-react";
 interface UserChannel {
   id: string;
   name: string;
-  role: "OWNER" | "MEMBER" | "GUEST";
+  role: "USER" | "ADMIN";
 }
 
 interface UserChannelsListProps {
   channels: UserChannel[];
+  isLoading?: boolean;
 }
 
-export function UserChannelsList({ channels }: UserChannelsListProps) {
+export function UserChannelsList({ channels, isLoading }: UserChannelsListProps) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-light shadow-sm p-6">
+    <div className="h-full bg-white rounded-2xl border border-gray-light shadow-sm p-6">
       <h5 className="h5 font-semibold mb-4">Canales donde participa</h5>
 
-      {channels.length > 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        </div>
+      ) : channels.length > 0 ? (
         <div className="flex flex-col gap-2">
           {channels.map((ch) => (
             <div
@@ -30,12 +35,12 @@ export function UserChannelsList({ channels }: UserChannelsListProps) {
               <span className="text-sm font-medium flex-1">{ch.name}</span>
               <span
                 className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                  ch.role === "OWNER"
+                  ch.role === "ADMIN"
                     ? "bg-primary-light text-primary"
                     : "bg-silver-light text-gray-dark"
                 }`}
               >
-                {ch.role === "OWNER" ? "Propietario" : "Miembro"}
+                {ch.role === "ADMIN" ? "Propietario" : "Miembro"}
               </span>
             </div>
           ))}

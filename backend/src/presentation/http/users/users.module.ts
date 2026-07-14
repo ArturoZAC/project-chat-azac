@@ -4,6 +4,8 @@ import { GetUsersUseCase } from '../../../application/use-cases/users/get-users.
 import { GetUserUseCase } from '../../../application/use-cases/users/get-user.usecase';
 import { UpdateUserUseCase } from '../../../application/use-cases/users/update-user.usecase';
 import { DeleteUserUseCase } from '../../../application/use-cases/users/delete-user.usecase';
+import { GetUserChannelsUseCase } from '../../../application/use-cases/users/get-user-channels.usecase';
+import { GetUserActivityUseCase } from '../../../application/use-cases/users/get-user-activity.usecase';
 
 @Module({
   controllers: [UsersController],
@@ -12,6 +14,8 @@ import { DeleteUserUseCase } from '../../../application/use-cases/users/delete-u
     GetUserUseCase,
     UpdateUserUseCase,
     DeleteUserUseCase,
+    GetUserChannelsUseCase,
+    GetUserActivityUseCase,
   ],
 })
 export class UsersModule {}

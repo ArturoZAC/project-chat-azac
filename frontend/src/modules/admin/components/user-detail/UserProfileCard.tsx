@@ -4,9 +4,9 @@ import {
   IconCalendar,
   IconClock,
   IconActivity,
-  IconEdit,
-  IconAlertCircle,
   IconTrash,
+  IconCircleCheck,
+  IconX,
 } from "@tabler/icons-react";
 import type { AdminUser } from "@/modules/admin/interfaces/admin.interface";
 import {
@@ -25,8 +25,8 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-light shadow-sm p-6">
-      {/* Avatar + Basic Info */}
+    <div className="h-full bg-white rounded-2xl border border-gray-light shadow-sm p-6 flex flex-col justify-between">
+      {/* Avatar + Basic Info + Eliminar */}
       <div className="flex items-start gap-5">
         <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shrink-0 ring-4 ring-primary-light">
           <span className="p-white text-xl font-bold">
@@ -49,10 +49,19 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           <p className="p-muted mt-0.5">{user.email}</p>
           <p className="small-muted mt-0.5">ID: {user.id}</p>
         </div>
+        {/* Eliminar — arriba a la derecha */}
+        <button
+          onClick={() => handleAction("Eliminar")}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-error text-error text-sm font-medium hover:bg-error hover:text-white transition-colors shrink-0"
+          title="Eliminar usuario"
+        >
+          <IconTrash size={16} />
+          Eliminar
+        </button>
       </div>
 
-      {/* Metadata Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+      {/* Metadata Grid: 4 items en una fila */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center shrink-0">
             <IconCalendar size={18} className="text-primary" />
@@ -91,31 +100,36 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gray-light">
-        <button
-          onClick={() => handleAction("Editar")}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-light text-sm font-medium hover:bg-silver-light transition-colors"
-        >
-          <IconEdit size={16} />
-          Editar
-        </button>
-        <button
-          onClick={() => handleAction("Suspender")}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-light text-sm font-medium hover:bg-silver-light transition-colors"
-        >
-          <IconAlertCircle size={16} />
-          Suspender
-        </button>
-        <button
-          onClick={() => handleAction("Eliminar")}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-error text-error text-sm font-medium hover:bg-error hover:text-white transition-colors"
-        >
-          <IconTrash size={16} />
-          Eliminar
-        </button>
+        <div className="flex items-start gap-3">
+          <div
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+              user.isEmailVerified ? "bg-green-50" : "bg-silver-light"
+            }`}
+          >
+            {user.isEmailVerified ? (
+              <IconCircleCheck size={18} className="text-green-500" />
+            ) : (
+              <IconX size={18} className="text-silver-dark" />
+            )}
+          </div>
+          <div>
+            <p className="small-muted">Verificación de email</p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-sm font-medium">
+                {user.isEmailVerified ? "Verificado" : "No verificado"}
+              </span>
+              <span
+                className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                  user.isEmailVerified
+                    ? "bg-green-50 text-green-600"
+                    : "bg-silver-light text-silver-dark"
+                }`}
+              >
+                {user.isEmailVerified ? "Verificado" : "Pendiente"}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { IconSearch } from "@tabler/icons-react";
+import { CustomSelect } from "@/shared/ui/CustomSelect";
 
 interface UsersToolbarProps {
   search: string;
@@ -8,6 +9,12 @@ interface UsersToolbarProps {
   roleFilter: string;
   onRoleFilterChange: (value: string) => void;
 }
+
+const ROLE_OPTIONS = [
+  { value: "all", label: "Todos los roles" },
+  { value: "ADMIN", label: "Admin" },
+  { value: "USER", label: "Usuario" },
+];
 
 export function UsersToolbar({
   search,
@@ -33,15 +40,12 @@ export function UsersToolbar({
       </div>
 
       {/* Role filter */}
-      <select
+      <CustomSelect
         value={roleFilter}
-        onChange={(e) => onRoleFilterChange(e.target.value)}
-        className="px-3 py-2 rounded-lg border border-gray-light bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-      >
-        <option value="all">Todos los roles</option>
-        <option value="ADMIN">Admin</option>
-        <option value="USER">Usuario</option>
-      </select>
+        onChange={onRoleFilterChange}
+        options={ROLE_OPTIONS}
+        className="w-52"
+      />
     </div>
   );
 }
