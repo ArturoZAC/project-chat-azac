@@ -9,9 +9,10 @@ import {
   IconChevronRight,
   IconX,
 } from "@tabler/icons-react";
-import { format } from "date-fns";
+import { format, differenceInCalendarDays, addDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { useDateRangeStore } from "@/store/date-range.store";
+import { useToastStore } from "@/store/toast.store";
 import "react-day-picker/style.css";
 
 function DateRangePickerInner() {
@@ -36,10 +37,19 @@ function DateRangePickerInner() {
   // ─── Handlers memoizados ──────────────────────────
   const handleSelect = useCallback(
     (selected: DateRange | undefined) => {
-      setRange(selected);
       if (selected?.from && selected?.to) {
-        setTimeout(() => setIsOpen(false), 400);
+        const dayDifference = differenceInCalendarDays(selected.to, selected.from);
+        if (dayDifference > 7) {
+          useToastStore.getState().warn(
+            "Rango máximo alcanzado",
+            "Solo puedes seleccionar hasta 8 días.",
+          );
+          return;
+        }
       }
+      // No cerramos el popover al seleccionar: el usuario lo cierra
+      // explícitamente clicando el trigger otra vez (toggleOpen) o afuera.
+      setRange(selected);
     },
     [setRange],
   );
@@ -177,6 +187,16 @@ function DateRangePickerInner() {
                   ),
               }}
             />
+            {range?.from ? (
+              <p className="small-muted text-center pt-1">
+                Disponible hasta el{" "}
+                {format(addDays(range.from, 7), "d MMM", { locale: es })} · máx. 8 días
+              </p>
+            ) : (
+              <p className="small-muted text-center pt-1">
+                Máx. 8 días
+              </p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

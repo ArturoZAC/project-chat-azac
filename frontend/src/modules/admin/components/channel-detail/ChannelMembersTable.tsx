@@ -1,11 +1,11 @@
 "use client";
 
 import { IconShield, IconStar, IconMoodSad } from "@tabler/icons-react";
-import type { AdminChannel } from "@/modules/admin/interfaces/admin.interface";
-import { getInitials } from "@/modules/admin/lib/mock-admin-data";
+import type { ChannelMemberBackend } from "@/shared/actions/get-channel-members.action";
+import { getInitials } from "@/shared/helpers/format";
 
 interface ChannelMembersTableProps {
-  channel: AdminChannel;
+  members: ChannelMemberBackend[];
 }
 
 function getRoleBadge(role: string) {
@@ -25,18 +25,12 @@ function getRoleBadge(role: string) {
       </span>
     );
   }
-  return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-500">
-      Invitado
-    </span>
-  );
+  return null;
 }
 
-export function ChannelMembersTable({ channel }: ChannelMembersTableProps) {
-  const members = channel.memberList ?? [];
-
+export function ChannelMembersTable({ members }: ChannelMembersTableProps) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-light shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-light shadow-sm overflow-hidden h-full">
       <div className="px-6 py-4 border-b border-gray-light">
         <h5 className="h5 font-semibold">
           Miembros ({members.length})
@@ -60,7 +54,7 @@ export function ChannelMembersTable({ channel }: ChannelMembersTableProps) {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">{member.username}</p>
-                <p className="small-muted">ID: {member.id}</p>
+                <p className="small-muted">ID: {member.id.split("-")[0]}</p>
               </div>
 
               {/* Role Badge */}

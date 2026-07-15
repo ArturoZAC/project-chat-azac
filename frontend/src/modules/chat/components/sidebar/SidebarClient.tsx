@@ -424,9 +424,9 @@ function ChannelShortcut({ channelId }: { channelId: string }) {
 
   if (!channel) return null;
 
-  // Extract channel ID from current URL: "/channels/ch1" → "ch1"
+  // Only highlight when on the real chat channel page, not the admin one
   const activeChannelId = pathname.split("/").pop();
-  const isActive = activeChannelId === channel.id;
+  const isActive = pathname.startsWith("/channels/") && activeChannelId === channel.id;
 
   return (
     <button

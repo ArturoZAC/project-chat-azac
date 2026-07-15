@@ -42,4 +42,8 @@ export abstract class MessageRepository {
     from: Date,
     to: Date,
   ): Promise<Array<{ date: string; count: number }>>;
+
+  abstract countByChannelGroupedByUser(
+    channelId: string,
+  ): Promise<Array<{ userId: string; username: string; count: number }>>;
 }

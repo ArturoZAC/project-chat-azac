@@ -1,41 +1,61 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useMemo } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
-import { IconArrowLeft } from "@tabler/icons-react";
-import { mockMessages } from "@/modules/chat/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { IconArrowLeft, IconMoodSad } from "@tabler/icons-react";
 import { ChannelProfileCard } from "@/modules/admin/components/channel-detail/ChannelProfileCard";
-import { ChannelStatsCards } from "@/modules/admin/components/channel-detail/ChannelStatsCards";
-import { ChannelPieChart } from "@/modules/admin/components/channel-detail/ChannelPieChart";
 import { ChannelMembersTable } from "@/modules/admin/components/channel-detail/ChannelMembersTable";
-import {
-  getAdminChannelById,
-  getChannelMessageDistribution,
-} from "@/modules/admin/lib/mock-admin-data";
+import { ChannelPieChart } from "@/modules/admin/components/channel-detail/ChannelPieChart";
+import { getChannelAction } from "@/shared/actions/get-channel.action";
+import { getChannelMembersAction } from "@/shared/actions/get-channel-members.action";
+import { getChannelDistributionAction } from "@/shared/actions/get-channel-distribution.action";
+import type { UserMessageCount } from "@/shared/actions/get-channel-distribution.action";
+import { PIE_COLORS } from "@/shared/helpers/format";
 
-interface Props {
-  params: Promise<{ channelId: string }>;
-}
+export default function AdminChannelDetailPage() {
+  const params = useParams<{ channelId: string }>();
+  const channelId = params.channelId;
 
-function getMessagesThisWeek(channelId: string): number {
-  const msgs = mockMessages[channelId];
-  if (!msgs) return 0;
+  const channelQuery = useQuery({
+    queryKey: ["admin", "channel", channelId],
+    queryFn: () => getChannelAction(channelId),
+    enabled: !!channelId,
+  });
 
-  // Mock "this week": count messages from June 19 onwards
-  const threshold = new Date("2026-06-19T00:00:00Z").getTime();
-  return msgs.filter((m) => new Date(m.createdAt).getTime() >= threshold).length;
-}
+  const membersQuery = useQuery({
+    queryKey: ["admin", "channel", channelId, "members"],
+    queryFn: () => getChannelMembersAction(channelId),
+    enabled: !!channelId,
+  });
 
-export default async function AdminChannelDetailPage({ params }: Props) {
-  const { channelId } = await params;
-  const channel = getAdminChannelById(channelId);
+  const distributionQuery = useQuery({
+    queryKey: ["admin", "channel", channelId, "distribution"],
+    queryFn: () => getChannelDistributionAction(channelId),
+    enabled: !!channelId,
+    gcTime: 0,
+  });
 
-  if (!channel) {
-    notFound();
-  }
+  const channel = channelQuery.data?.success ? channelQuery.data.data : null;
 
-  const distribution = getChannelMessageDistribution(channelId);
-  const totalMessages = distribution.reduce((sum, d) => sum + d.messages, 0);
-  const activeMembers = distribution.length;
-  const messagesThisWeek = getMessagesThisWeek(channelId);
+  const members = useMemo(() => {
+    if (!membersQuery.data?.success) return [];
+    return membersQuery.data.data;
+  }, [membersQuery.data]);
+
+  const distribution = useMemo(() => {
+    if (!distributionQuery.data?.success) return [];
+    return distributionQuery.data.data.map(
+      (entry: UserMessageCount, index: number) => ({
+        ...entry,
+        color: PIE_COLORS[index % PIE_COLORS.length],
+      }),
+    );
+  }, [distributionQuery.data]);
+
+  const isLoading = channelQuery.isLoading || membersQuery.isLoading || distributionQuery.isLoading;
+  const isError = channelQuery.data && !channelQuery.data.success;
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
@@ -48,28 +68,45 @@ export default async function AdminChannelDetailPage({ params }: Props) {
         Volver a canales
       </Link>
 
-      {/* Stats Cards */}
-      <div className="mb-6">
-        <ChannelStatsCards
-          totalMessages={totalMessages}
-          membersCount={channel.membersCount}
-          activeMembers={activeMembers}
-          messagesThisWeek={messagesThisWeek}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column */}
-        <div className="lg:col-span-2 space-y-6">
-          <ChannelProfileCard channel={channel} />
-          <ChannelPieChart data={distribution} />
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </div>
+      )}
 
-        {/* Right column */}
-        <div className="space-y-6">
-          <ChannelMembersTable channel={channel} />
+      {/* Error */}
+      {isError && (
+        <div className="flex flex-col items-center gap-3 py-20 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-silver-light flex items-center justify-center">
+            <IconMoodSad size={24} className="text-silver-dark" />
+          </div>
+          <p className="h5">Canal no encontrado</p>
+          <p className="p-muted">El recurso que buscas no existe o ha sido eliminado.</p>
         </div>
-      </div>
+      )}
+
+      {/* Content */}
+      {!isLoading && !isError && channel && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left column */}
+            <div className="lg:col-span-2 space-y-6">
+              <ChannelProfileCard channel={channel} />
+            </div>
+
+            {/* Right column */}
+            <div className="space-y-6">
+              <ChannelMembersTable members={members} />
+            </div>
+          </div>
+
+          {/* Chart - full width */}
+          <div className="mt-6">
+            <ChannelPieChart data={distribution} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

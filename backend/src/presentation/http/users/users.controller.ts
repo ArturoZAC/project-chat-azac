@@ -68,7 +68,7 @@ export class UsersController {
   ) {
     const now = new Date();
     const fromDate = from ? new Date(from) : new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const toDate = to ? new Date(to) : now;
+    const toDate = to ? new Date(`${to}T23:59:59.999Z`) : now;
     const data = await this.getUserActivityUseCase.execute(id, fromDate, toDate);
     return ResponseInterceptor.success(data, 'Actividad obtenida exitosamente');
   }

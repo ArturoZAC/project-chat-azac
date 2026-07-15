@@ -203,6 +203,7 @@ function ActivityContent({ userId }: { userId: string }) {
               ))}
             </Pie>
             <Tooltip
+              offset={{ x: 12, y: 0 }}
               contentStyle={{
                 borderRadius: "10px",
                 border: "1px solid #e5e7eb",

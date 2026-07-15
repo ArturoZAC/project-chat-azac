@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { ChannelRepository } from '../../../domain/repositories/channel.repository';
 import { ChannelMemberRepository } from '../../../domain/repositories/channel-member.repository';
 import { UserRepository } from '../../../domain/repositories/user.repository';
+import { Role } from '../../../domain/entities/user.entity';
 
 export interface ChannelMemberResponse {
   id: string;
@@ -23,17 +24,21 @@ export class GetChannelMembersUseCase {
   async execute(
     channelId: string,
     requesterId: string,
+    requesterRole?: Role,
   ): Promise<ChannelMemberResponse[]> {
     const channel = await this.channelRepository.findById(channelId);
     if (!channel) throw new NotFoundException('Canal no encontrado');
 
-    const membership =
-      await this.channelMemberRepository.findByChannelAndUser(
-        channelId,
-        requesterId,
-      );
-    if (!membership)
-      throw new ForbiddenException('No eres miembro de este canal');
+    // Admin can view members of any channel without being a member
+    if (requesterRole !== Role.ADMIN) {
+      const membership =
+        await this.channelMemberRepository.findByChannelAndUser(
+          channelId,
+          requesterId,
+        );
+      if (!membership)
+        throw new ForbiddenException('No eres miembro de este canal');
+    }
 
     const members =
       await this.channelMemberRepository.findByChannel(channelId);

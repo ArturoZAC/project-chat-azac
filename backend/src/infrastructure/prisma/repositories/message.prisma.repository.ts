@@ -90,7 +90,7 @@ export class MessagePrismaRepository implements MessageRepository {
   ): Promise<Array<{ date: string; count: number }>> {
     const rows: Array<{ date: string; count: bigint }> = await this.prisma
       .$queryRaw`
-      SELECT DATE(created_at) AS date, COUNT(*)::int AS count
+      SELECT DATE(created_at)::text AS date, COUNT(*)::int AS count
       FROM messages
       WHERE sender_id = ${userId}
         AND created_at >= ${from}
@@ -102,5 +102,32 @@ export class MessagePrismaRepository implements MessageRepository {
       date: row.date,
       count: Number(row.count),
     }));
+  }
+
+  async countByChannelGroupedByUser(
+    channelId: string,
+  ): Promise<Array<{ userId: string; username: string; count: number }>> {
+    const grouped = await this.prisma.message.groupBy({
+      by: ['senderId'],
+      where: { channelId },
+      _count: { id: true },
+    });
+
+    if (grouped.length === 0) return [];
+
+    const userIds = grouped.map((g) => g.senderId);
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, username: true },
+    });
+    const userMap = new Map(users.map((u) => [u.id, u.username]));
+
+    return grouped
+      .map((g) => ({
+        userId: g.senderId,
+        username: userMap.get(g.senderId) ?? 'Desconocido',
+        count: g._count.id,
+      }))
+      .sort((a, b) => b.count - a.count);
   }
 }

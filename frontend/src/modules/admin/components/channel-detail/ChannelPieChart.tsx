@@ -9,10 +9,15 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { IconMoodSad } from "@tabler/icons-react";
-import type { ChannelMessageDistribution } from "@/modules/admin/lib/mock-admin-data";
+import type { UserMessageCount } from "@/shared/actions/get-channel-distribution.action";
+import { PIE_COLORS } from "@/shared/helpers/format";
+
+interface ChartEntry extends UserMessageCount {
+  color: string;
+}
 
 interface ChannelPieChartProps {
-  data: ChannelMessageDistribution[];
+  data: ChartEntry[];
 }
 
 function CustomTooltip({
@@ -23,7 +28,7 @@ function CustomTooltip({
   payload?: Array<{
     name: string;
     value: number;
-    payload: ChannelMessageDistribution & { totalMessages: number };
+    payload: ChartEntry & { totalMessages: number };
   }>;
 }) {
   if (!active || !payload || payload.length === 0) return null;
@@ -71,11 +76,12 @@ function CustomLegend({
 }
 
 export function ChannelPieChart({ data }: ChannelPieChartProps) {
-  const totalMessages = data.reduce((sum, d) => sum + d.messages, 0);
-  const hasData = data.length > 1 || (data.length === 1 && data[0].messages > 0);
+  const totalMessages = data.reduce((sum, d) => sum + d.count, 0);
+  const hasData = data.length > 1 || (data.length === 1 && data[0].count > 0);
 
   const chartData = data.map((entry) => ({
     ...entry,
+    messages: entry.count,
     totalMessages,
   }));
 
@@ -94,7 +100,7 @@ export function ChannelPieChart({ data }: ChannelPieChartProps) {
             <Pie
               data={chartData}
               dataKey="messages"
-              nameKey="authorName"
+              nameKey="username"
               cx="50%"
               cy="50%"
               innerRadius={60}
@@ -103,7 +109,7 @@ export function ChannelPieChart({ data }: ChannelPieChartProps) {
               strokeWidth={0}
             >
               {chartData.map((entry) => (
-                <Cell key={entry.authorId} fill={entry.color} />
+                <Cell key={entry.userId} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />

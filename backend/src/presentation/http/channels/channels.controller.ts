@@ -31,6 +31,7 @@ import { ChannelMemberRepository } from '../../../domain/repositories/channel-me
 import type { Request } from 'express';
 import { GetChannelsDto } from './dtos/get-channels.dto';
 import { Public } from '../decorators/public.decorator';
+import { GetChannelMessageDistributionUseCase } from '../../../application/use-cases/channels/get-channel-message-distribution.usecase';
 
 @Auth()
 @Controller('channels')
@@ -46,6 +47,7 @@ export class ChannelsController {
     private readonly getUserMembershipsUseCase: GetUserMembershipsUseCase,
     private readonly getChannelMembersUseCase: GetChannelMembersUseCase,
     private readonly markChannelReadUseCase: MarkChannelReadUseCase,
+    private readonly getChannelMessageDistributionUseCase: GetChannelMessageDistributionUseCase,
     private readonly channelMemberRepo: ChannelMemberRepository,
   ) {}
 
@@ -117,8 +119,24 @@ export class ChannelsController {
     @Req() req: Request,
   ) {
     const user = req.user as UserEntity;
-    const members = await this.getChannelMembersUseCase.execute(id, user.id);
+    const members = await this.getChannelMembersUseCase.execute(
+      id,
+      user.id,
+      user.role,
+    );
     return ResponseInterceptor.success(members, 'Miembros obtenidos');
+  }
+
+  @Get(':id/message-distribution')
+  async getChannelMessageDistribution(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    const distribution =
+      await this.getChannelMessageDistributionUseCase.execute(id);
+    return ResponseInterceptor.success(
+      distribution,
+      'Distribución obtenida',
+    );
   }
 
   @Public()
