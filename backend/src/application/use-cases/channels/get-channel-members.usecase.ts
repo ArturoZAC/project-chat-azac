@@ -54,7 +54,8 @@ export class GetChannelMembersUseCase {
       id: member.id,
       userId: member.userId,
       username: userMap.get(member.userId)?.username ?? 'Usuario',
-      role: member.role,
+      // El frontend espera OWNER/MEMBER (ADMIN en channel_members = dueño del canal)
+      role: member.role === 'ADMIN' ? 'OWNER' : 'MEMBER',
       isOnline: userMap.get(member.userId)?.isOnline ?? false,
       joinedAt: member.joinedAt,
     }));

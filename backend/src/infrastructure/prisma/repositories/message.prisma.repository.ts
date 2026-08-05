@@ -88,14 +88,18 @@ export class MessagePrismaRepository implements MessageRepository {
     from: Date,
     to: Date,
   ): Promise<Array<{ date: string; count: number }>> {
+    // AT TIME ZONE 'UTC' fija el agrupamiento en UTC: DATE(created_at) usa la
+    // zona horaria de la sesión de PostgreSQL (la de la PC o la del VPS), lo que
+    // desplazaba los días si el servidor no corría en la misma zona que el
+    // frontend. Con UTC el agrupamiento es determinístico en cualquier entorno.
     const rows: Array<{ date: string; count: bigint }> = await this.prisma
       .$queryRaw`
-      SELECT DATE(created_at)::text AS date, COUNT(*)::int AS count
+      SELECT DATE(created_at AT TIME ZONE 'UTC')::text AS date, COUNT(*)::int AS count
       FROM messages
       WHERE sender_id = ${userId}
         AND created_at >= ${from}
         AND created_at <= ${to}
-      GROUP BY DATE(created_at)
+      GROUP BY DATE(created_at AT TIME ZONE 'UTC')
       ORDER BY date ASC
     `;
     return rows.map((row) => ({
