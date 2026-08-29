@@ -24,7 +24,25 @@ function formatTime(dateStr: string): string {
 export function MessageBubble({ message, isOwn, onEdit, onDelete }: MessageBubbleProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [openUp, setOpenUp] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonContainerRef = useRef<HTMLDivElement>(null);
+
+  // Altura estimada del menú (editar/eliminar + confirmación) para decidir la dirección
+  const MENU_HEIGHT_ESTIMATE = 160;
+
+  // Al abrir, medimos el espacio hacia abajo: si no alcanza, abrimos hacia arriba.
+  // Se mide ANTES de abrir para evitar parpadeo (sin doble render).
+  const handleToggleMenu = () => {
+    if (!isMenuOpen) {
+      const el = buttonContainerRef.current;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        setOpenUp(window.innerHeight - rect.bottom < MENU_HEIGHT_ESTIMATE);
+      }
+    }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   // Close menu on click outside
   useEffect(() => {
@@ -100,20 +118,26 @@ export function MessageBubble({ message, isOwn, onEdit, onDelete }: MessageBubbl
 
           {/* Action dots — only for own messages */}
           {isOwn && (onEdit || onDelete) && (
-            <div className="absolute -top-1 -right-1 opacity-0 group-hover/bubble:opacity-100 transition-opacity">
+            <div
+              ref={buttonContainerRef}
+              className="absolute -top-1 -right-1 opacity-0 group-hover/bubble:opacity-100 transition-opacity"
+            >
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                onClick={handleToggleMenu}
                 className="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-gray-light shadow-sm hover:bg-silver-light transition-colors"
                 aria-label="Acciones del mensaje"
+                aria-expanded={isMenuOpen}
               >
                 <IconDotsVertical size={14} className="text-gray-dark" />
               </button>
 
-              {/* Dropdown menu */}
+              {/* Dropdown menu — se abre hacia abajo o hacia arriba según el espacio disponible */}
               {isMenuOpen && (
                 <div
                   ref={menuRef}
-                  className="absolute right-0 top-7 z-50 w-44 bg-white rounded-lg border border-gray-light shadow-lg py-1"
+                  className={`absolute right-0 z-50 w-44 bg-white rounded-lg border border-gray-light shadow-lg py-1 ${
+                    openUp ? "bottom-7" : "top-7"
+                  }`}
                 >
                   {showDeleteConfirm ? (
                     <>
