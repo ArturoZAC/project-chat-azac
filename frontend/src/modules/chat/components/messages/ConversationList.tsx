@@ -40,9 +40,12 @@ export function ConversationList() {
   const router = useRouter();
   const isSessionReady = useAuthStore((s) => s.isSessionReady);
   const currentUser = useAuthStore((s) => s.user);
-  const { getAllChannels, getUnreadCounts, getMemberships } = useChannelQueries(undefined, {
-    enabled: isSessionReady,
-  });
+  const { getAllChannels, getUnreadCounts, getMemberships } = useChannelQueries(
+    undefined,
+    {
+      enabled: isSessionReady,
+    },
+  );
   const { getConversations } = useConversationQueries(undefined, {
     enabled: isSessionReady,
   });
@@ -117,7 +120,10 @@ export function ConversationList() {
       <div className="overflow-y-auto flex-1 px-6 py-4">
         <div className="flex flex-col gap-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-start gap-3 w-full px-4 py-3.5 rounded-xl border border-gray-light animate-pulse">
+            <div
+              key={i}
+              className="flex items-start gap-3 w-full px-4 py-3.5 rounded-xl border border-gray-light animate-pulse"
+            >
               <div className="w-10 h-10 rounded-full bg-gray-light shrink-0" />
               <div className="flex-1 min-w-0 self-center space-y-2">
                 <div className="h-4 w-28 bg-gray-light rounded" />

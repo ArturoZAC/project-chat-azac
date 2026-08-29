@@ -298,10 +298,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('request.online.list')
   handleRequestOnlineList(@ConnectedSocket() client: Socket) {
-    client.emit(
-      'user.online.list',
-      Array.from(this.onlineUsers.values()),
-    );
+    client.emit('user.online.list', Array.from(this.onlineUsers.values()));
   }
 
   @SubscribeMessage('conversation.join')
@@ -371,20 +368,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const otherParticipantId = participants.find((id) => id !== user.id);
 
     if (otherParticipantId) {
-      this.server
-        .to(`user:${otherParticipantId}`)
-        .emit('notification.new', {
-          id: message.id,
-          type: 'dm',
-          title: user.username,
-          message: 'te envió un mensaje',
-          channelName: null,
-          channelId: null,
-          conversationId: data.conversationId,
-          senderId: user.id,
-          senderUsername: user.username,
-          createdAt: message.createdAt,
-        });
+      this.server.to(`user:${otherParticipantId}`).emit('notification.new', {
+        id: message.id,
+        type: 'dm',
+        title: user.username,
+        message: 'te envió un mensaje',
+        channelName: null,
+        channelId: null,
+        conversationId: data.conversationId,
+        senderId: user.id,
+        senderUsername: user.username,
+        createdAt: message.createdAt,
+      });
     }
   }
 

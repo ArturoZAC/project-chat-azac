@@ -2,10 +2,8 @@
 
 import { IconMessage } from "@tabler/icons-react";
 import { ConversationList } from "./ConversationList";
-import { useRealtimeConversationList } from "@/modules/chat/hooks/conversations/useRealtimeConversationList";
 
 export function MessagesPageClient() {
-  useRealtimeConversationList();
   return (
     <div className="flex flex-col h-full bg-gray-ultra">
       <div className="p-6 pb-0">

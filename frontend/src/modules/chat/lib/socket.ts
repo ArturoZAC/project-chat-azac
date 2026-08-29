@@ -7,7 +7,7 @@ let socket: Socket | null = null;
 /** Callbacks to run once the socket connects (used to avoid race conditions with React effects) */
 type SocketReadyCallback = (socket: Socket) => void;
 let onConnectCallbacks: SocketReadyCallback[] = [];
-let hasConnectedOnce = false;
+const hasConnectedOnce = false;
 
 /**
  * Register a callback that runs as soon as the socket connects.

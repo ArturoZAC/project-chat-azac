@@ -6,7 +6,12 @@ import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { useChatStore } from "@/modules/chat/store/chat.store";
 import { getSocket, onSocketReady } from "@/modules/chat/lib/socket";
 
-export function useRealtimeConversationList() {
+/**
+ * Mantiene en sincronía las listas del chat (conversaciones DM + canales)
+ * en tiempo real vía eventos de socket, sin importar la ruta actual.
+ * Se monta de forma global en el layout (chat) — NO atado a una página.
+ */
+export function useRealtimeSync() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
